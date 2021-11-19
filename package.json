@@ -12,6 +12,7 @@
     "@vue/server-renderer": "^3.2.20",
     "cross-env": "^7.0.3",
     "express": "^4.17.1",
+    "source-map-js": "^0.6.2",
     "vite": "2.6.7",
     "vite-plugin-ssr": "^0.3.31",
     "vue": "^3.2.20"
