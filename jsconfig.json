@@ -30,6 +30,6 @@
     "typeAcquisition": {
         "include": ["jest"]
     },
-    // addeing vite/client here to import the ImportMetaEnv interface
+    // adding vite/client here to import the ImportMetaEnv interface
     // "include": ["src/**/*", "types/**/*", "tests/cypress/**/*", "node_modules/vite/client.d.ts"]
 }

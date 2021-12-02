@@ -1,5 +1,6 @@
 const express = require('express')
 const { createPageRenderer } = require('vite-plugin-ssr')
+const IS_SSR = typeof document === 'undefined';
 
 const isProduction = process.env.NODE_ENV === 'production'
 const root = `${__dirname}/..`
@@ -14,6 +15,7 @@ async function startServer() {
     app.use(express.static(`${root}/dist/client`))
   } else {
     const vite = require('vite')
+
     viteDevServer = await vite.createServer({
       root,
       server: { middlewareMode: true }
