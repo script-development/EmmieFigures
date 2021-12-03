@@ -6,6 +6,7 @@
       </a>
       <Link href="/">Home</Link>
       <Link href="/about">About</Link>
+      <Link href="/test">Test</Link>
     </div>
     <div class="content"><slot /></div>
   </div>
@@ -31,8 +32,9 @@ a {
 <style scoped>
 .layout {
   display: flex;
-  max-width: 900px;
+  max-height: 80px;
   margin: auto;
+  border-bottom: 1px solid black;
 }
 .content {
   padding: 20px;
