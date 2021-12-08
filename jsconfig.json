@@ -18,12 +18,12 @@
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "paths": {
-            "assets/*": ["./src/assets/*"],
-            "components/*": ["./src/components/*"],
+            // "assets/*": ["./src/assets/*"],
+            "components/*": ["./components/*"],
             // "handlers/*": ["./src/handlers/*"],
             // "helpers/*": ["./src/helpers/*"],
             // "services/*": ["./src/services/*"],
-            // "pages/*": ["./src/pages/*"],
+            "pages/*": ["./pages/*"],
             // "types/*": ["./types/*"]
         }
     },
