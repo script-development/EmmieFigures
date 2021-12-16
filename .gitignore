@@ -4,3 +4,5 @@ dist
 *.local
 .env
 package-lock.json
+.eslintcache
+.eslint.out

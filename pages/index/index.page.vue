@@ -1,5 +1,5 @@
 <template>
-    <p5-example />
+    <P5Example />
 </template>
 
 <script setup>
