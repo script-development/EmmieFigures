@@ -1,3 +1,7 @@
 <template>
-    <h1>About Page</h1>
+    <h1>{{ description }}</h1>
 </template>
+
+<script setup>
+let description = 'About Page';
+</script>
