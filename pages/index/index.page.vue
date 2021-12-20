@@ -1,4 +1,7 @@
 <template>
-    <h1>Home</h1>
-    <a href="/about">Go To About Page</a>
+    <P5ScatterPlot />
 </template>
+
+<script setup>
+import P5ScatterPlot from 'p5js/components/P5ScatterPlot.vue';
+</script>

@@ -1,9 +1,12 @@
-const express = require('express')
-const { createPageRenderer } = require('vite-plugin-ssr')
-const IS_SSR = typeof document === 'undefined';
+// /* eslint-env node */
+import express from 'express';
+import vite from 'vite';
+import path from 'path';
+import {createPageRenderer} from 'vite-plugin-ssr';
+// const IS_SSR = typeof document === 'undefined';
 
 const isProduction = process.env.NODE_ENV === 'production'
-const root = `${__dirname}/..`
+const root = path.resolve(path.dirname(''));
 
 startServer()
 
@@ -14,8 +17,6 @@ async function startServer() {
   if (isProduction) {
     app.use(express.static(`${root}/dist/client`))
   } else {
-    const vite = require('vite')
-
     viteDevServer = await vite.createServer({
       root,
       server: { middlewareMode: true }
