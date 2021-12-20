@@ -33,7 +33,7 @@ async function render(pageContext) {
     return {
         documentHtml,
         pageContext: {
-            // We can add some `pageContext` here, which is useful if we want to do page redirection https://vite-plugin-ssr.com/page-redirection
+            // `pageContext` here, which is useful if page redirection https://vite-plugin-ssr.com/page-redirection
         },
     };
 }

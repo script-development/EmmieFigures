@@ -7,8 +7,8 @@
         "build": "vite build && vite build --ssr",
         "server": "node ./src",
         "server:prod": "cross-env NODE_ENV=production node ./src",
-        "lint": "eslint \"{src,tests}/**/*.{js,vue}\" --cache --format=json -o eslint.out",
-        "lint:check": "eslint \"{src,tests}/**/*.{js,vue}\" --fix --cache ",
+        "lint": "eslint \"{src,tests}/**/*.{js,vue}\" --fix --cache ",
+        "lint:check": "eslint \"{src,tests}/**/*.{js,vue}\" --cache --format=json -o eslint.out",
         "prettier": "prettier --write \"src/**/*.{js,vue}\"",
         "prettier:check": "prettier --check \"src/**/*.{js,vue}\"",
         "test": "jest"
