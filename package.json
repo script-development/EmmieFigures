@@ -5,8 +5,12 @@
     "dev": "npm run server",
     "prod": "npm run build && npm run server:prod",
     "build": "vite build && vite build --ssr",
-    "server": "node ./src",
-    "server:prod": "cross-env NODE_ENV=production node ./src"
+    "server": "node ./server",
+    "server:prod": "cross-env NODE_ENV=production node ./server",
+    "lint": "eslint \"{pages,components}/**/*.{js,vue, p5js}\" --cache --format=json -o eslint.out",
+    "lint:check": "eslint \"{pages, components, p5js}/**/*.{js,vue}\" --fix --cache ",
+    "prettier:check": "prettier --check \"{pages, components, p5js}/**/*.{js,vue}\"",
+    "test": "jest"
   },
   "dependencies": {
     "@types/p5": "^1.3.2",
@@ -23,7 +27,10 @@
     "vue": "^3.2.20"
   },
   "devDependencies": {
+    "@types/p5": "^1.3.2",
     "eslint": "^8.4.0",
+    "eslint-plugin-vue": "^8.2.0",
+    "jest": "^27.4.5",
     "prettier": "2.5.1"
   }
 }
