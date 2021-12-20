@@ -1,19 +1,23 @@
 <template>
-    <div id="example" />
+    <div id="p5example" />
 </template>
 
 <script setup>
-import {onMounted} from '@vue/runtime-core';
+/** @typedef {import('vue').Ref<HTMLElement|null>} p5Element */
+import {onMounted, ref} from '@vue/runtime-core';
+
+/** @type {p5Element} */
+const p5example = ref(null);
 
 const canvasWidth = 400;
 const canvasHeight = 400;
 
 onMounted(async () => {
     // import P5 instance creator and other sketch functions
-    const {init} = await import('p5js');
+    const {init} = await import('p5js/index');
 
     // create local p5 instance
-    const p5 = init('example');
+    const p5 = init(p5example.value);
 
     // p5.setup
     const canvas = p5.createCanvas(canvasWidth, canvasHeight);
@@ -32,6 +36,7 @@ onMounted(async () => {
     // p5.keyPressed = () => {};
 });
 
+/** @param {import('p5')} p5  */
 const drawRect = p5 => {
     p5.background(255);
     p5.stroke(0);

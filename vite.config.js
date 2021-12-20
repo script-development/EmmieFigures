@@ -9,8 +9,8 @@ export default {
     resolve: {
         alias: {
             components: path.join(srcPath, 'components'),
-            // pages: path.join(srcPath, 'pages'),
+            pages: path.join(srcPath, 'pages'),
             p5js: path.join(srcPath, 'p5js'),
-        }
-    }
-}
+        },
+    },
+};

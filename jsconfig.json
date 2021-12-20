@@ -27,5 +27,5 @@
         "include": ["jest"]
     },
     // adding vite/client here to import the ImportMetaEnv interface
-    "include": ["types/**/*"]
+    // "include": ["types/**/*"]
 }
