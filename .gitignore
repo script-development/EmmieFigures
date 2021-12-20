@@ -2,7 +2,7 @@ node_modules
 .DS_Store
 dist
 *.local
+*.out
 .env
 package-lock.json
 .eslintcache
-.eslint.out
