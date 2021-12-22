@@ -18,18 +18,15 @@
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "paths": {
-            "assets/*": ["./src/assets/*"],
-            "components/*": ["./src/components/*"],
-            // "handlers/*": ["./src/handlers/*"],
-            // "helpers/*": ["./src/helpers/*"],
-            // "services/*": ["./src/services/*"],
-            // "pages/*": ["./src/pages/*"],
-            // "types/*": ["./types/*"]
+            "components/*": ["./components/*"],
+            "pages/*": ["./pages/*"],
+            "types/*": ["./types/*"],
+            "p5js/*": ["p5js/*"]
         }
     },
     "typeAcquisition": {
         "include": ["jest"]
     },
     // adding vite/client here to import the ImportMetaEnv interface
-    // "include": ["src/**/*", "types/**/*", "tests/cypress/**/*", "node_modules/vite/client.d.ts"]
+    "include": ["types/**/*"]
 }

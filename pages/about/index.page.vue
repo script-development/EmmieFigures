@@ -1,8 +1,7 @@
 <template>
-    <h1>About</h1>
-    <Canvas />
+    <h1>{{ description }}</h1>
 </template>
 
 <script setup>
-import Canvas from '../../components/Canvas.vue';
+let description = 'About Page';
 </script>

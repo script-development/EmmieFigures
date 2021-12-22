@@ -1,0 +1,21 @@
+{
+    // Basic editor settings
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    // ESLint settings
+    "eslint.run": "onType",
+    "eslint.workingDirectories": ["./resources/js"],
+    "eslint.nodePath": "./node_modules",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "volar.codeLens.pugTools": false,
+    "volar.codeLens.scriptSetupTools": false,
+    "volar.takeOverBuiltinTsExtension": true,
+    "[vue]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}
