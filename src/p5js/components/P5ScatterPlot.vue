@@ -3,11 +3,11 @@
 </template>
 
 <script setup>
-/** @typedef {import('vue').Ref<HTMLElement|null>} p5Element */
+/** @typedef {import('vue').Ref<HTMLElement|undefined>} p5Element */
 import {onMounted, ref} from '@vue/runtime-core';
 
 /** @type {p5Element} */
-const p5graph = ref(null);
+const p5graph = ref();
 
 onMounted(async () => {
     const {init} = await import('p5js/index');
