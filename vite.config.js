@@ -11,6 +11,8 @@ export default {
             components: path.join(srcPath, 'components'),
             pages: path.join(srcPath, 'pages'),
             p5js: path.join(srcPath, 'p5js'),
+            assets: path.join(srcPath, 'assets'),
+            services: path.join(srcPath, 'services'),
         },
     },
 };

@@ -1,17 +1,16 @@
+/* eslint-env node */
+import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
-import {createPageRenderer} from 'vite-plugin-ssr';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const root = path.resolve(path.dirname(''));
 
-startServer();
-
-async function startServer() {
+(async function startServer() {
     const app = express();
-
     let viteDevServer;
+
     if (isProduction) {
         app.use(express.static(`${root}/dist/client`));
     } else {
@@ -23,6 +22,7 @@ async function startServer() {
     }
 
     const renderPage = createPageRenderer({viteDevServer, isProduction, root});
+
     app.get('*', async (req, res, next) => {
         const url = req.originalUrl;
         const pageContextInit = {
@@ -35,8 +35,6 @@ async function startServer() {
         res.status(statusCode).type(contentType).send(body);
     });
 
-    const port = process.env.PORT || 3001;
-    app.listen(port);
-    // eslint-disable-next-line no-console
-    console.log(`Server running at http://localhost:${port}`);
-}
+    const port = process.env.LOCAL_PORT || 3000;
+    app.listen(port, () => console.log(`Server running at http://localhost:${port}`)); // eslint-disable-line no-console
+})();

@@ -20,7 +20,9 @@
         "paths": {
             "components/*": ["./src/components/*"],
             "pages/*": ["./src/pages/*"],
-            "p5js/*": ["./src/p5js/*"]
+            "p5js/*": ["./src/p5js/*"],
+            "assets/*": ["./src/assets/*"],
+            "services/*": ["./src/services/*"]
         }
     },
     "typeAcquisition": {

@@ -3,11 +3,8 @@
 </template>
 
 <script setup>
-/** @typedef {import('vue').Ref<HTMLElement|null>} p5Element */
-import {onMounted, ref} from '@vue/runtime-core';
-
-/** @type {p5Element} */
-const p5example = ref(null);
+/** @typedef {import('vue').Ref<HTMLElement|undefined>} p5Element */
+import {onMounted} from '@vue/runtime-core';
 
 const canvasWidth = 400;
 const canvasHeight = 400;
@@ -17,7 +14,7 @@ onMounted(async () => {
     const {init} = await import('p5js/index');
 
     // create local p5 instance
-    const p5 = init(p5example.value);
+    const p5 = init('p5example');
 
     // p5.setup
     const canvas = p5.createCanvas(canvasWidth, canvasHeight);

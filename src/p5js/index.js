@@ -1,4 +1,7 @@
 import P5 from 'p5';
 
-/** @param {HTMLElement|null} id */
-export const init = id => new P5(() => {}, id ? id : undefined);
+/** @param {String} id */
+export const init = id => {
+    const el = document.getElementById(id);
+    return new P5(() => {}, el ? el : undefined);
+};
