@@ -3,7 +3,6 @@
 </template>
 
 <script setup>
-/** @typedef {import('vue').Ref<HTMLElement|undefined>} p5Element */
 import {onMounted} from '@vue/runtime-core';
 
 const canvasWidth = 400;
