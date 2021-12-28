@@ -3,17 +3,26 @@
 </template>
 
 <script setup>
-import {onMounted} from '@vue/runtime-core';
+import {onMounted, onBeforeUnmount} from '@vue/runtime-core';
 
 const canvasWidth = 400;
 const canvasHeight = 400;
+
+console.log('p5example ran');
+
+/** @type {import('p5')} */
+let p5;
+onBeforeUnmount(() => {
+    console.log('unbeforeumnount purple rain');
+    p5.remove();
+});
 
 onMounted(async () => {
     // import P5 instance creator and other sketch functions
     const {init} = await import('p5js/index');
 
     // create local p5 instance
-    const p5 = init('p5example');
+    p5 = init('p5example');
 
     // p5.setup
     const canvas = p5.createCanvas(canvasWidth, canvasHeight);

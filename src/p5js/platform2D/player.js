@@ -1,4 +1,4 @@
-import Motion from './motion';
+import Motion from '../motion';
 
 /**
  * @param {import('p5')} p
@@ -6,7 +6,7 @@ import Motion from './motion';
  * @param {number} y
  */
 export const Player = (p, x, y) => {
-    const {pos, applyForce, update} = Motion(p, {x, y});
+    const {pos, addAcc, upd} = Motion(p, {x, y});
     const w = 30;
     const h = 60;
     const show = () => {
@@ -14,5 +14,5 @@ export const Player = (p, x, y) => {
         p.fill(255, 0, 0);
         p.rect(pos.x, pos.y, w, h);
     };
-    return {update, applyForce, show};
+    return {update: upd, applyForce: addAcc, show};
 };

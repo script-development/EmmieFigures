@@ -3,13 +3,21 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from '@vue/runtime-core';
+import {onMounted, onBeforeUnmount, ref} from '@vue/runtime-core';
+
+console.log('p5purplerain ran');
 
 let height = ref('400px');
+/** @type {import('p5')} */
+let p5;
+onBeforeUnmount(() => {
+    console.log('unbeforeumnount purple rain');
+    p5.remove();
+});
 
 onMounted(async () => {
     const {init} = await import('p5js/index');
-    const p5 = init('p5example');
+    p5 = init('p5example');
     height.value = window.innerHeight + 'px';
     p5.createCanvas(window.innerWidth, window.innerHeight);
     const drops = [];

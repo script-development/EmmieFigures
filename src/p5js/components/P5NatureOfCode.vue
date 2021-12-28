@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div id="nature" />
 </template>
 
@@ -8,7 +8,7 @@ import {onMounted} from '@vue/runtime-core';
 
 onMounted(async () => {
     const {init} = await import('p5js/index');
-    const Vehicle = (await import('p5js/motion')).default;
+    const Vehicle = (await import('p5js/motiontemp')).default;
     const p5 = init('nature');
 
     const canvas = p5.createCanvas(1200, 600);
@@ -51,4 +51,4 @@ onMounted(async () => {
         //
     };
 });
-</script>
+</script> -->

@@ -9,40 +9,53 @@ onMounted(async () => {
     const {init} = await import('p5js/index');
     const p5 = init('p5index');
     p5.createCanvas(window.innerWidth, window.innerHeight);
-    const link1 = p5.createA('/nature', 'Nature of Code');
-    const link2 = p5.createA('/platform-2D', 'Platform 2D');
-    const link3 = p5.createA('/purplerain', 'Purple Rain');
-    let link1X = -200;
-    let link2X = -200;
-    let link3X = -200;
-    link1.position(link1X, 200).style('width', '150px');
-    link2.position(link2X, 250).style('width', '150px');
-    link3.position(link3X, 300).style('width', '150px');
+
+    const links = [
+        {
+            href: '/p5-projects',
+            name: 'P5 Projects',
+            x: -200,
+            y: 0,
+            /** @type {null|import('p5').Element} */
+            link: null,
+        },
+        {
+            href: '/scatterplot',
+            name: 'Scatter Plot',
+            x: -200,
+            y: 0,
+            /** @type {null|import('p5').Element} */
+            link: null,
+        },
+    ];
+    let startX = -200;
+    for (let i = 0; i < links.length; i++) {
+        links[i].x = startX;
+        links[i].y = 250 + i * 50;
+        links[i].link = p5
+            .createA(links[i].href, links[i].name)
+            .position(links[i].x, links[i].y)
+            .style('width', '150px');
+    }
     let speed = 30;
     let phase = 1;
+
     p5.draw = () => {
-        p5.background(255);
+        p5.background(245);
         if (phase == 1) {
-            link1X += speed;
-            if (link1X >= 300) {
-                link1X = 300;
+            links[0].x += speed;
+            if (links[0].x >= 300) {
+                links[0].x = 300;
                 phase = 2;
             }
-            link1.position(link1X, 200);
+            links[0].link?.position(links[0].x, links[0].y);
         } else if (phase == 2) {
-            link2X += speed;
-            if (link2X >= 300) {
-                link2X = 300;
-                phase = 3;
+            links[1].x += speed;
+            if (links[1].x >= 300) {
+                links[1].x = 300;
+                phase = 2;
             }
-            link2.position(link2X, 250);
-        } else if (phase == 3) {
-            link3X += speed;
-            if (link3X >= 300) {
-                link3X = 300;
-                phase = 4;
-            }
-            link3.position(link3X, 300);
+            links[1].link?.position(links[1].x, links[1].y);
         }
     };
 });

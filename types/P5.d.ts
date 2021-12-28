@@ -6,6 +6,28 @@ export class CustomP5 extends P5 {
 
 export interface Motion {
     pos: Vector,
-    applyForce: function,
-    update: function
+    vel: Vector,
+    acc: Vector,
+    maxVel: number,
+    maxForce: number,
+    addAcc: function,
+    upd: function,
+    seek: function
 }
+
+export interface QuadTree {
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    capacity: number,
+    northwest: function,
+    northeast: function,
+    southwest: function,
+    southeast: function
+    points: Array,
+    subdivide: function,
+    insert: function
+}
+
+//
