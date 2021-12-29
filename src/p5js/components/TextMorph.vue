@@ -37,16 +37,6 @@ onMounted(async () => {
         }
         points2 = p5.font.textToPoints('This is even longer! (though smaller)', 150, p5.height / 2, 100);
         lengthDifStart = points1.length - 1;
-        // for (let i = 0; i < lengthDif; i++) {
-        //     vehicles.push(
-        //         Vehicle(p5, {
-        //             x: p5.random(p5.width),
-        //             y: p5.random(p5.height),
-        //             targetX: points2[i].x,
-        //             targetY: points2[i].y,
-        //         }),
-        //     );
-        // }
     };
     p5.draw = () => {
         p5.background(51);

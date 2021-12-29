@@ -22,9 +22,6 @@ let cache;
  * @param {number} [ttl]
  * @returns
  */
-
-export const serverOrClient = () => typeof document === 'undefined';
-
 export const putInCache = (key, value, ttl = OneHourTTL) => {
     if (IS_SSR) {
         cache.set(key, value, ttl);

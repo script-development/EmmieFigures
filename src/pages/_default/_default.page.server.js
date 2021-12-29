@@ -13,7 +13,7 @@ async function render(pageContext) {
 
     // See https://vite-plugin-ssr.com/html-head
     const {documentProps} = pageContext;
-    const title = (documentProps && documentProps.title) || 'Vite SSR app';
+    const title = (documentProps && documentProps.title) || 'Rapp Presence';
     const desc = (documentProps && documentProps.description) || 'App using Vite + vite-plugin-ssr';
 
     const documentHtml = escapeInject`<!DOCTYPE html>
