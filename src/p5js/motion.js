@@ -14,8 +14,8 @@ export default function (p, {x = 0, y = 0, vx = 0, vy = 0}) {
     const pos = p.createVector(x, y);
     const vel = p.createVector(vx, vy);
     const acc = p.createVector(0, 0);
-    const maxVel = 35;
-    const maxForce = 1.5;
+    const maxVel = 30;
+    const maxForce = 0.5;
 
     /** @param {p5Vector} force */
     const addAcc = force => {

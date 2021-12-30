@@ -29,5 +29,5 @@
         "include": ["jest"]
     },
     // adding vite/client here to import the ImportMetaEnv interface
-    // "include": ["types/**/*"]
+    "include": ["src/**/*", "types/**/*", "node_modules/vite/client.d.ts"]
 }

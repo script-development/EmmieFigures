@@ -24,7 +24,7 @@ onMounted(async () => {
             (window.innerWidth - p5.width) / 2,
             (window.innerHeight - p5.height) / 2,
         );
-        points1 = p5.font.textToPoints('A', 960, p5.height / 2, 200);
+        points1 = p5.font.textToPoints('Stan', 960, p5.height / 2, 200);
         for (let i = 0; i < points1.length; i++) {
             vehicles.push(
                 Vehicle(p5, {
@@ -47,10 +47,10 @@ onMounted(async () => {
                     let index = parseInt(p5.random(points1.length));
                     vehicles.push(
                         Vehicle(p5, {
-                            x: points1[index].x,
-                            y: points1[index].y,
-                            // x: p5.random(p5.width),
-                            // y: p5.random(p5.height),
+                            // x: points1[index].x,
+                            // y: points1[index].y,
+                            x: p5.random(p5.width),
+                            y: p5.random(p5.height),
                             targetX: points2[i].x,
                             targetY: points2[i].y,
                         }),

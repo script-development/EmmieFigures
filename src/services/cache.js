@@ -27,7 +27,6 @@ export const putInCache = (key, value, ttl = OneHourTTL) => {
         cache.set(key, value, ttl);
         return;
     }
-
     if (typeof value !== 'string') value = JSON.stringify(value);
     localStorage.setItem(key, value);
     localStorage.setItem(`${key}-ttl`, JSON.stringify(new Date().getTime() + ttl * 1000));
@@ -39,7 +38,9 @@ export const putInCache = (key, value, ttl = OneHourTTL) => {
  * @returns
  */
 export const getFromCache = key => {
-    if (IS_SSR) return cache.get(key);
+    if (IS_SSR) {
+        return cache.get(key);
+    }
     return getFromLocalStorage(key);
 };
 
@@ -48,7 +49,22 @@ export const getFromCache = key => {
  * @param {string} key
  * @returns
  */
+export const removeFromCache = key => {
+    if (IS_SSR) {
+        const success = cache.del(key); // returns 1 is key is successfully deleted
+        if (success) return 'key successfully deleted from cache';
+        return 'key not found, notthing deleted from cache';
+    }
+    return removeFromLocalStorage(key);
+};
+
+/**
+ *
+ * @param {string} key
+ * @returns
+ */
 const getFromLocalStorage = key => {
+    // if undefined, remove item and ttl props from localstorage ?
     const ttl = localStorage.getItem(`${key}-ttl`);
     if (!ttl) return undefined;
 
@@ -66,4 +82,18 @@ const getFromLocalStorage = key => {
     } catch (_) {
         return value;
     }
+};
+
+/**
+ *
+ * @param {string} key
+ * @returns
+ */
+const removeFromLocalStorage = key => {
+    const ttl = localStorage.getItem(`${key}-ttl`);
+    if (!ttl) return 'item not found, nothing to remove from local storage';
+
+    localStorage.removeItem(key);
+    localStorage.removeItem(`${key}-ttl`);
+    return 'item has been removed from local storage';
 };
