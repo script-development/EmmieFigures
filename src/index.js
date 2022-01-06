@@ -3,10 +3,12 @@ import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
-import {cronWeather} from './services/cronjob.js';
+import weather from './services/weather.js';
 
-cronWeather.init(); // check for weather- and presence data in cache, fetches data if not present
-cronWeather.start(); // auto fetch new weather- and presence data at midnight
+// TODO:: Make this run once on deployment
+weather.deploy();
+
+weather.cronJob();
 
 const isProduction = process.env.NODE_ENV === 'production';
 const root = path.resolve(path.dirname(''));

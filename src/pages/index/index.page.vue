@@ -1,12 +1,17 @@
 <template>
     <!-- <div id="canvas"></div> -->
-    <h1>{{ weatherData }}</h1>
+    <h1>{{ weather }}</h1>
 </template>
 
 <script setup>
 import {onMounted} from '@vue/runtime-core';
 
-defineProps(['weatherData']);
+const props = defineProps({
+    weather: {
+        type: String,
+        required: true,
+    },
+});
 
 onMounted(async () => {
     // const {init} = await import('p5js/index');

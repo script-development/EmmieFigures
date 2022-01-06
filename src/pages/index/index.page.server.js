@@ -4,18 +4,18 @@ import {getFromApi} from 'services/api';
 
 /** @param {import('vite-plugin-ssr').PageContextBuiltIn} pageContext */
 export async function onBeforeRender(pageContext) {
-        // await getFromApi(qString)
-        //     .then(dat => {
-        //         putInCache('weatherData', dat);
-        //         putInCache('weatherCheck', {date: `${year}-${month + 1}-${day}`, historyLength});
-        //     })
-        //     .catch(err => {
-        //         console.log('error', err);
-        //     });
-        // data = qString;
-        // // set day, month and year in weatherCheck, if date changes, new data will be fetched
-        // putInCache('weatherCheck', {day, month, year});
-    }
+    // await getFromApi(qString)
+    //     .then(dat => {
+    //         putInCache('weatherData', dat);
+    //         putInCache('weatherCheck', {date: `${year}-${month + 1}-${day}`, historyLength});
+    //     })
+    //     .catch(err => {
+    //         console.log('error', err);
+    //     });
+    // data = qString;
+    // // set day, month and year in weatherCheck, if date changes, new data will be fetched
+    // putInCache('weatherCheck', {day, month, year});
+    // }
     // const tempData = {weatherCheck: getFromCache('weatherCheck'), weatherData: getFromCache('weatherData'), fail: 'no'};
     // tempData.weatherData.days.forEach(day => {
     //     data.push(day.precip);
@@ -33,7 +33,7 @@ export async function onBeforeRender(pageContext) {
     // } else {
     //     Data = 'NOT up to date';
     // }
-    const pageProps = {weatherData: data};
+    const pageProps = {weather: ''};
     return {
         pageContext: {
             pageProps,
