@@ -17,6 +17,10 @@ export interface PageProps {
 }
 
 export interface PageContext extends PageContextBuiltIn{
+    documentProps: {
+        title: string,
+        description: string
+    }
     // params: Object<string, string>;
     // url: string;
     // pageProps: PageProps;

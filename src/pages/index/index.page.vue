@@ -1,17 +1,26 @@
 <template>
     <!-- <div id="canvas"></div> -->
-    <h1>{{ weather }}</h1>
+    <h1>{{ precipitation }}</h1>
 </template>
 
 <script setup>
-import {onMounted} from '@vue/runtime-core';
+import {onMounted, computed} from '@vue/runtime-core';
+// import weather from 'assets/weather.json';
 
 const props = defineProps({
     weather: {
-        type: String,
+        type: Object,
         required: true,
     },
 });
+
+const precipitation = computed(() => {
+    // console.log(props.weather.days[0].temp);
+    return props.weather.days.map(/** @param {{precip: string}} el */ el => el.precip);
+    // console.log(p);
+});
+// let t = temp.value;
+// console.log(t);
 
 onMounted(async () => {
     // const {init} = await import('p5js/index');

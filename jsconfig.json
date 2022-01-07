@@ -16,6 +16,7 @@
         "esModuleInterop": true,
         "checkJs": true,
         "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
         "baseUrl": ".",
         "paths": {
             "components/*": ["./src/components/*"],

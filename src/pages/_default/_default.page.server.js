@@ -7,6 +7,7 @@ export {render};
 // See https://vite-plugin-ssr.com/data-fetching
 export const passToClient = ['pageProps', 'urlPathname'];
 
+/** @param {import('types').PageContext} pageContext */
 async function render(pageContext) {
     const app = createApp(pageContext);
     const appHtml = await renderToString(app);
@@ -14,7 +15,9 @@ async function render(pageContext) {
     // See https://vite-plugin-ssr.com/html-head
     const {documentProps} = pageContext;
     const title = (documentProps && documentProps.title) || 'Rapp Presence';
-    const desc = (documentProps && documentProps.description) || 'App using Vite + vite-plugin-ssr';
+    const desc =
+        (documentProps && documentProps.description) ||
+        'Scatter plot correlation precipitation and rapp client presence';
 
     const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
