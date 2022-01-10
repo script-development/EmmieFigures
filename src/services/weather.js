@@ -8,9 +8,9 @@ export default {
     /**
      * Check for weather data on the server.
      * If no data is present, fetch from Visual Crossing Weather Api.
+     * @returns
      */
     deploy: () => {
-        // TODO:: Error handling and logging
         fs.readFile('./data/weather.json', 'utf8', err => {
             if (err?.code === 'ENOENT') {
                 setLog('First time fetching data from Visual Crossing Weather API');
@@ -18,15 +18,22 @@ export default {
                     .then(data => {
                         setLog('Weather data fetched succesfully', 'success');
                         fs.writeFile('./data/weather.json', JSON.stringify(data), err => {
-                            if (err) {
-                                console.log(`Error writing file: ${err}`);
-                            } else {
-                                console.log('Weather data is written successfully.');
-                            }
+                            if (err)
+                                setLog(
+                                    `Error writing weather data to file => code: ${err.code}, errno: ${err.errno}`,
+                                    'danger',
+                                );
+                            else setLog('Weather data is written successfully', 'success');
                         });
                     })
-                    .catch(err => console.log(err));
+                    .catch(err => {
+                        setLog(
+                            `Weather data fetch failed => ${err.reponse.status}: ${err.response.statusText}`,
+                            'danger',
+                        );
+                    });
             }
+            setLog('server restart? weather.deploy => file exists already', 'warning');
         });
     },
     /**
@@ -88,4 +95,4 @@ const getData = () => {
  * @returns {String}
  */
 const dateQueryString = (day, month, year) =>
-    `${year}/${month < 10 ? '0' + month : month}/${day < 10 ? '0' + day : day}`;
+    `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;

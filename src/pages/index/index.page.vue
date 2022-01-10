@@ -15,12 +15,11 @@ const props = defineProps({
 });
 
 const precipitation = computed(() => {
-    // console.log(props.weather.days[0].temp);
-    return props.weather.days.map(/** @param {{precip: string}} el */ el => el.precip);
+    return props.weather.days?.map(/** @param {{precip: string}} el */ el => el.precip);
     // console.log(p);
 });
 // let t = temp.value;
-// console.log(t);
+console.log(props.weather);
 
 onMounted(async () => {
     // const {init} = await import('p5js/index');

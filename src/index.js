@@ -3,11 +3,9 @@ import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
-import log from './services/log.js';
 import weather from './services/weather.js';
 
 // TODO:: Make this run once on deployment
-log.deploy();
 weather.deploy();
 
 weather.cronStart();
