@@ -3,28 +3,7 @@
  * @typedef {import('axios').AxiosRequestConfig} AxiosRequestConfig
  */
 import axios from 'axios';
-//  import {getAccessToken, refreshToken} from './accessToken.js';
-// import {getFromCache, OneDayTTL, putInCache} from './cache.js';
-// import {getEnv} from './env.js';
-// import {setResponseError} from './error.js';
-
-// const BASE_URL = getEnv('VITE_QUBE_IN_API');
-
-/**
- *
- * @param {string} method the url method
- * @param {string} [url] the actual url
- * @param {object} [data] the optional data
- * @returns
- */
-// const createCacheKey = (method, url, data) => {
-//     const cacheKey = method + url;
-
-//     if (!data) return cacheKey;
-//     return cacheKey + JSON.stringify(data);
-// };
-
-const retryMessages = ['this token has expired', 'no valid session or connection found'];
+import {setResponseError} from './error.js';
 
 /**
  *
@@ -35,19 +14,14 @@ const retryMessages = ['this token has expired', 'no valid session or connection
 export const doRequest = async (config, retry = false) => {
     try {
         return await axios.request(config);
-    } catch (e) {
-        /** @type {import('axios').AxiosError} */
-        // @ts-ignore can't define e in the catch
-        const error = e;
-        if (error.response) {
-            const {message} = error.response.data;
-
-            if (retry && retryMessages.includes(message)) {
-                // config.headers['x-api-key'] = await refreshToken();
-                return await doRequest(config, false);
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                if (retry) {
+                    return await doRequest(config);
+                }
+                setResponseError(error);
             }
-
-            // setResponseError(error);
         }
         throw error;
     }
@@ -55,25 +29,17 @@ export const doRequest = async (config, retry = false) => {
 
 /**
  * @param {Method} method the http method
- * @param {string} uri the uri to request
- * @param {string} [token] the optional token
- * @param {Object<string,any>} [data] the http body
+ * @param {string} url the url to request
+ * @param {Object<string,any>} [data] the http data to send
  *
- * @returns {Promise<AxiosRequestConfig>}
+ * @returns {AxiosRequestConfig}
  */
-const createRequestConfig = async (method, uri, token, data) => {
-    // const url = new URL(`${BASE_URL}/${uri}`);
-    // url.searchParams.set('jobboard_id', '1');
-
+const createRequestConfig = (method, url, data) => {
     /** @type {{[key: string]: string}} */
-    const headers = {
-        // 'x-api-key': token ?? (await getAccessToken()),
-        // 'x-response-type': 'json',
-    };
+    const headers = {};
 
     return {
-        // url: url.href,
-        url: uri,
+        url,
         method,
         headers,
         data,
@@ -82,62 +48,39 @@ const createRequestConfig = async (method, uri, token, data) => {
 
 /**
  * @param {Method} method the http method
- * @param {string} uri the uri to get from the api
- * @param {string} [token] the optional duration to store the request in cache in seconds
- * @param {number} [cacheDuration] the optional duration to store the request in cache in seconds
+ * @param {string} url the url to get from the api
  * @param {Object<string,any>} [data] the http data to send
  */
-// eslint-disable-next-line complexity
-const apiCall = async (method, uri, token, cacheDuration, data) => {
-    const requestConfig = await createRequestConfig(method, uri, token, data);
-    // const cacheKey = createCacheKey(method, requestConfig.url, data);
-
-    // if (cacheDuration) {
-    //     const storedResult = getFromCache(cacheKey);
-    //     if (storedResult) return storedResult;
-    // }
+const apiCall = async (method, url, data) => {
+    const requestConfig = createRequestConfig(method, url, data);
 
     const response = await doRequest(requestConfig);
 
     const responseData = response.data;
 
     const actualData = responseData.meta || !responseData.data ? responseData : responseData.data;
-    // if (cacheDuration) putInCache(cacheKey, actualData, cacheDuration);
 
     return actualData;
 };
 
 /**
- * @param {string} uri the uri to get from the api
- * @param {string} [token] the optional token
- * @param {number} [cacheDuration] the optional duration to store the request in cache in seconds
+ * @param {string} url the url to get from the api
  */
-export const getFromApi = (uri, token, cacheDuration) => apiCall('GET', uri, token, cacheDuration);
+export const getFromApi = url => apiCall('GET', url);
 
 /**
- * @param {string} uri
+ * @param {string} url
  * @param {object} [data]
- * @param {string} [token] the optional token
- * @param {number} [cacheDuration]
  */
-export const postToApi = (uri, data, token, cacheDuration) => apiCall('POST', uri, token, cacheDuration, data);
+export const postToApi = (url, data) => apiCall('POST', url, data);
 
 /**
- * @param {string} uri
+ * @param {string} url
  * @param {object} data
- * @param {string} [token] the optional token
  */
-export const putToApi = (uri, data, token) => apiCall('PUT', uri, token, undefined, data);
+export const putToApi = (url, data) => apiCall('PUT', url, data);
 
 /**
- *
- * @param {string} uri
+ * @param {string} url
  */
-export const deleteFromApi = uri => apiCall('DELETE', uri, undefined, 0);
-
-/**
- * @param {string} textId
- * @param {string} [token] the optional token
- */
-// export const getSettingByTextId = (textId, token) =>
-//     getFromApi(`settings/by-textid?textid=${textId}`, token, OneDayTTL);
+export const deleteFromApi = url => apiCall('DELETE', url);

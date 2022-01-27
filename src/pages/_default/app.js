@@ -4,6 +4,7 @@ import {setPageContext} from './usePageContext';
 
 export {createApp};
 
+/** @param {import('types').PageContext} pageContext */
 function createApp(pageContext) {
     const {Page, pageProps} = pageContext;
     const PageWithLayout = {

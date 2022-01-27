@@ -1,11 +1,10 @@
 <template>
-    <!-- <div id="canvas"></div> -->
+    <div id="canvas" />
     <h1>{{ precipitation }}</h1>
 </template>
 
 <script setup>
 import {onMounted, computed} from '@vue/runtime-core';
-// import weather from 'assets/weather.json';
 
 const props = defineProps({
     weather: {
@@ -16,25 +15,21 @@ const props = defineProps({
 
 const precipitation = computed(() => {
     return props.weather.days?.map(/** @param {{precip: string}} el */ el => el.precip);
-    // console.log(p);
 });
-// let t = temp.value;
-console.log(props.weather);
 
 onMounted(async () => {
-    // const {init} = await import('p5js/index');
-    // const p5 = init('canvas');
-    // const canvas = p5
-    //     .createCanvas(1600, 400)
-    //     .position((window.innerWidth - p5.width) / 2, (window.innerHeight - p5.height) / 2);
-    // p5.draw = () => {
-    //     p5.background(200);
-    //     p5.fill(255, 0, 0);
-    //     p5.stroke(255);
-    //     p5.strokeWeight(1);
-    //     for (let i = 0; i < props.weatherData.length; i++) {
-    //         p5.ellipse(props.weatherData[i] * 75, p5.height / 2, 5, 5);
-    //     }
-    // };
+    const {init} = await import('p5js/index');
+    const p5 = init('canvas');
+    p5.createCanvas(innerWidth, innerHeight);
+
+    // const prep = precipitation.value.map(/** @param {number} el */ el => Motion(p5, {x: el}));
+    // console.log(prep);
+
+    p5.draw = () => {
+        // p5.background(255);
+        // p5.fill(0, 0, 128);
+        // p5.noStroke();
+        // prep.forEach(/** @param {{pos: import('p5').Vector}} pre */ pre => p5.ellipse(pre.pos.x * 100, 200, 5, 5));
+    };
 });
 </script>

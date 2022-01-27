@@ -32,5 +32,3 @@ export interface QuadTree {
     subdivide: function,
     insert: function
 }
-
-//

@@ -2,7 +2,6 @@ import {CronJob} from 'cron';
 import fs from 'fs';
 import {getEnv} from './env.js';
 import {getFromApi} from './api.js';
-import {setLog} from './log.js';
 
 export default {
     /**
@@ -13,27 +12,16 @@ export default {
     deploy: () => {
         fs.readFile('./data/weather.json', 'utf8', err => {
             if (err?.code === 'ENOENT') {
-                setLog('First time fetching data from Visual Crossing Weather API');
-                getData()
+                getData(6)
                     .then(data => {
-                        setLog('Weather data fetched succesfully', 'success');
                         fs.writeFile('./data/weather.json', JSON.stringify(data), err => {
-                            if (err)
-                                setLog(
-                                    `Error writing weather data to file => code: ${err.code}, errno: ${err.errno}`,
-                                    'danger',
-                                );
-                            else setLog('Weather data is written successfully', 'success');
+                            console.log(err); // eslint-disable-line no-console
                         });
                     })
                     .catch(err => {
-                        setLog(
-                            `Weather data fetch failed => ${err.reponse.status}: ${err.response.statusText}`,
-                            'danger',
-                        );
+                        console.log(err); // eslint-disable-line no-console
                     });
-            }
-            setLog('server restart? weather.deploy => file exists already', 'warning');
+            } else console.log('server restart? weather.deploy: file exists already'); // eslint-disable-line no-console
         });
     },
     /**
@@ -42,18 +30,18 @@ export default {
      */
     cronStart: () => {
         new CronJob('*/10 52 * * * *', function () {
-            console.log('tick');
+            console.log('tick'); // eslint-disable-line no-console
         }).start();
     },
 };
 
-const getData = () => {
+/** @param {number} historyLength number of months to get data for */
+const getData = historyLength => {
     const BASE_URL = getEnv('WEATHER_API_BASE_URL');
     const API_KEY = getEnv('WEATHER_API_KEY');
     let location = 'groningen'; // || longitude & latitude
     let outputSection = '&include=days'; // other options: current, hours, events, alerts (seperate with '%2C')
     const elements = ''; // options: precip, datetime, description
-    // const date = new Date('1 Januari 2000');
     const date = new Date();
     let [day, month, year] = [date.getDate(), date.getMonth(), date.getFullYear()];
 
@@ -70,7 +58,8 @@ const getData = () => {
 
     // start date = today minus a day minus historyLength in months
     // data will be fetched in segments (max history query is 6 months for free visual crossing weather acount)
-    const historyLength = 1;
+    if (historyLength > 12) throw 'max historylength is 12 months';
+    // if (historyLength > 6)
     month -= historyLength;
     if (month < 0) {
         year--;

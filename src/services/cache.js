@@ -2,6 +2,9 @@ import NodeCache from 'node-cache';
 
 const cache = new NodeCache({checkperiod: 60, useClones: false});
 
+export const OneHourTTL = 60 * 60 * 1;
+export const OneDayTTL = OneHourTTL * 24;
+
 /**
  *
  * @param {string} key
