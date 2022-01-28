@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^2.0.1",
-    "@vue/compiler-sfc": "^3.2.20",
+    "@vue/compiler-sfc": "^3.2.29",
     "@vue/server-renderer": "^3.2.20",
     "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",
