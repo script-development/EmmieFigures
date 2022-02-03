@@ -1,8 +1,7 @@
 {
     "env": {
         "browser": true,
-        "es2021": true,
-        "node": true
+        "es2021": true
     },
     "globals": {
         "defineEmits": "readonly",
@@ -20,10 +19,10 @@
         "comma-dangle": ["warn", "always-multiline"],
         "max-len": ["warn", {"code": 120}],
         "max-lines": ["warn", {"max": 300, "skipBlankLines": true, "skipComments": true}],
-        "complexity": ["error", 20],
+        "complexity": ["error", 5],
         "max-depth": ["error", 4],
         "max-statements-per-line": ["error", {"max": 2}],
-        "max-lines-per-function": ["warn", {"max": 300, "skipBlankLines": true, "skipComments": true}],
+        "max-lines-per-function": ["warn", {"max": 30, "skipBlankLines": true, "skipComments": true}],
         "object-curly-spacing": ["warn", "never"],
         "array-bracket-spacing": ["warn", "never"],
         "space-before-blocks": ["warn", "always"],

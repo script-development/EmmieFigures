@@ -1,10 +1,11 @@
 import vue from '@vitejs/plugin-vue';
 import ssr from 'vite-plugin-ssr/plugin';
 import path from 'path';
+import {defineConfig} from 'vite';
 
 const srcPath = path.resolve('./src');
 
-export default {
+export default defineConfig({
     plugins: [vue(), ssr()],
     resolve: {
         alias: {
@@ -15,4 +16,4 @@ export default {
             services: path.join(srcPath, 'services'),
         },
     },
-};
+});

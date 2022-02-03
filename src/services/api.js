@@ -56,11 +56,7 @@ const apiCall = async (method, url, data) => {
 
     const response = await doRequest(requestConfig);
 
-    const responseData = response.data;
-
-    const actualData = responseData.meta || !responseData.data ? responseData : responseData.data;
-
-    return actualData;
+    return response.data;
 };
 
 /**

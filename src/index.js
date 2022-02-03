@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
