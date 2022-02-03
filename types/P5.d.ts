@@ -1,9 +1,5 @@
 import P5, { Vector } from 'p5'
 
-// export class CustomP5 extends P5 {
-//     constructor(sketch: (...args: any[]) => any, node:string)
-// }
-
 export interface CustomP5 extends P5{
     constructor(sketch: (...args: any[]) => any, node:string)
 }
@@ -31,4 +27,10 @@ export interface QuadTree {
     points: Array,
     subdivide: function,
     insert: function
+}
+
+export interface vec2 {
+    x: number,
+    y: number,
+    add: function,
 }

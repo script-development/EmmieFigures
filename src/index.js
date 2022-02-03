@@ -4,12 +4,12 @@ import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
-import weather from './services/weather.js';
+import {deploy, cronStart} from './services/weather.js';
 
 // TODO:: Make this run once on deployment
-weather.deploy();
+deploy();
 
-weather.cronStart();
+cronStart();
 
 const isProduction = process.env.NODE_ENV === 'production';
 const root = path.resolve(path.dirname(''));
