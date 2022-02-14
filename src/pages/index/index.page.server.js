@@ -1,11 +1,10 @@
-import fs from 'fs';
+import {promises as fs} from 'fs';
 
 export {onBeforeRender};
 
-function onBeforeRender() {
-    let weatherData = {};
-    const fetchedData = fs.readFileSync('./data/weather.json', {encoding: 'utf-8'});
-    weatherData = JSON.parse(fetchedData);
+async function onBeforeRender() {
+    const fetchedData = await fs.readFile('./data/weather.json', {encoding: 'utf-8'});
+    const weatherData = JSON.parse(fetchedData);
     const pageProps = {weather: weatherData};
     return {
         pageContext: {
