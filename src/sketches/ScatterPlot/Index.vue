@@ -4,31 +4,37 @@
 
 <script setup>
 import {onMounted} from 'vue';
-import {Sketch} from '..';
+import Sketch from '..';
+import Graph from './Graph';
 
-defineProps({
+const props = defineProps({
     precipitation: {
         type: Object,
         required: true,
     },
 });
 
-onMounted(() => {
-    const twoD = Sketch('scatter-plot', '2d');
-    const ctx = twoD.context;
-    twoD.size(640, 480);
-    twoD.position('center');
-    twoD.border('1px solid #eee');
-    const {width, height} = twoD.canvas;
+const arr = props.precipitation.map(el => el.precip);
 
-    twoD.draw = () => {
-        ctx.clearRect(0, 0, width, height);
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(20, 20);
-        ctx.lineTo(40, 40);
-        ctx.stroke();
+const max = arr.reduce((a, b) => Math.max(a, b), 0);
+const min = arr.reduce((a, b) => Math.min(a, b), 0);
+
+onMounted(() => {
+    console.log(max);
+    console.log(min);
+    const sketch = Sketch('scatter-plot');
+
+    sketch.setup = ({size, position, border}) => {
+        size(800, 450);
+        position('center');
+        border('1px solid #eee');
+    };
+
+    const graph = Graph();
+
+    sketch.draw = e => {
+        e.clear();
+        graph.show(e);
     };
 });
 </script>

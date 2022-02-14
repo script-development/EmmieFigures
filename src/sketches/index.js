@@ -1,81 +1,59 @@
-/** @typedef {import("types/sketches").SketchApi} iSketch */
+/** @typedef {import("types/sketches").SketchApi} SketchApi */
+/** @typedef {import('types/sketches').DrawApi} DrawApi */
+/** @typedef {import('types/sketches').SetupApi} SetupApi */
+/** @typedef {import("types/sketches").SketchProperties} SketchProperties */
+/** @typedef {(e: DrawApi) => {}} DrawScript */
+/** @typedef {(e: SetupApi) => void} SetupScript */
 
-/** @type {Array<Function>} */
+import Draw from './draw';
+import Setup from './setup';
+import Variables from './variables';
+
+/** @type {Array<{draw: DrawScript, api: DrawApi}>} */
 const scripts = [];
 
 /** @type {boolean} */
 let running = false;
 
 const loop = () => {
-    scripts.forEach(script => script());
+    scripts.forEach(script => script.draw(script.api));
     requestAnimationFrame(loop);
 };
 
 /**
- * Set size of the canvas element
- * @param {HTMLCanvasElement} canvas
- * @param {number} width width of the canvas
- * @param {number} height height of the canvas
- */
-const canvasSize = (canvas, width, height) => {
-    canvas.width = width;
-    canvas.height = height;
-};
-
-/**
- * @param {HTMLCanvasElement} canvas
- * @param {string} position
- */
-const canvasPosition = (canvas, position) => {
-    if (position === 'center') {
-        canvas.style.position = 'absolute';
-        canvas.style.top = '50%';
-        canvas.style.left = '50%';
-        canvas.style.transform = 'translate(-50%, -50%)';
-    }
-};
-
-/**
- * @param {HTMLCanvasElement} canvas
- * @param {Array<number>} args */
-const canvasBackgroundColor = (canvas, ...args) => {
-    if (args.length === 1 && typeof args[0] === 'number')
-        canvas.style.background = `rgb(${args[0]}, ${args[0]}, ${args[0]})`;
-};
-
-/**
- * @param {HTMLCanvasElement} canvas
- * @param {string} border
- */
-const canvasBorder = (canvas, border) => {
-    canvas.style.border = border;
-};
-
-/**
  * @param {string} id the id of the canvas element
- * @param {'2d' | 'webgl'} renderer the type of renderer (only '2d' supported for now)
- * @returns {iSketch}
+ * @returns {SketchApi}
  */
-export const Sketch = (id, renderer) => {
+export default id => {
     const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(id));
-    const context = /** @type {CanvasRenderingContext2D} */ (canvas.getContext(renderer));
+    const context = canvas.getContext('2d');
+
+    /** @type {SketchProperties} */
+    const properties = {};
+    const variables = Variables;
+
+    if (!context) throw new Error('Cant get 2d context');
 
     return {
-        canvas,
-        context,
-        /** @param {Function} script */
+        get width() {
+            return variables.width;
+        },
+        get height() {
+            return variables.height;
+        },
+        /** @param {SetupScript} script*/
+        set setup(script) {
+            properties.setup = Setup(canvas);
+            script(properties.setup);
+        },
+        /** @param {DrawScript} script */
         set draw(script) {
-            console.log('ran');
             if (!running) {
                 running = true;
                 loop();
             }
-            console.log(context);
-            scripts.push(script);
+            properties.draw = Draw(canvas, context);
+            scripts.push({draw: script, api: properties.draw});
         },
-        size: (width, height) => canvasSize(canvas, width, height),
-        position: position => canvasPosition(canvas, position),
-        backgroundColor: color => canvasBackgroundColor(canvas, color),
-        border: border => canvasBorder(canvas, border),
     };
 };
