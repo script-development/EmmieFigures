@@ -1,7 +1,4 @@
 <template>
-    <div v-for="val in precipDay" :key="val.datetime">
-        {{ val.precip }}
-    </div>
     <ScatterPlot :precipitation="precipDay" />
 </template>
 
@@ -20,7 +17,7 @@ const props = defineProps({
 const precipDay = [];
 
 const precipitation = () =>
-    props.weather.days?.map(
+    props.weather.map(
         /** @param {{precip: number, datetime: string}} el */ el => {
             precipDay.push({day: el.datetime, precip: el.precip});
             el.precip;

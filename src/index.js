@@ -4,12 +4,10 @@ import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
-import {deploy, cronStart} from './services/weather.js';
+import {deploy, weatherData} from './services/weather.js';
 
 // TODO:: Make this run once on deployment
-deploy();
-
-cronStart();
+await deploy();
 
 const isProduction = process.env.NODE_ENV === 'production';
 const root = path.resolve(path.dirname(''));
@@ -34,6 +32,7 @@ const root = path.resolve(path.dirname(''));
         const url = req.originalUrl;
         const pageContextInit = {
             url,
+            weatherData,
         };
         const pageContext = await renderPage(pageContextInit);
         const {httpResponse} = pageContext;

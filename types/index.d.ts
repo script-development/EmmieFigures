@@ -1,5 +1,10 @@
 import { PageContextBuiltIn } from "vite-plugin-ssr";
 
+export interface Precipitation {
+    day: string;
+    precip: number;
+}
+
 export interface PageProps {}
 
 export interface PageContext extends PageContextBuiltIn{
@@ -9,6 +14,7 @@ export interface PageContext extends PageContextBuiltIn{
     },
     params: Object<string, string>;
     url: string;
+    weatherData: Object;
     pageProps: PageProps;
     urlNormalized: string;
     urlParsed: {
