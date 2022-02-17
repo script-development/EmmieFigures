@@ -4,6 +4,10 @@ const properties = {
     strokeStyle: 'black',
     fill: true,
     fillStyle: 'white',
+    /** @type {CanvasTextAlign} */
+    textAlign: 'center',
+    /** @type {CanvasTextBaseline} */
+    textBaseline: 'middle',
 };
 
 /**
@@ -15,11 +19,12 @@ const stroke = n => {
 };
 
 /**
- * @param {number} n
+ * @param {Array<number>} args
  */
-const fill = n => {
+const fill = args => {
     properties.fill = true;
-    properties.fillStyle = `rgb(${n}), rgb(${n}), rgb(${n})`;
+    if (args.length === 1) properties.fillStyle = `rgb(${args[0]}), rgb(${args[0]}), rgb(${args[0]})`;
+    else if (args.length === 3) properties.fillStyle = `rgb(${args[0]}), rgb(${args[1]}), rgb(${args[2]})`;
 };
 
 /**
@@ -39,6 +44,37 @@ const line = (c, x1, y1, x2, y2) => {
 };
 
 /**
+ * @param {CanvasRenderingContext2D} c
+ * @param {string} t
+ * @param {number} x
+ * @param {number} y
+ */
+const text = (c, t, x, y) => {
+    c.textAlign = properties.textAlign;
+    c.textBaseline = properties.textBaseline;
+    c.lineWidth = properties.strokeWeight;
+    if (properties.fill) c.fillText(t, x, y);
+    if (properties.stroke) c.strokeText(t, x, y);
+};
+
+/**
+ *
+ * @param {CanvasRenderingContext2D} c
+ * @param {number} x
+ * @param {number} y
+ * @param {number} w
+ * @param {number} h
+ */
+const rect = (c, x, y, w, h) => {
+    c.lineWidth = properties.strokeWeight;
+    c.fillStyle = properties.fillStyle;
+    c.strokeStyle = properties.strokeStyle;
+    c.rect(x, y, w, h);
+    if (properties.fill) c.fill();
+    if (properties.stroke) c.stroke();
+};
+
+/**
  * Draw Object with draw properties
  * @param {HTMLCanvasElement} canvas
  * @param {CanvasRenderingContext2D} context
@@ -49,9 +85,12 @@ export default (canvas, context) => {
         strokeWeight: num => (properties.strokeWeight = num),
         stroke: num => stroke(num),
         noStroke: () => (properties.stroke = false),
-        fill: num => fill(num),
+        fill: (...args) => fill(args),
         noFill: () => (properties.fill = false),
         line: (x1, y1, x2, y2) => line(context, x1, y1, x2, y2),
+        rect: (x, y, w, h) => rect(context, x, y, w, h),
         clear: () => context.clearRect(0, 0, canvas.width, canvas.height),
+        // textMode('') // default: 'center
+        text: (txt, x, y) => text(context, txt, x, y),
     };
 };

@@ -4,13 +4,14 @@
 
 <script setup>
 /** @typedef {import('types/index').WeatherData} WeatherData */
+/** @typedef {import('@vue/runtime-core').PropType<WeatherData[]>} Weather */
 
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import.meta.hot?.on('vite:beforeUpdate', () => import.meta.hot?.invalidate());
 
 const props = defineProps({
     weather: {
-        /** @type {import('@vue/runtime-core').PropType<WeatherData[]>} */
+        /** @type {Weather} */
         type: Object,
         required: true,
     },

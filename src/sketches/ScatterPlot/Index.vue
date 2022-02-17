@@ -20,16 +20,15 @@ const props = defineProps({
     },
 });
 
-// const max = arr.reduce((a, b) => Math.max(a, b), 0);
-// const min = arr.reduce((a, b) => Math.min(a, b), 0);
-
 onMounted(() => {
     const sketch = Sketch('scatter-plot');
 
-    sketch.setup = ({size, position, border}) => {
+    sketch.setup = ({size, position, border, textSize, textFont}) => {
         size(1280, 720);
         position('center');
         border('1px solid #ddd');
+        textSize(20);
+        textFont('georgia');
     };
 
     const graph = Graph(sketch, props.precipitation);

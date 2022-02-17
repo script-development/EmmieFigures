@@ -7,17 +7,18 @@
 
 import Draw from './draw';
 import Setup from './setup';
-import Variables from './variables';
 
 /** @type {Array<{draw: DrawScript, api: DrawApi}>} */
 const scripts = [];
 
 /** @type {boolean} */
-let running = false;
+let active = true;
+let requestId = 0;
 
 const loop = () => {
     scripts.forEach(script => script.draw(script.api));
-    requestAnimationFrame(loop);
+    requestId = requestAnimationFrame(loop);
+    if (!active) cancelAnimationFrame(requestId);
 };
 
 /**
@@ -27,33 +28,30 @@ const loop = () => {
 export default id => {
     const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(id));
     const context = canvas.getContext('2d');
+    if (!context) throw new Error('Cant get 2d context');
 
     /** @type {SketchProperties} */
     const properties = {};
-    const variables = Variables;
-
-    if (!context) throw new Error('Cant get 2d context');
 
     return {
         get width() {
-            return variables.width;
+            return canvas.width;
         },
         get height() {
-            return variables.height;
+            return canvas.height;
         },
         /** @param {SetupScript} script*/
         set setup(script) {
-            properties.setup = Setup(canvas);
+            properties.setup = Setup(canvas, context);
             script(properties.setup);
         },
         /** @param {DrawScript} script */
         set draw(script) {
-            if (!running) {
-                running = true;
-                loop();
-            }
             properties.draw = Draw(canvas, context);
             scripts.push({draw: script, api: properties.draw});
+            loop();
         },
+        loop: () => (active = true),
+        noLoop: () => (active = false),
     };
 };

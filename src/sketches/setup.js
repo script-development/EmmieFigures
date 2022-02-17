@@ -1,7 +1,3 @@
-import Variables from './variables';
-
-const variables = Variables;
-
 /**
  * Set size of the canvas element
  * @param {HTMLCanvasElement} canvas
@@ -10,9 +6,7 @@ const variables = Variables;
  */
 const canvasSize = (canvas, width, height) => {
     canvas.width = width;
-    variables.width = width;
     canvas.height = height;
-    variables.height = height;
 };
 
 /**
@@ -45,15 +39,37 @@ const canvasBorder = (canvas, border) => {
 };
 
 /**
+ * @param {CanvasRenderingContext2D} c
+ * @param {string} a
+ */
+const contextFont = (c, a) => {
+    const font = c.font.split(' ');
+    c.font = `${font[0]} ${a}`;
+};
+
+/**
+ *
+ * @param {CanvasRenderingContext2D} c
+ * @param {number} a
+ */
+const contextSize = (c, a) => {
+    const font = c.font.split(' ');
+    c.font = `${a}px ${font[1]}`;
+};
+
+/**
  * Setup Properties
  * @param {HTMLCanvasElement} canvas
+ * @param {CanvasRenderingContext2D} context
  * @returns {import("types/sketches").SetupApi}
  */
-export default canvas => {
+export default (canvas, context) => {
     return {
         size: (width, height) => canvasSize(canvas, width, height),
         position: position => canvasPosition(canvas, position),
         backgroundColor: color => canvasBackgroundColor(canvas, color),
         border: border => canvasBorder(canvas, border),
+        textFont: type => contextFont(context, type),
+        textSize: size => contextSize(context, size),
     };
 };
