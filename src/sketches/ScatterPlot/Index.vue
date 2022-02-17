@@ -20,8 +20,6 @@ const props = defineProps({
     },
 });
 
-// const arr = props.precipitation.map(el => el.precip);
-
 // const max = arr.reduce((a, b) => Math.max(a, b), 0);
 // const min = arr.reduce((a, b) => Math.min(a, b), 0);
 
