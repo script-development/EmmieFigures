@@ -20,7 +20,7 @@
     "express": "^4.17.3",
     "p5": "^1.4.1",
     "vite": "2.7.13",
-    "vite-plugin-ssr": "^0.3.51",
+    "vite-plugin-ssr": "^0.3.59",
     "vue": "^3.2.20"
   },
   "devDependencies": {
