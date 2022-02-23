@@ -20,22 +20,25 @@ const props = defineProps({
     },
 });
 
+const width = 1280,
+    height = 720;
+
 onMounted(() => {
     const sketch = Sketch('scatter-plot');
 
     sketch.setup = ({size, position, border, textSize, textFont}) => {
-        size(1280, 720);
+        size(width, height);
         position('center');
         border('1px solid #ddd');
         textSize(20);
         textFont('georgia');
     };
 
-    const graph = Graph(sketch, props.precipitation);
+    const graph = Graph(width, height, props.precipitation);
 
-    sketch.draw = e => {
-        e.clear();
-        graph.show(e);
+    sketch.draw = Palet => {
+        Palet.clear();
+        graph.show(Palet);
     };
 });
 </script>

@@ -22,7 +22,6 @@ const getData = (startDate, endDate) => {
     let qString = BASE_URL + `/${options.location}/${startDate}/${endDate}`;
     qString += `?unitGroup=metric${options.outputSection}&key=${API_KEY}${options.elements}&contentType=json`;
     return getFromApi(qString);
-    // return `${startDate}}, ${endDate}`;
 };
 
 /**

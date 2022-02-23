@@ -1,6 +1,4 @@
 export interface SketchApi {
-    width: number;
-    height: number;
     setup: (event: SetupApi) => void,
     draw: (event: DrawApi) => void,
     loop: () => void,
@@ -18,7 +16,7 @@ export interface SetupApi {
 
 export interface DrawApi {
     strokeWeight: (num: number) => void,
-    stroke: (num: number) => void,
+    stroke: (...args) => void,
     noStroke: () => void,
     fill: (...args) => void,
     noFill: () => void,

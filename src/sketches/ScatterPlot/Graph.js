@@ -1,21 +1,11 @@
 /**
  * Precipitation graph with date
- * @param {import('..').SketchApi} sketch
+ * @param {number} width
+ * @param {number} height
  * @param {Array<import('types').Precipitation>} props
  */
-export default (sketch, props) => {
-    const {width, height} = sketch;
-
-    const month = 12;
-    const days = props
-        .filter(i => i.day.search(`2021-${month}`) != -1)
-        .map(i => {
-            let day = i.day.substring(8);
-            return day.charAt(0) === '0' ? day.slice(1) : day;
-        });
-    const precip = props;
-
-    // const min = 0;
+export default (width, height, props) => {
+    const days = getDaysFromMonth(props, 12);
     // const max = props.reduce((a, {precip}) => Math.max(a, precip), 0);
 
     // x1, y1 = Origin (De oorsprong)
@@ -23,8 +13,7 @@ export default (sketch, props) => {
     const xAxis = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8};
 
     // x-as eenheid
-
-    /** @param {import("..").DrawApi} e */
+    /** @param {import("..").DrawApi} Palet */
     const show = ({noStroke, stroke, strokeWeight, line, fill, text}) => {
         // X & Y - axis
         stroke(0);
@@ -54,4 +43,17 @@ export default (sketch, props) => {
         });
     };
     return {show, days};
+};
+
+/**
+ * @param {Array<import('types').Precipitation>} props
+ * @param {number} month
+ */
+const getDaysFromMonth = (props, month) => {
+    return props
+        .filter(i => i.day.search(`2021-${month}`) != -1)
+        .map(i => {
+            let day = i.day.substring(8);
+            return day.charAt(0) === '0' ? day.slice(1) : day;
+        });
 };

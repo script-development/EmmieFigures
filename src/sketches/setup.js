@@ -16,9 +16,8 @@ const canvasSize = (canvas, width, height) => {
 const canvasPosition = (canvas, position) => {
     if (position === 'center') {
         canvas.style.position = 'absolute';
-        canvas.style.top = '50%';
-        canvas.style.left = '50%';
-        canvas.style.transform = 'translate(-50%, -50%)';
+        canvas.style.left = Math.floor((innerWidth - canvas.width) / 2) + 'px';
+        canvas.style.top = Math.floor((innerHeight - canvas.height) / 2) + 'px';
     }
 };
 
@@ -59,16 +58,15 @@ const contextSize = (c, a) => {
 
 /**
  * Setup Properties
- * @param {HTMLCanvasElement} canvas
  * @param {CanvasRenderingContext2D} context
  * @returns {import("types/sketches").SetupApi}
  */
-export default (canvas, context) => {
+export default context => {
     return {
-        size: (width, height) => canvasSize(canvas, width, height),
-        position: position => canvasPosition(canvas, position),
-        backgroundColor: color => canvasBackgroundColor(canvas, color),
-        border: border => canvasBorder(canvas, border),
+        size: (width, height) => canvasSize(context.canvas, width, height),
+        position: position => canvasPosition(context.canvas, position),
+        backgroundColor: color => canvasBackgroundColor(context.canvas, color),
+        border: border => canvasBorder(context.canvas, border),
         textFont: type => contextFont(context, type),
         textSize: size => contextSize(context, size),
     };

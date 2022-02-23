@@ -22,32 +22,36 @@ const loop = () => {
 };
 
 /**
+ * get canvas element and extract context2D
+ * @param {string} id
+ * @returns {CanvasRenderingContext2D}
+ */
+const getContext = id => {
+    const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(id));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Cant get 2d context');
+    return context;
+};
+
+/**
  * @param {string} id the id of the canvas element
  * @returns {SketchApi}
  */
 export default id => {
-    const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(id));
-    const context = canvas.getContext('2d');
-    if (!context) throw new Error('Cant get 2d context');
+    const context = getContext(id);
 
     /** @type {SketchProperties} */
     const properties = {};
 
     return {
-        get width() {
-            return canvas.width;
-        },
-        get height() {
-            return canvas.height;
-        },
         /** @param {SetupScript} script*/
         set setup(script) {
-            properties.setup = Setup(canvas, context);
+            properties.setup = Setup(context);
             script(properties.setup);
         },
         /** @param {DrawScript} script */
         set draw(script) {
-            properties.draw = Draw(canvas, context);
+            properties.draw = Draw(context);
             scripts.push({draw: script, api: properties.draw});
             loop();
         },

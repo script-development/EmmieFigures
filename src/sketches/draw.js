@@ -11,11 +11,12 @@ const properties = {
 };
 
 /**
- * @param {number} n
+ * @param {Array<number>} args
  */
-const stroke = n => {
+const stroke = args => {
     properties.stroke = true;
-    properties.strokeStyle = `rgb(${n}), rgb(${n}), rgb(${n})`;
+    if (args.length === 1) properties.strokeStyle = `rgb(${args[0]}), rgb(${args[0]}), rgb(${args[0]})`;
+    else if (args.length === 3) properties.strokeStyle = `rgb(${args[0]}), rgb(${args[1]}), rgb(${args[2]})`;
 };
 
 /**
@@ -36,7 +37,7 @@ const fill = args => {
  */
 const line = (c, x1, y1, x2, y2) => {
     c.lineWidth = properties.strokeWeight;
-    c.strokeStyle = 'black';
+    c.strokeStyle = properties.strokeStyle;
     c.beginPath();
     c.moveTo(x1, y1);
     c.lineTo(x2, y2);
@@ -80,16 +81,16 @@ const rect = (c, x, y, w, h) => {
  * @param {CanvasRenderingContext2D} context
  * @returns {import("types/sketches").DrawApi}
  */
-export default (canvas, context) => {
+export default context => {
     return {
         strokeWeight: num => (properties.strokeWeight = num),
-        stroke: num => stroke(num),
+        stroke: (...args) => stroke(args),
         noStroke: () => (properties.stroke = false),
         fill: (...args) => fill(args),
         noFill: () => (properties.fill = false),
         line: (x1, y1, x2, y2) => line(context, x1, y1, x2, y2),
         rect: (x, y, w, h) => rect(context, x, y, w, h),
-        clear: () => context.clearRect(0, 0, canvas.width, canvas.height),
+        clear: () => context.clearRect(0, 0, context.canvas.width, context.canvas.height),
         // textMode('') // default: 'center
         text: (txt, x, y) => text(context, txt, x, y),
     };
