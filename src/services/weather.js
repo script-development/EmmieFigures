@@ -1,12 +1,16 @@
 import fs from 'fs';
 import {getEnv} from './env.js';
 import {getFromApi} from './api.js';
+import {getReportData} from './reports.js';
 
 const BASE_URL = getEnv('WEATHER_API_BASE_URL');
 const API_KEY = getEnv('WEATHER_API_KEY');
 
 /** @type {Object} */
 export let weatherData;
+
+/** @type {Object} */
+export let reportData;
 
 const options = {
     location: 'groningen', // || longitude & latitude
@@ -63,7 +67,7 @@ export const deploy = async () => {
             console.log('using existing weather data'); // eslint-disable-line no-console
         }
     });
-
+    reportData = await getReportData();
     await new Promise(resolve => {
         setTimeout(() => {
             resolve(undefined);

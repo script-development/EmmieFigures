@@ -15,6 +15,7 @@ export interface PageContext extends PageContextBuiltIn{
     params: Object<string, string>;
     url: string;
     weatherData: WeatherData;
+    reportData: {reportsForMonth: Array};
     pageProps: PageProps;
     urlNormalized: string;
     urlParsed: {
