@@ -1,14 +1,16 @@
+import {getFromApi} from 'services/api';
+
 export {onBeforeRender};
 
 /** @param {import("types").PageContext} context */
 async function onBeforeRender(context) {
-    // const {reportsForMonth} = context.reportData;
-    // console.log(typeof context.reportData);
+    // get reports from Rapp
+    const reportData = await getFromApi('http://localhost:8000/api/reports-presence/2021-12-01/2021-12-31');
     return {
         pageContext: {
             pageProps: {
                 weather: context.weatherData,
-                reports: context.reportData.reportsForMonth,
+                reports: reportData.reportsForMonth ?? [],
             },
         },
     };

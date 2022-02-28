@@ -27,6 +27,15 @@ export interface PageContext extends PageContextBuiltIn{
     };
 }
 
+export interface ReportData {
+    morning_schedule_id: number | null,
+    afternoon_schedule_id: number | null,
+    evening_schedule_id: number | null,
+    morning_present: number | null,
+    afternoon_present: number | null,
+    evening_present: number | null,
+}
+
 export interface WeatherData {
     datetime: string,
     datetimeEpoch: number,
