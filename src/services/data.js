@@ -28,9 +28,11 @@ export const deploy = async () => {
         const wDat1 = await getWeatherData([1, 1, 2021], [30, 6, 2021]);
         const days1 = wDat1.days;
         delete wDat1.days; // wDat1 is now only meta data
+        // 2nd request
         const wDat2 = await getWeatherData([1, 7, 2021], [31, 12, 2021]);
         wDat1.queryCost += wDat2.queryCost;
         const days = days1?.concat(wDat2.days ?? []);
+
         await fs.writeFile('./data/weatherHistory.json', JSON.stringify(days));
         await fs.writeFile('./data/weatherMeta.json', JSON.stringify(wDat1));
         weatherData = days ?? [];

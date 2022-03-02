@@ -1,8 +1,13 @@
 import { PageContextBuiltIn } from "vite-plugin-ssr";
 
 export interface Precipitation {
-    day: string;
-    precip: number;
+    day: string,
+    precip: number,
+}
+
+export interface Presence {
+    day: string,
+    presence: number,
 }
 
 export interface PageProps {}
@@ -10,21 +15,24 @@ export interface PageProps {}
 export interface PageContext extends PageContextBuiltIn{
     documentProps: {
         title: string,
-        description: string
+        description: string,
     },
-    params: Object<string, string>;
-    url: string;
-    weatherData: WeatherData;
-    reportData: {reportsForMonth: Array};
-    pageProps: PageProps;
-    urlNormalized: string;
+    params: Object<string, string>,
+    url: string,
+    weatherData: Array<WeatherData>,
+    reportData: {
+        reportsForMonth: Array<ReportData>,
+        message: string,
+    },
+    pageProps: PageProps,
+    urlNormalized: string,
     urlParsed: {
-        pathName: string;
+        pathName: string,
         search: {
-            [key: string]: string;
-        } | null;
-        hash: string | null;
-    };
+            [key: string]: string,
+        } | null,
+        hash: string | null,
+    },
 }
 
 export interface ReportData {
@@ -72,10 +80,10 @@ export interface WeatherData {
     description: string,
     icon: string,
     stations: Array<string>,
-    source: string
+    source: string,
 }
 
 export type ErrorBag = {
-    default: string;
-    [key: string]: string;
-};
+    default: string,
+    [key: string]: string,
+}
