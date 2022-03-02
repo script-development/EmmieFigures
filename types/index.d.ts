@@ -7,7 +7,7 @@ export interface Precipitation {
 
 export interface Presence {
     day: string,
-    presence: number,
+    percentage: number,
 }
 
 export interface PageProps {}
@@ -42,6 +42,7 @@ export interface ReportData {
     morning_present: number | null,
     afternoon_present: number | null,
     evening_present: number | null,
+    date: string,
 }
 
 export interface WeatherData {

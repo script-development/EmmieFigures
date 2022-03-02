@@ -1,4 +1,5 @@
 export interface SketchApi {
+    context: CanvasRenderingContext2D,
     setup: (event: SetupApi) => void,
     draw: (event: DrawApi) => void,
     loop: () => void,
@@ -23,7 +24,7 @@ export interface DrawApi {
     line: (x1: number, y1: number, x2: number, y2: number) => void,
     rect: (x: number, y: number, w: number, h: number) => void,
     clear: () => void,
-    text: (string, x: number, y: number) => void;
+    text: (string, x: number, y: number) => void,
 }
 
 export interface SketchProperties {

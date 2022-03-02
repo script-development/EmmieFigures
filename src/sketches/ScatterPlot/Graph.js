@@ -1,48 +1,76 @@
 /**
- * Precipitation graph with date
+ * Scatter Plot -> Precipitation / Presence %
+ * @param {CanvasRenderingContext2D} ctx
  * @param {number} width
  * @param {number} height
- * @param {Array<import('types').Precipitation>} props
+ * @param {Array<import('types').Precipitation>} precipitation
+ * @param {Array<import('types').Presence>} presence
  */
-export default (width, height, props) => {
-    const days = getDaysFromMonth(props, 12);
-    // const max = props.reduce((a, {precip}) => Math.max(a, precip), 0);
+export default (ctx, width, height, precipitation, presence) => {
+    const maxPresence = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
+    const minPresence = presence.reduce((a, {percentage}) => Math.min(a, percentage), maxPresence);
 
     // x1, y1 = Origin (De oorsprong)
-    const yAxis = {x1: width * 0.2, y1: height * 0.8 + 10, x2: width * 0.2, y2: height * 0.2};
-    const xAxis = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8};
+    const yAxis = {x1: width * 0.2, y1: height * 0.8 + 10, x2: width * 0.2, y2: height * 0.2}; // = precipitation
+    const xAxis = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8}; // = presence
 
-    // x-as eenheid
-    /** @param {import("..").DrawApi} Palet */
-    const show = ({noStroke, stroke, strokeWeight, line, fill, text}) => {
-        // X & Y - axis
-        stroke(0);
-        strokeWeight(4);
-        line(yAxis.x1, yAxis.y1, yAxis.x2, yAxis.y2);
-        line(xAxis.x1, xAxis.y1, xAxis.x2, xAxis.y2);
+    const stepsX = 10;
+    const unitXMin = xAxis.x1 + 30;
+    const unitXMax = xAxis.x2 - 15;
+    const unitXLength = unitXMax - unitXMin;
 
-        // X & Y-axis units and titles
-        const length = (xAxis.x2 - xAxis.x1) * 0.93;
-        const margin = xAxis.x2 - xAxis.x1 - length;
-        // const steps = 1;
-        const stepLength = (length * 1.05) / days.length;
-        days.forEach((day, index) => {
-            // X-axis units
-            let x = xAxis.x1 + margin / 2;
-            x += index * stepLength;
-            fill(255, 0, 0);
-            noStroke();
-            text(day, x, xAxis.y1 + 15);
-            // X-axis title
-
-            // Y-axis units
-
-            // Y-axis title
-
-            // Graph data (lines)
-        });
+    const showXAxis = () => {
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(xAxis.x1, xAxis.y1);
+        ctx.lineTo(xAxis.x2, xAxis.y2);
+        ctx.stroke();
     };
-    return {show, days};
+
+    const showYAxis = () => {
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(yAxis.x1, yAxis.y1);
+        ctx.lineTo(yAxis.x2, yAxis.y2);
+        ctx.stroke();
+    };
+    const showXAxisTitle = () => {
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.font = '24px georgia';
+        ctx.fillText('Aanwezigheid (%)', xAxis.x1 + (xAxis.x2 - xAxis.x1) / 2 - 50, xAxis.y1 + 60);
+    };
+    const showXAxisUnits = () => {
+        ctx.strokeStyle = 'black';
+        ctx.fillStyle = 'black';
+        ctx.lineWidth = 2;
+        for (let i = 0; i <= stepsX; i++) {
+            let x = unitXMin + (unitXLength / stepsX) * i;
+            ctx.beginPath();
+            ctx.moveTo(x, xAxis.y1 - 5);
+            ctx.lineTo(x, xAxis.y1 + 5);
+            ctx.stroke();
+            ctx.font = '16px georgia';
+            ctx.fillText((minPresence + ((maxPresence - minPresence) / stepsX) * i).toString(), x - 10, xAxis.y1 + 20);
+        }
+    };
+    const showYAxisTitle = () => {
+        ctx.fillStyle = 'black';
+        ctx.font = '24px georgia';
+        ctx.save();
+        ctx.translate(yAxis.x1 - 50, yAxis.y1 + (yAxis.y2 - yAxis.y1) / 2 + 70);
+        ctx.rotate(-Math.PI / 2);
+        ctx.beginPath();
+        ctx.fillText('Neerslag (in mm)', 0, 0);
+        ctx.restore();
+    };
+    const showYAxisUnits = () => {
+        //
+    };
+
+    return {showXAxis, showYAxis, showXAxisTitle, showXAxisUnits, showYAxisTitle, showYAxisUnits};
 };
 
 /**

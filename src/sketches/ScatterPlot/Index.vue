@@ -6,6 +6,8 @@
 /**
  * @typedef {import('types/index').Precipitation} Precipitation
  * @typedef {import('@vue/runtime-core').PropType<Precipitation[]>} Precip
+ * @typedef {import('types/index').Presence} Presence
+ * @typedef {import('@vue/runtime-core').PropType<Presence[]>} Present
  */
 
 import {onMounted} from 'vue';
@@ -18,6 +20,11 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    presence: {
+        /** @type {Present} */
+        type: Array,
+        required: true,
+    },
 });
 
 const width = 1280,
@@ -26,19 +33,21 @@ const width = 1280,
 onMounted(() => {
     const sketch = Sketch('scatter-plot');
 
-    sketch.setup = ({size, position, border, textSize, textFont}) => {
+    sketch.setup = ({size, position, border}) => {
         size(width, height);
         position('center');
         border('1px solid #ddd');
-        textSize(20);
-        textFont('georgia');
     };
 
-    const graph = Graph(width, height, props.precipitation);
+    const graph = Graph(sketch.context, width, height, props.precipitation, props.presence);
 
     sketch.draw = Palet => {
         Palet.clear();
-        graph.show(Palet);
+        graph.showXAxis();
+        graph.showYAxis();
+        graph.showXAxisTitle();
+        graph.showXAxisUnits();
+        graph.showYAxisTitle();
     };
 });
 </script>

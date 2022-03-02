@@ -44,6 +44,7 @@ export default id => {
     const properties = {};
 
     return {
+        context,
         /** @param {SetupScript} script*/
         set setup(script) {
             properties.setup = Setup(context);
