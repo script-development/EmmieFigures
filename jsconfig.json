@@ -16,17 +16,19 @@
         "esModuleInterop": true,
         "checkJs": true,
         "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
         "baseUrl": ".",
         "paths": {
-            "components/*": ["./components/*"],
-            "pages/*": ["./pages/*"],
-            "types/*": ["./types/*"],
-            "p5js/*": ["p5js/*"]
+            "components/*": ["./src/components/*"],
+            "pages/*": ["./src/pages/*"],
+            "sketches/*": ["./src/sketches/*"],
+            "assets/*": ["./src/assets/*"],
+            "services/*": ["./src/services/*"]
         }
     },
     "typeAcquisition": {
         "include": ["jest"]
     },
     // adding vite/client here to import the ImportMetaEnv interface
-    "include": ["types/**/*"]
+    "include": ["src/**/*", "types/**/*", "node_modules/vite/client.d.ts"]
 }
