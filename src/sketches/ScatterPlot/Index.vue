@@ -39,15 +39,11 @@ onMounted(() => {
         border('1px solid #ddd');
     };
 
-    const graph = Graph(sketch.context, width, height, props.precipitation, props.presence);
+    const graph = Graph(sketch.context, props.precipitation, props.presence);
 
-    sketch.draw = Palet => {
-        Palet.clear();
-        graph.showXAxis();
-        graph.showYAxis();
-        graph.showXAxisTitle();
-        graph.showXAxisUnits();
-        graph.showYAxisTitle();
+    sketch.draw = ({clear}) => {
+        clear();
+        graph.show();
     };
 });
 </script>

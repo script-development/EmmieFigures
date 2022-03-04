@@ -30,15 +30,20 @@ const precipitation = [];
 /** @type {Array<import('types').Presence>} */
 const presence = [];
 
+/**
+ * filter precipitation and date from weather data
+ */
 const precipitationDatetime = () =>
     props.weather.map(weather => {
         precipitation.push({day: weather.datetime, precip: weather.precip});
         weather.precip;
     });
 
-// const dayParts = ['morning', 'afternoon', 'evening'];
 const uniqueDates = [...new Set(props.reports.map(report => report.date))];
 
+/**
+ * get percentage of presence for each day
+ */
 const presenceDatetime = () => {
     uniqueDates.forEach(date => {
         const filteredReports = props.reports.filter(report => report.date === date);
@@ -46,6 +51,9 @@ const presenceDatetime = () => {
         presence.push(presenceDay);
     });
 };
+
+/** @type {['morning', 'afternoon', 'evening']} */
+const dayparts = ['morning', 'afternoon', 'evening'];
 
 /**
  * @param {string} date
@@ -56,17 +64,11 @@ const calculatePresencePerDay = (date, reports) => {
     let present = 0; // all dayparts where client has been present
 
     reports.forEach(report => {
-        if (report.morning_schedule_id) {
-            total++;
-            if (report.morning_present) present++;
-        }
-        if (report.afternoon_schedule_id) {
-            total++;
-            if (report.afternoon_present) present++;
-        }
-        if (report.evening_schedule_id) {
-            total++;
-            if (report.evening_present) present++;
+        for (const daypart of dayparts) {
+            if (report[`${daypart}_schedule_id`]) {
+                total++;
+                if (report[`${daypart}_present`]) present++;
+            }
         }
     });
 
