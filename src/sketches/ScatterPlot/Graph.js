@@ -1,10 +1,14 @@
+/** @typedef {import('types/graph').Precipitation} Precipitation */
+/** @typedef {import('types/graph').Presence} Presence */
+/** @typedef {import('types/graph').Stat} Stat */
+
 /** @type {CanvasRenderingContext2D} */
 let ctx;
 
-/** @type {number} */
+/** @type {number} canvas width */
 let width;
 
-/** @type {number} */
+/** @type {number} canvas height */
 let height;
 
 const xAxis = () => {
@@ -32,7 +36,7 @@ const yAxis = () => {
     return {show};
 };
 const xAxisTitle = () => {
-    const pos = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8}; // = presence
+    const pos = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8};
     const show = () => {
         ctx.fillStyle = 'black';
         ctx.beginPath();
@@ -42,12 +46,12 @@ const xAxisTitle = () => {
     return {show};
 };
 const yAxisTitle = () => {
-    const pos = {x1: width * 0.2, y1: height * 0.8 + 10, x2: width * 0.2, y2: height * 0.2}; // = precipitation
+    const pos = {x1: width * 0.2, y1: height * 0.8 + 10, x2: width * 0.2, y2: height * 0.2};
     const show = () => {
         ctx.fillStyle = 'black';
         ctx.font = '24px georgia';
         ctx.save();
-        ctx.translate(pos.x1 - 50, pos.y1 + (pos.y2 - pos.y1) / 2 + 70);
+        ctx.translate(pos.x1 - 100, pos.y1 + (pos.y2 - pos.y1) / 2 + 70);
         ctx.rotate(-Math.PI / 2);
         ctx.beginPath();
         ctx.fillText('Neerslag (in mm)', 0, 0);
@@ -55,43 +59,77 @@ const yAxisTitle = () => {
     };
     return {show};
 };
-const xAxisUnits = presence => {
-    const pos = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8}; // = presence
-    const maxPresence = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
-    const minPresence = presence.reduce((a, {percentage}) => Math.min(a, percentage), maxPresence);
-    const stepsX = 10;
-    const unitXMin = pos.x1 + 30;
-    const unitXMax = pos.x2 - 15;
-    const unitXLength = unitXMax - unitXMin;
+
+/**
+ * @param {Array<Presence>} presence
+ * @param {Array<Stat>} dots
+ */
+const xAxisUnits = (presence, dots) => {
+    const pos = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8};
+    // const maxPresence = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
+    // const minPresence = presence.reduce((a, {percentage}) => Math.min(a, percentage), maxPresence);
+
+    // temp measure cause of seed data only for 1-2 months not getting whole range
+    const maxPresence = dots.reduce((a, {percentage}) => Math.max(a, percentage), 0);
+    const minPresence = dots.reduce((a, {percentage}) => Math.min(a, percentage), maxPresence);
+    const steps = 10;
+    const unitMin = pos.x1 + 30;
+    const unitMax = pos.x2 - 15;
+    const unitLength = unitMax - unitMin;
     const show = () => {
         ctx.strokeStyle = 'black';
         ctx.fillStyle = 'black';
         ctx.lineWidth = 2;
-        for (let i = 0; i <= stepsX; i++) {
-            // console.log(x);
-            let xP = unitXMin + (unitXLength / stepsX) * i;
+        for (let i = 0; i <= steps; i++) {
+            let xP = unitMin + (unitLength / steps) * i;
             ctx.beginPath();
             ctx.moveTo(xP, pos.y1 - 5);
             ctx.lineTo(xP, pos.y1 + 5);
             ctx.stroke();
             ctx.font = '16px georgia';
-            ctx.fillText((minPresence + ((maxPresence - minPresence) / stepsX) * i).toString(), xP - 10, pos.y1 + 20);
+            ctx.fillText((minPresence + ((maxPresence - minPresence) / steps) * i).toFixed(1), xP - 10, pos.y1 + 20);
         }
     };
-    return {show};
+    return {show, unitLength, unitMin, minPresence, maxPresence};
 };
-// const pos = () => {
-//     const show = () => {};
-//     return {show};
-// };
 
 /**
- * Scatter Plot -> Precipitation / Presence %
- * @param {CanvasRenderingContext2D} context
- * @param {Array<import('types').Precipitation>} precipitation
- * @param {Array<import('types').Presence>} presence
+ * @param {Array<Precipitation>} precipitation
+ * @param {Array<Stat>} dots
  */
-export default (context, precipitation, presence) => {
+const yAxisUnits = (precipitation, dots) => {
+    const pos = {x1: width * 0.2, y1: height * 0.8 + 10, x2: width * 0.2, y2: height * 0.2};
+    const maxPrecip = dots.reduce((a, {mm}) => Math.max(a, mm), 0);
+    const minPrecip = 0;
+    const steps = 10;
+    const unitMin = pos.y1 - 30;
+    const unitMax = pos.y2 + 15;
+    const unitLength = unitMax - unitMin;
+    const show = () => {
+        ctx.strokeStyle = 'black';
+        ctx.fillStyle = 'black';
+        ctx.lineWidth = 2;
+        for (let j = 0; j <= steps; j++) {
+            let yP = unitMin + (unitLength / steps) * j;
+            ctx.beginPath();
+            ctx.moveTo(pos.x1 - 5, yP);
+            ctx.lineTo(pos.x1 + 5, yP);
+            ctx.stroke();
+            ctx.font = '16px georgia';
+            ctx.fillText((minPrecip + ((maxPrecip - minPrecip) / steps) * j).toFixed(2), pos.x1 - 50, yP + 3);
+        }
+    };
+    return {show, unitLength, unitMin, minPrecip, maxPrecip};
+};
+
+/**
+ * Scatter Plot -> Precipitation (mm) / Presence (%)
+ * @param {CanvasRenderingContext2D} context
+ * @param {Array<Precipitation>} precipitation
+ * @param {Array<Presence>} presence
+ * @param {Array<Stat>} dots
+ */
+export default (context, precipitation, presence, dots) => {
     ctx = context;
     width = context.canvas.width;
     height = context.canvas.height;
@@ -99,7 +137,10 @@ export default (context, precipitation, presence) => {
     const y = yAxis();
     const xTitle = xAxisTitle();
     const yTitle = yAxisTitle();
-    const xUnits = xAxisUnits(presence);
+    const xUnits = xAxisUnits(presence, dots);
+    const yUnits = yAxisUnits(precipitation, dots);
+
+    setDotPos(xUnits, yUnits, dots);
 
     const show = () => {
         x.show();
@@ -107,8 +148,25 @@ export default (context, precipitation, presence) => {
         xTitle.show();
         yTitle.show();
         xUnits.show();
-        // yUnits.show();
+        yUnits.show();
     };
 
     return {show};
+};
+
+// TODO:: extract and defend!
+const setDotPos = (xUnits, yUnits, dots) => {
+    dots.forEach(dot => {
+        const xpercRange = xUnits.maxPresence - xUnits.minPresence;
+        const xleftOver = dot.percentage - xUnits.minPresence;
+        const xposPerc = (xleftOver * 100) / xpercRange;
+        const xposLength = (xposPerc / 100) * xUnits.unitLength;
+        dot.pos.x = xposLength + xUnits.unitMin;
+
+        const ypercRange = yUnits.maxPrecip - yUnits.minPrecip;
+        const yleftOver = dot.mm - yUnits.minPrecip;
+        const yposPerc = (yleftOver * 100) / ypercRange;
+        const yposLength = (yposPerc / 100) * yUnits.unitLength;
+        dot.pos.y = yposLength + yUnits.unitMin;
+    });
 };
