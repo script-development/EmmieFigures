@@ -15,7 +15,7 @@ const canvasSize = (canvas, width, height) => {
  */
 const canvasPosition = (canvas, position) => {
     if (position === 'center') {
-        canvas.style.position = 'absolute';
+        // canvas.style.position = 'absolute';
         canvas.style.left = Math.floor((innerWidth - canvas.width) / 2) + 'px';
         canvas.style.top = Math.floor((innerHeight - canvas.height) / 2) + 'px';
     }

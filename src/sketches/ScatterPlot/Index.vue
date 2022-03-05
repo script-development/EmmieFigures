@@ -1,5 +1,7 @@
 <template>
-    <canvas id="scatter-plot" />
+    <div id="canvas-container">
+        <canvas id="scatter-plot" :width="width" :height="height" />
+    </div>
 </template>
 
 <script setup>
@@ -35,22 +37,15 @@ const width = 1280,
 onMounted(() => {
     const sketch = Sketch('scatter-plot');
 
-    sketch.setup = ({size, position, border}) => {
-        size(width, height);
-        position('center');
-        border('1px solid #ddd');
-    };
+    // setting position through javascript (css' floating point messes up mouse positioning);
+    sketch.centerCanvas();
 
-    let mouse = {x: 0, y: 0};
-
-    const canvasBoundingClientRect = sketch.context.canvas.getBoundingClientRect();
-    sketch.context.canvas.addEventListener('mousemove', evt => {
-        mouse.x = evt.clientX - canvasBoundingClientRect.left;
-        mouse.y = evt.clientY - canvasBoundingClientRect.top;
-    });
+    // const mouse = sketch.mouse();
 
     /** @type {Array<Stat>} */
     const stats = [];
+
+    const graph = Graph(sketch.context, props.precipitation, props.presence);
 
     props.presence.forEach(present => {
         const precip = props.precipitation.find(precip => precip.date === present.date);
@@ -58,12 +53,41 @@ onMounted(() => {
         stats.push(Stat(present.percentage, precip.mm, present.date, sketch.context));
     });
 
-    const graph = Graph(sketch.context, props.precipitation, props.presence, stats);
+    setStatPos(graph.xUnits, graph.yUnits, stats);
 
-    sketch.draw = ({clear}) => {
-        clear();
+    let requestID = 0;
+    let active = true;
+    const loop = () => {
+        sketch.context.clearRect(0, 0, width, height);
+
         graph.show();
-        stats.forEach(dot => dot.show());
+        stats.forEach(stat => stat.show());
+
+        if (!active) cancelAnimationFrame(requestID);
+        requestID = requestAnimationFrame(loop);
     };
+    loop();
 });
+
+/**
+ *
+ * @param {{}} xUnits
+ * @param {{}} yUnits
+ * @param {Array<Stat>} stats
+ */
+const setStatPos = (xUnits, yUnits, stats) => {
+    stats.forEach(stat => {
+        const xpercRange = xUnits.maxPresence - xUnits.minPresence;
+        const xleftOver = stat.percentage - xUnits.minPresence;
+        const xposPerc = (xleftOver * 100) / xpercRange;
+        const xposLength = (xposPerc / 100) * xUnits.unitLength;
+        stat.pos.x = xposLength + xUnits.unitMin;
+
+        const ypercRange = yUnits.maxPrecip - yUnits.minPrecip;
+        const yleftOver = stat.mm - yUnits.minPrecip;
+        const yposPerc = (yleftOver * 100) / ypercRange;
+        const yposLength = (yposPerc / 100) * yUnits.unitLength;
+        stat.pos.y = yposLength + yUnits.unitMin;
+    });
+};
 </script>

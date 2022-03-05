@@ -62,16 +62,11 @@ const yAxisTitle = () => {
 
 /**
  * @param {Array<Presence>} presence
- * @param {Array<Stat>} dots
  */
-const xAxisUnits = (presence, dots) => {
+const xAxisUnits = presence => {
     const pos = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8};
-    // const maxPresence = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
-    // const minPresence = presence.reduce((a, {percentage}) => Math.min(a, percentage), maxPresence);
-
-    // temp measure cause of seed data only for 1-2 months not getting whole range
-    const maxPresence = dots.reduce((a, {percentage}) => Math.max(a, percentage), 0);
-    const minPresence = dots.reduce((a, {percentage}) => Math.min(a, percentage), maxPresence);
+    const maxPresence = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
+    const minPresence = presence.reduce((a, {percentage}) => Math.min(a, percentage), maxPresence);
     const steps = 10;
     const unitMin = pos.x1 + 30;
     const unitMax = pos.x2 - 15;
@@ -95,11 +90,10 @@ const xAxisUnits = (presence, dots) => {
 
 /**
  * @param {Array<Precipitation>} precipitation
- * @param {Array<Stat>} dots
  */
-const yAxisUnits = (precipitation, dots) => {
+const yAxisUnits = precipitation => {
     const pos = {x1: width * 0.2, y1: height * 0.8 + 10, x2: width * 0.2, y2: height * 0.2};
-    const maxPrecip = dots.reduce((a, {mm}) => Math.max(a, mm), 0);
+    const maxPrecip = precipitation.reduce((a, {mm}) => Math.max(a, mm), 0);
     const minPrecip = 0;
     const steps = 10;
     const unitMin = pos.y1 - 30;
@@ -127,9 +121,8 @@ const yAxisUnits = (precipitation, dots) => {
  * @param {CanvasRenderingContext2D} context
  * @param {Array<Precipitation>} precipitation
  * @param {Array<Presence>} presence
- * @param {Array<Stat>} dots
  */
-export default (context, precipitation, presence, dots) => {
+export default (context, precipitation, presence) => {
     ctx = context;
     width = context.canvas.width;
     height = context.canvas.height;
@@ -137,10 +130,8 @@ export default (context, precipitation, presence, dots) => {
     const y = yAxis();
     const xTitle = xAxisTitle();
     const yTitle = yAxisTitle();
-    const xUnits = xAxisUnits(presence, dots);
-    const yUnits = yAxisUnits(precipitation, dots);
-
-    setDotPos(xUnits, yUnits, dots);
+    const xUnits = xAxisUnits(presence);
+    const yUnits = yAxisUnits(precipitation);
 
     const show = () => {
         x.show();
@@ -151,22 +142,5 @@ export default (context, precipitation, presence, dots) => {
         yUnits.show();
     };
 
-    return {show};
-};
-
-// TODO:: extract and defend!
-const setDotPos = (xUnits, yUnits, dots) => {
-    dots.forEach(dot => {
-        const xpercRange = xUnits.maxPresence - xUnits.minPresence;
-        const xleftOver = dot.percentage - xUnits.minPresence;
-        const xposPerc = (xleftOver * 100) / xpercRange;
-        const xposLength = (xposPerc / 100) * xUnits.unitLength;
-        dot.pos.x = xposLength + xUnits.unitMin;
-
-        const ypercRange = yUnits.maxPrecip - yUnits.minPrecip;
-        const yleftOver = dot.mm - yUnits.minPrecip;
-        const yposPerc = (yleftOver * 100) / ypercRange;
-        const yposLength = (yposPerc / 100) * yUnits.unitLength;
-        dot.pos.y = yposLength + yUnits.unitMin;
-    });
+    return {show, xUnits, yUnits};
 };
