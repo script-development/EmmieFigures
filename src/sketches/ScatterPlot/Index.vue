@@ -71,23 +71,29 @@ onMounted(() => {
 
 /**
  *
- * @param {{}} xUnits
- * @param {{}} yUnits
+ * @param {{max: number, min: number, unitMin: number, length: number}} xUnits
+ * @param {xUnits} yUnits
  * @param {Array<Stat>} stats
  */
 const setStatPos = (xUnits, yUnits, stats) => {
-    stats.forEach(stat => {
-        const xpercRange = xUnits.maxPresence - xUnits.minPresence;
-        const xleftOver = stat.percentage - xUnits.minPresence;
-        const xposPerc = (xleftOver * 100) / xpercRange;
-        const xposLength = (xposPerc / 100) * xUnits.unitLength;
-        stat.pos.x = xposLength + xUnits.unitMin;
+    /**
+     * @param {number} max
+     * @param {number} min
+     * @param {number} unitMin
+     * @param {number} length
+     * @param {number} stat
+     */
+    const pos = (max, min, unitMin, length, stat) => {
+        const range = max - min;
+        const leftOver = stat - min;
+        const posPercentage = leftOver / range;
+        const posLength = posPercentage * length;
+        return posLength + unitMin;
+    };
 
-        const ypercRange = yUnits.maxPrecip - yUnits.minPrecip;
-        const yleftOver = stat.mm - yUnits.minPrecip;
-        const yposPerc = (yleftOver * 100) / ypercRange;
-        const yposLength = (yposPerc / 100) * yUnits.unitLength;
-        stat.pos.y = yposLength + yUnits.unitMin;
+    stats.forEach(stat => {
+        stat.pos.x = pos(xUnits.max, xUnits.min, xUnits.unitMin, xUnits.length, stat.percentage);
+        stat.pos.y = pos(yUnits.max, yUnits.min, yUnits.unitMin, yUnits.length, stat.mm);
     });
 };
 </script>

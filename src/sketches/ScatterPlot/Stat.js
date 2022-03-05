@@ -7,7 +7,7 @@
  */
 export default (presencePercentage, precipitationMM, date, ctx) => {
     const color = [255, 0, 0];
-    const pos = {x: 640, y: 360};
+    const pos = {x: 0, y: 0};
     const show = () => {
         ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
         ctx.beginPath();
