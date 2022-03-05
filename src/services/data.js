@@ -11,7 +11,7 @@ const options = {
     elements: '', // options: precip, datetime, description, empty string = all
 };
 
-/** @type {Array<import('types/index.js').WeatherData>} */
+/** @type {Array<import('types/data.js').WeatherData>} */
 export let weatherData;
 
 /**
@@ -42,7 +42,7 @@ export const deploy = async () => {
 /**
  * @param {Array<number>} start
  * @param {Array<number>} end
- * @returns {Promise<{days?: import('types/index.js').WeatherData[], queryCost: number}>}
+ * @returns {Promise<{days?: import('types/data.js').WeatherData[], queryCost: number}>}
  */
 const getWeatherData = (start, end) => {
     const startDate = dateQueryString(start[0], start[1], start[2]);

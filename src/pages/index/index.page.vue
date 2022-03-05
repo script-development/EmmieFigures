@@ -9,7 +9,7 @@
 /** @typedef {import('@vue/runtime-core').PropType<ReportData[]>} Reports */
 
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import.meta.hot?.on('vite:beforeUpdate', () => import.meta.hot?.invalidate());
+// import.meta.hot?.on('vite:beforeUpdate', () => import.meta.hot?.invalidate());
 
 const props = defineProps({
     weather: {

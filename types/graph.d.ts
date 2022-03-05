@@ -4,7 +4,6 @@ export interface Stat {
     mm: number,
     date: string,
     show: () => void,
-    inside: ({x: number, y: number}) => void,
 }
 
 export interface Precipitation {

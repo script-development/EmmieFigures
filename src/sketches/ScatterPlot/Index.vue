@@ -14,6 +14,7 @@
 import {onMounted} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
+import Stat from './Stat';
 
 const props = defineProps({
     precipitation: {
@@ -49,64 +50,20 @@ onMounted(() => {
     });
 
     /** @type {Array<Stat>} */
-    const dots = [];
+    const stats = [];
 
     props.presence.forEach(present => {
-        const prec = props.precipitation.find(precip => precip.date === present.date);
-        if (prec) {
-            dots.push(Dot(present.percentage, prec.mm, present.date, sketch.context));
-        }
+        const precip = props.precipitation.find(precip => precip.date === present.date);
+        if (!precip) return;
+        stats.push(Stat(present.percentage, precip.mm, present.date, sketch.context));
     });
 
-    const graph = Graph(sketch.context, props.precipitation, props.presence, dots);
+    const graph = Graph(sketch.context, props.precipitation, props.presence, stats);
 
     sketch.draw = ({clear}) => {
         clear();
         graph.show();
-        dots.forEach(dot => {
-            dot.show();
-            dot.inside(mouse);
-        });
+        stats.forEach(dot => dot.show());
     };
 });
-
-/**
- * @param {number} presencePercentage
- * @param {number} precipitationMM
- * @param {string} date
- * @param {CanvasRenderingContext2D} ctx
- */
-const Dot = (presencePercentage, precipitationMM, date, ctx) => {
-    const color = [255, 0, 0];
-    const pos = {x: 640, y: 360};
-    const show = () => {
-        ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-        ctx.fill();
-    };
-
-    /** @param {{x: number, y: number}} mouse */
-    const inside = mouse => {
-        const distX = mouse.x - pos.x;
-        const distY = mouse.y - pos.y;
-        const dist = Math.sqrt(Math.pow(distX, 2) + Math.pow(distY, 2));
-        if (dist < 5) {
-            color[0] = 0;
-            color[1] = 255;
-        } else {
-            color[0] = 255;
-            color[1] = 0;
-        }
-    };
-
-    return {
-        percentage: presencePercentage,
-        mm: precipitationMM,
-        date,
-        pos,
-        show,
-        inside,
-    };
-};
 </script>
