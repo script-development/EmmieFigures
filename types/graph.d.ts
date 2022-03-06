@@ -3,7 +3,9 @@ export interface Stat {
     percentage: number,
     mm: number,
     date: string,
-    show: () => void,
+    show: function,
+    update: function,
+    selected: function,
 }
 
 export interface Precipitation {

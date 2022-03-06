@@ -1,27 +1,98 @@
+/** set to id of selected stat (mouse hover), else -1 */
+let insideId = -1;
+
 /**
- * @param {number} presencePercentage
- * @param {number} precipitationMM
+ * @param {number} percentage
+ * @param {number} mm
  * @param {string} date
  * @param {CanvasRenderingContext2D} ctx
+ * @param {{x: number, y: number}} mouse
+ * @param {number} id
  * @returns {import("types/graph").Stat}
  */
-export default (presencePercentage, precipitationMM, date, ctx) => {
-    const color = [255, 0, 0];
+export default (percentage, mm, date, ctx, mouse, id) => {
+    const color = [0, 100, 0];
     const pos = {x: 0, y: 0};
-    const show = () => {
-        ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-        ctx.fill();
-    };
+    let radius = 5;
+    const update = () => updateStat(id, color, mouse, pos, radius);
+
+    const show = () => showStat(ctx, color, pos, radius);
+    const selected = () => showSelected(ctx, mouse);
 
     return {
-        percentage: presencePercentage,
-        mm: precipitationMM,
+        percentage,
+        mm,
         date,
         pos,
         show,
+        update,
+        selected,
     };
+};
+
+/**
+ * @param {{x: number, y: number}} mouse
+ * @param {mouse} pos
+ * @param {number} radius
+ */
+const mouseInside = (mouse, pos, radius) =>
+    Math.sqrt(Math.pow(mouse.x - pos.x, 2) + Math.pow(mouse.y - pos.y, 2)) < radius;
+
+/**
+ *
+ * @param {number} id
+ * @param {Array<number>} color
+ * @param {{x: number, y: number}} mouse
+ * @param {mouse} pos
+ * @param {number} radius
+ * @returns {number}
+ */
+const updateStat = (id, color, mouse, pos, radius) => {
+    if (insideId === id) {
+        if (!mouseInside(mouse, pos, radius)) {
+            insideId = -1;
+            color[0] = 0;
+            return -1;
+        }
+    } else if (insideId < 0 && mouseInside(mouse, pos, radius)) {
+        insideId = id;
+        color[0] = 255;
+        return id;
+    }
+    return insideId;
+};
+
+/**
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {{x: number, y: number}} mouse
+ */
+const showSelected = (ctx, mouse) => {
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'magenta';
+    ctx.beginPath();
+    ctx.moveTo(mouse.x, mouse.y);
+    ctx.lineTo(mouse.x + 30, mouse.y - 30);
+    ctx.stroke();
+    ctx.strokeStyle = 'black';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.rect(mouse.x + 30, mouse.y - 110, 200, 80);
+    ctx.fill();
+    ctx.stroke();
+};
+
+/**
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Array<number>} color
+ * @param {{x: number, y: number}} pos
+ * @param {number} radius
+ */
+const showStat = (ctx, color, pos, radius) => {
+    ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+    ctx.fill();
 };
 
 /**

@@ -41,7 +41,7 @@ onMounted(() => {
     // setting position through javascript (css' floating point messes up mouse positioning);
     sketch.centerCanvas();
 
-    // const mouse = sketch.mouse();
+    const mouse = sketch.mouse();
 
     /** @type {Array<Stat>} */
     const stats = [];
@@ -49,24 +49,30 @@ onMounted(() => {
     const graph = Graph(sketch.context, props.precipitation, props.presence);
 
     // create a statistic object for every date in presence
-    props.presence.forEach(present => {
+    props.presence.forEach((present, index) => {
         const precip = props.precipitation.find(precip => precip.date === present.date);
         if (!precip) return;
-        stats.push(Stat(present.percentage, precip.mm, present.date, sketch.context));
+        stats.push(Stat(present.percentage, precip.mm, present.date, sketch.context, mouse, index));
     });
 
     setStatPosition(graph.xUnits, graph.yUnits, stats);
+    let selectedId = -1;
 
-    let requestID = 0;
-    let active = true;
     const loop = () => {
         sketch.context.clearRect(0, 0, width, height);
 
         graph.show();
-        stats.forEach(stat => stat.show());
+        for (const stat of stats) {
+            selectedId = stat.update();
+            stat.show();
+        }
+        // force selected stat to appear on top and show stat values on screen @ mouse location
+        if (selectedId > -1) {
+            stats[selectedId].show();
+            stats[selectedId].selected();
+        }
 
-        if (!active) cancelAnimationFrame(requestID);
-        requestID = requestAnimationFrame(loop);
+        requestAnimationFrame(loop);
     };
     loop();
 });
