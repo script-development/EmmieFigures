@@ -1,6 +1,6 @@
 <template>
     <div id="canvas-container">
-        <canvas id="scatter-plot" :width="width" :height="height" />
+        <canvas id="scatter-plot" :width="width" :height="height" style="border: 1px solid black" />
     </div>
 </template>
 
@@ -17,6 +17,7 @@ import {onMounted} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
 import Stat from './Stat';
+import {setStatPosition} from './Stat';
 
 const props = defineProps({
     precipitation: {
@@ -47,13 +48,14 @@ onMounted(() => {
 
     const graph = Graph(sketch.context, props.precipitation, props.presence);
 
+    // create a statistic object for every date in presence
     props.presence.forEach(present => {
         const precip = props.precipitation.find(precip => precip.date === present.date);
         if (!precip) return;
         stats.push(Stat(present.percentage, precip.mm, present.date, sketch.context));
     });
 
-    setStatPos(graph.xUnits, graph.yUnits, stats);
+    setStatPosition(graph.xUnits, graph.yUnits, stats);
 
     let requestID = 0;
     let active = true;
@@ -68,32 +70,4 @@ onMounted(() => {
     };
     loop();
 });
-
-/**
- *
- * @param {{max: number, min: number, unitMin: number, length: number}} xUnits
- * @param {xUnits} yUnits
- * @param {Array<Stat>} stats
- */
-const setStatPos = (xUnits, yUnits, stats) => {
-    /**
-     * @param {number} max
-     * @param {number} min
-     * @param {number} unitMin
-     * @param {number} length
-     * @param {number} stat
-     */
-    const pos = (max, min, unitMin, length, stat) => {
-        const range = max - min;
-        const leftOver = stat - min;
-        const posPercentage = leftOver / range;
-        const posLength = posPercentage * length;
-        return posLength + unitMin;
-    };
-
-    stats.forEach(stat => {
-        stat.pos.x = pos(xUnits.max, xUnits.min, xUnits.unitMin, xUnits.length, stat.percentage);
-        stat.pos.y = pos(yUnits.max, yUnits.min, yUnits.unitMin, yUnits.length, stat.mm);
-    });
-};
 </script>
