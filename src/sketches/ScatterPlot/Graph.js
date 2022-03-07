@@ -6,19 +6,26 @@
 /** @type {CanvasRenderingContext2D} */
 let ctx;
 
-/** @type {number} canvas width */
-let width;
+/** @type {import("types/sketches").Globals} */
+let globals;
 
-/** @type {number} canvas height */
-let height;
+const origin = {x: 0, y: 0};
 
-/**
- * Create x-Axis
- * @param {vec4} position
- * @returns {{show: function}}
- */
-const xAxis = position => {
-    const pos = position;
+const xAxis = () => {
+    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
+    const show = () => {
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(pos.x1, pos.y1);
+        ctx.lineTo(pos.x2, pos.y2);
+        ctx.stroke();
+    };
+    return {show};
+};
+
+const yAxis = () => {
+    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
     const show = () => {
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 4;
@@ -32,30 +39,11 @@ const xAxis = position => {
 
 /**
  * Create x-Axis
- * @param {vec4} position
- * @returns {{show: function}}
- */
-const yAxis = position => {
-    const pos = position;
-    const show = () => {
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(pos.x1, pos.y1);
-        ctx.lineTo(pos.x2, pos.y2);
-        ctx.stroke();
-    };
-    return {show};
-};
-
-/**
- * Create x-Axis
- * @param {vec4} position
  * @param {string} title
  * @returns {{show: function}}
  */
-const xAxisTitle = (position, title) => {
-    const pos = position;
+const xAxisTitle = title => {
+    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
     const show = () => {
         ctx.fillStyle = 'black';
         ctx.beginPath();
@@ -67,13 +55,12 @@ const xAxisTitle = (position, title) => {
 };
 
 /**
- * Create x-Axis
- * @param {vec4} position
+ * Create y-Axis
  * @param {string} title
  * @returns {{show: function}}
  */
-const yAxisTitle = (position, title) => {
-    const pos = position;
+const yAxisTitle = title => {
+    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
     const show = () => {
         ctx.fillStyle = 'black';
         ctx.font = '24px georgia';
@@ -91,10 +78,9 @@ const yAxisTitle = (position, title) => {
 
 /**
  * @param {Array<Presence>} presence
- * @param {vec4} position
  */
-const xAxisUnits = (presence, position) => {
-    const pos = position;
+const xAxisUnits = presence => {
+    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
     const max = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
     const min = presence.reduce((a, {percentage}) => Math.min(a, percentage), max);
     const steps = 10;
@@ -114,7 +100,7 @@ const xAxisUnits = (presence, position) => {
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#ddd';
             ctx.moveTo(xP, pos.y1);
-            ctx.lineTo(xP, pos.y1 - height * 0.6);
+            ctx.lineTo(xP, pos.y1 - globals.height * 0.6);
             ctx.stroke();
             ctx.textAlign = 'center';
             ctx.font = '16px georgia';
@@ -126,10 +112,9 @@ const xAxisUnits = (presence, position) => {
 
 /**
  * @param {Array<Precipitation>} precipitation
- * @param {vec4} position
  */
-const yAxisUnits = (precipitation, position) => {
-    const pos = position;
+const yAxisUnits = precipitation => {
+    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
     const max = precipitation.reduce((a, {mm}) => Math.max(a, mm), 0);
     const min = 0;
     const steps = 10;
@@ -149,7 +134,7 @@ const yAxisUnits = (precipitation, position) => {
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#ddd';
             ctx.moveTo(pos.x1, yP);
-            ctx.lineTo(pos.x1 + width * 0.6, yP);
+            ctx.lineTo(pos.x1 + globals.width * 0.6, yP);
             ctx.stroke();
             ctx.textBaseline = 'middle';
             ctx.font = '16px georgia';
@@ -160,13 +145,10 @@ const yAxisUnits = (precipitation, position) => {
 };
 
 /**
- *
- * @param {number} x
- * @param {number} y
  * @param {string} title
- * @returns
  */
-const graphTitle = (x, y, title) => {
+const graphTitle = title => {
+    const pos = {x: globals.width / 2, y: globals.height * 0.1};
     const show = () => {
         ctx.beginPath();
         ctx.lineWidth = 1;
@@ -174,14 +156,13 @@ const graphTitle = (x, y, title) => {
         ctx.fillStyle = 'gray';
         ctx.textAlign = 'center';
         ctx.font = '32px sans-serif';
-        ctx.fillText(title, x + 1, y + 1);
-        ctx.strokeText(title, x, y);
+        ctx.fillText(title, pos.x + 1, pos.y + 1);
+        ctx.strokeText(title, pos.x, pos.y);
     };
     return {show};
 };
 
 /**
- *
  * @param {number} x
  * @param {number} y
  * @param {number} w
@@ -209,23 +190,23 @@ const graphLegend = (x, y, w, h) => {
 
 /**
  * Scatter Plot -> Precipitation (mm) / Presence (%)
- * @param {CanvasRenderingContext2D} context
+ * @param {import("types/sketches").Sketch} sketch
  * @param {Array<Precipitation>} precipitation
  * @param {Array<Presence>} presence
  */
-export default (context, precipitation, presence) => {
-    ctx = context;
-    width = context.canvas.width;
-    height = context.canvas.height;
-    const origin = {x: width * 0.2, y: height * 0.8};
-    const x = xAxis({x1: origin.x, y1: origin.y, x2: width * 0.8, y2: origin.y});
-    const y = yAxis({x1: origin.x, y1: origin.y, x2: origin.x, y2: height * 0.2});
-    const xTitle = xAxisTitle({x1: origin.x, y1: origin.y, x2: width * 0.8, y2: origin.y}, 'Aanwezigheid (%)');
-    const yTitle = yAxisTitle({x1: origin.x, y1: origin.y, x2: origin.x, y2: height * 0.2}, 'Neerslag (in mm)');
-    const xUnits = xAxisUnits(presence, {x1: origin.x, y1: origin.y, x2: width * 0.8, y2: origin.y});
-    const yUnits = yAxisUnits(precipitation, {x1: origin.x, y1: origin.y, x2: origin.x, y2: height * 0.2});
-    const title = graphTitle(width / 2, height * 0.1, 'Scatterplot voor aanwezigheid vs neerslag');
-    const legend = graphLegend(width * 0.9, height * 0.5, width * 0.15, height * 0.15);
+export default (sketch, precipitation, presence) => {
+    ctx = sketch.context;
+    globals = sketch.globals;
+    origin.x = globals.width * 0.2;
+    origin.y = globals.height * 0.8;
+    const x = xAxis();
+    const y = yAxis();
+    const xTitle = xAxisTitle('Aanwezigheid (%)');
+    const yTitle = yAxisTitle('Neerslag (in mm)');
+    const xUnits = xAxisUnits(presence);
+    const yUnits = yAxisUnits(precipitation);
+    const title = graphTitle('Scatterplot voor aanwezigheid vs neerslag');
+    const legend = graphLegend(globals.width * 0.9, globals.height * 0.5, globals.width * 0.15, globals.height * 0.15);
 
     const show = () => {
         x.show();

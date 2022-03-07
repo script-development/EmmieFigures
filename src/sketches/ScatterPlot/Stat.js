@@ -1,60 +1,57 @@
 /** set to id of selected stat (mouse hover), else -1 */
 let insideId = -1;
 
+/** @type {import("types/sketches").Globals} */
+let globals;
+
 /**
  * @param {number} percentage
  * @param {number} mm
  * @param {string} date
- * @param {CanvasRenderingContext2D} ctx
- * @param {{x: number, y: number}} mouse
  * @param {number} id
+ * @param {import("types/sketches").Sketch} sketch
  * @returns {import("types/graph").Stat}
  */
-export default (percentage, mm, date, ctx, mouse, id) => {
+export default (percentage, mm, date, id, sketch) => {
+    globals = sketch.globals;
     const color = [0, 100, 0];
     const pos = {x: 0, y: 0};
     let radius = 5;
-    const update = () => updateStat(id, color, mouse, pos, radius);
-
-    const show = () => showStat(ctx, color, pos, radius);
-    const selected = () => showSelected(ctx, mouse);
 
     return {
         percentage,
         mm,
         date,
         pos,
-        show,
-        update,
-        selected,
+        update: () => updateStat(id, color, pos, radius),
+        show: () => showStat(sketch.context, color, pos, radius),
+        selected: () => showSelected(sketch.context),
     };
 };
 
 /**
- * @param {{x: number, y: number}} mouse
- * @param {mouse} pos
+ * @param {{x: number, y: number}} pos
  * @param {number} radius
  */
-const mouseInside = (mouse, pos, radius) =>
-    Math.sqrt(Math.pow(mouse.x - pos.x, 2) + Math.pow(mouse.y - pos.y, 2)) < radius;
+const mouseInside = (pos, radius) =>
+    Math.sqrt(Math.pow(globals.mouseX - pos.x, 2) + Math.pow(globals.mouseY - pos.y, 2)) < radius;
 
 /**
  *
  * @param {number} id
  * @param {Array<number>} color
- * @param {{x: number, y: number}} mouse
- * @param {mouse} pos
+ * @param {{x: number, y: number}} pos
  * @param {number} radius
  * @returns {number}
  */
-const updateStat = (id, color, mouse, pos, radius) => {
+const updateStat = (id, color, pos, radius) => {
     if (insideId === id) {
-        if (!mouseInside(mouse, pos, radius)) {
+        if (!mouseInside(pos, radius)) {
             insideId = -1;
             color[0] = 0;
             return -1;
         }
-    } else if (insideId < 0 && mouseInside(mouse, pos, radius)) {
+    } else if (insideId < 0 && mouseInside(pos, radius)) {
         insideId = id;
         color[0] = 255;
         return id;
@@ -65,18 +62,17 @@ const updateStat = (id, color, mouse, pos, radius) => {
 /**
  *
  * @param {CanvasRenderingContext2D} ctx
- * @param {{x: number, y: number}} mouse
  */
-const showSelected = (ctx, mouse) => {
+const showSelected = ctx => {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'magenta';
     ctx.beginPath();
-    ctx.moveTo(mouse.x, mouse.y);
-    ctx.lineTo(mouse.x + 30, mouse.y - 30);
+    ctx.moveTo(globals.mouseX, globals.mouseY);
+    ctx.lineTo(globals.mouseX + 30, globals.mouseY - 30);
     ctx.stroke();
     ctx.strokeStyle = 'black';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.rect(mouse.x + 30, mouse.y - 110, 200, 80);
+    ctx.rect(globals.mouseX + 30, globals.mouseY - 110, 200, 80);
     ctx.fill();
     ctx.stroke();
 };

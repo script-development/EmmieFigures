@@ -1,6 +1,6 @@
 <template>
     <div id="canvas-container">
-        <canvas id="scatter-plot" :width="width" :height="height" style="border: 1px solid black" />
+        <canvas id="scatter-plot" style="border: 1px solid black" />
     </div>
 </template>
 
@@ -32,34 +32,36 @@ const props = defineProps({
     },
 });
 
-const width = 1280,
-    height = 720;
+/** used for mouse hover over stat */
+let selectedId = -1;
+
+/** @type {Array<Stat>} */
+const stats = [];
 
 onMounted(() => {
     const sketch = Sketch('scatter-plot');
 
+    sketch.size(1280, 720);
+
     // setting position through javascript (css' floating point messes up mouse positioning);
     sketch.centerCanvas();
 
-    const mouse = sketch.mouse();
+    // initialize mouse input
+    sketch.mouse();
 
-    /** @type {Array<Stat>} */
-    const stats = [];
-
-    const graph = Graph(sketch.context, props.precipitation, props.presence);
+    const graph = Graph(sketch, props.precipitation, props.presence);
 
     // create a statistic object for every date in presence
     props.presence.forEach((present, index) => {
         const precip = props.precipitation.find(precip => precip.date === present.date);
         if (!precip) return;
-        stats.push(Stat(present.percentage, precip.mm, present.date, sketch.context, mouse, index));
+        stats.push(Stat(present.percentage, precip.mm, present.date, index, sketch));
     });
 
     setStatPosition(graph.xUnits, graph.yUnits, stats);
-    let selectedId = -1;
 
     const loop = () => {
-        sketch.context.clearRect(0, 0, width, height);
+        sketch.context.clearRect(0, 0, sketch.globals.width, sketch.globals.height);
 
         graph.show();
         for (const stat of stats) {

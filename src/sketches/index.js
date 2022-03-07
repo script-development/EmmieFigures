@@ -1,4 +1,7 @@
-/** @typedef {import("types/sketches").Sketch} SketchApi */
+/** @typedef {import("types/sketches").Sketch} SketchAPI */
+/** @typedef {import("types/sketches").Globals} GlobalVariables */
+
+import Globals from './Globals';
 
 /**
  * get canvas element and extract context2D
@@ -12,6 +15,19 @@ const getContext = id => {
     return context;
 };
 
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {GlobalVariables} globals
+ * @param {number} width
+ * @param {number} height
+ */
+const setCanvasSize = (canvas, globals, width, height) => {
+    canvas.width = width;
+    canvas.height = height;
+    globals.width = width;
+    globals.height = height;
+};
+
 /** @param {HTMLCanvasElement} canvas */
 const CenterCanvas = canvas => {
     canvas.style.position = 'absolute';
@@ -19,36 +35,31 @@ const CenterCanvas = canvas => {
     canvas.style.top = Math.floor((innerHeight - canvas.height) / 2) + 'px';
 };
 
-/** @param {HTMLCanvasElement} canvas */
-const Mouse = canvas => {
-    const pos = {x: 0, y: 0};
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {GlobalVariables} globals
+ */
+const Mouse = (canvas, globals) => {
     const canvasBoundingClientRect = canvas.getBoundingClientRect();
     canvas.addEventListener('mousemove', evt => {
-        pos.x = evt.clientX - canvasBoundingClientRect.left;
-        pos.y = evt.clientY - canvasBoundingClientRect.top;
+        globals.mouseX = evt.clientX - canvasBoundingClientRect.left;
+        globals.mouseY = evt.clientY - canvasBoundingClientRect.top;
     });
-    return {
-        get x() {
-            return pos.x;
-        },
-        get y() {
-            return pos.y;
-        },
-    };
 };
 
 /**
  * @param {string} id the id of the canvas element
- * @returns
+ * @returns {SketchAPI}
  */
 export default id => {
     const context = getContext(id);
-    const centerCanvas = () => CenterCanvas(context.canvas);
-    const mouse = () => Mouse(context.canvas);
+    const globals = Globals();
 
     return {
         context,
-        centerCanvas,
-        mouse,
+        globals,
+        size: (width, height) => setCanvasSize(context.canvas, globals, width, height),
+        centerCanvas: () => CenterCanvas(context.canvas),
+        mouse: () => Mouse(context.canvas, globals),
     };
 };
