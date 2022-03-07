@@ -31,10 +31,7 @@ const precipitation = [];
 const presence = [];
 
 const precipitationDatetime = () =>
-    props.weather.map(weather => {
-        precipitation.push({day: weather.datetime, precip: weather.precip});
-        weather.precip;
-    });
+    props.weather.forEach(weather => precipitation.push({day: weather.datetime, precip: weather.precip}));
 
 const presenceDatetime = () => {
     presence.push();

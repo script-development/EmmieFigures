@@ -2,10 +2,10 @@
  * Precipitation graph with date
  * @param {number} width
  * @param {number} height
- * @param {Array<import('types').Precipitation>} props
+ * @param {Array<import('types').Precipitation>} precipitation
  */
-export default (width, height, props) => {
-    const days = getDaysFromMonth(props, 12);
+export default (width, height, precipitation) => {
+    const days = getDaysFromMonth(precipitation, 12);
     // const max = props.reduce((a, {precip}) => Math.max(a, precip), 0);
 
     // x1, y1 = Origin (De oorsprong)
@@ -46,11 +46,11 @@ export default (width, height, props) => {
 };
 
 /**
- * @param {Array<import('types').Precipitation>} props
+ * @param {Array<import('types').Precipitation>} precipitation
  * @param {number} month
  */
-const getDaysFromMonth = (props, month) => {
-    return props
+const getDaysFromMonth = (precipitation, month) => {
+    return precipitation
         .filter(i => i.day.search(`2021-${month}`) != -1)
         .map(i => {
             let day = i.day.substring(8);
