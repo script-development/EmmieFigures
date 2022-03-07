@@ -11,8 +11,6 @@ interface vec2 {
     magSq: () => number;
     norm: () => vec2;
     setMag: (n: number) => vec2;
-    random2D: () => vec2;
-    limit: (max: number) => void;
 }
 
 export interface vec {
@@ -21,4 +19,5 @@ export interface vec {
     mult: (v: vec2, n: number) => vec2;
     div: (v: vec2, n: number) => vec2;
     random2D: () => vec2;
+    limit: (v: vec2, n: number) => vec2;
 }
