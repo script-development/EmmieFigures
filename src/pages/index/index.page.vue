@@ -9,7 +9,6 @@
 /** @typedef {import('@vue/runtime-core').PropType<ReportData[]>} Reports */
 
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-// import.meta.hot?.on('vite:beforeUpdate', () => import.meta.hot?.invalidate());
 
 const props = defineProps({
     weather: {
@@ -32,10 +31,7 @@ const presence = [];
 
 /** filter precipitation and date from weather data */
 const setPrecipitation = () =>
-    props.weather.map(weather => {
-        precipitation.push({date: weather.datetime, mm: weather.precip});
-        weather.precip;
-    });
+    props.weather.forEach(weather => precipitation.push({date: weather.datetime, mm: weather.precip}));
 
 /** set presence for each unique day */
 const setPresence = () => {
