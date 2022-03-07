@@ -1,3 +1,4 @@
+/* eslint-env node */
 import {config} from 'dotenv';
 import {IS_SSR} from '../constants.js';
 
