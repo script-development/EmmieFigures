@@ -4,7 +4,7 @@
     "editor.tabSize": 4,
     // ESLint settings
     "eslint.run": "onType",
-    "eslint.workingDirectories": ["./resources/js"],
+    "eslint.workingDirectories": [".src"],
     "eslint.nodePath": "./node_modules",
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
