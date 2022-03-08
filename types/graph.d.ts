@@ -4,7 +4,7 @@ export interface Stat {
     mm: number,
     date: string,
     show: function,
-    update: function,
+    update: ((delta: number) => number),
     selected: function,
 }
 

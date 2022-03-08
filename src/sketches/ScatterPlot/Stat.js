@@ -23,8 +23,8 @@ export default (percentage, mm, date, id, sketch) => {
         mm,
         date,
         pos,
-        update: () => updateStat(id, color, pos, radius),
-        show: () => showStat(sketch.context, color, pos, radius),
+        update: delta => update(id, color, pos, radius, delta),
+        show: () => show(sketch.context, color, pos, radius),
         selected: () => showSelected(sketch.context),
     };
 };
@@ -37,14 +37,14 @@ const mouseInside = (pos, radius) =>
     Math.sqrt(Math.pow(globals.mouseX - pos.x, 2) + Math.pow(globals.mouseY - pos.y, 2)) < radius;
 
 /**
- *
  * @param {number} id
  * @param {Array<number>} color
  * @param {{x: number, y: number}} pos
  * @param {number} radius
+ * @param {number} delta
  * @returns {number}
  */
-const updateStat = (id, color, pos, radius) => {
+const update = (id, color, pos, radius, delta) => {
     if (insideId === id) {
         if (!mouseInside(pos, radius)) {
             insideId = -1;
@@ -84,7 +84,7 @@ const showSelected = ctx => {
  * @param {{x: number, y: number}} pos
  * @param {number} radius
  */
-const showStat = (ctx, color, pos, radius) => {
+const show = (ctx, color, pos, radius) => {
     ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
     ctx.beginPath();
     ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);

@@ -37,11 +37,7 @@ const yAxis = () => {
     return {show};
 };
 
-/**
- * Create x-Axis
- * @param {string} title
- * @returns {{show: function}}
- */
+/** @param {string} title */
 const xAxisTitle = title => {
     const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
     const show = () => {
@@ -54,11 +50,7 @@ const xAxisTitle = title => {
     return {show};
 };
 
-/**
- * Create y-Axis
- * @param {string} title
- * @returns {{show: function}}
- */
+/** @param {string} title */
 const yAxisTitle = title => {
     const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
     const show = () => {
@@ -76,9 +68,7 @@ const yAxisTitle = title => {
     return {show};
 };
 
-/**
- * @param {Array<Presence>} presence
- */
+/** @param {Array<Presence>} presence */
 const xAxisUnits = presence => {
     const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
     const max = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
@@ -110,9 +100,7 @@ const xAxisUnits = presence => {
     return {show, length, unitMin, min, max};
 };
 
-/**
- * @param {Array<Precipitation>} precipitation
- */
+/** @param {Array<Precipitation>} precipitation */
 const yAxisUnits = precipitation => {
     const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
     const max = precipitation.reduce((a, {mm}) => Math.max(a, mm), 0);
@@ -144,9 +132,7 @@ const yAxisUnits = precipitation => {
     return {show, length, unitMin, min, max};
 };
 
-/**
- * @param {string} title
- */
+/** @param {string} title */
 const graphTitle = title => {
     const pos = {x: globals.width / 2, y: globals.height * 0.1};
     const show = () => {
