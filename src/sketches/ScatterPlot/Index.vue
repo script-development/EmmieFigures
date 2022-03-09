@@ -49,7 +49,6 @@ onMounted(() => {
     // initialize mouse input
     sketch.mouse();
 
-    const box = Box(sketch.context, 200, 300);
     const graph = Graph(sketch, props.precipitation, props.presence);
 
     // create a statistic object for every date in presence
@@ -61,48 +60,21 @@ onMounted(() => {
 
     setStatPosition(graph.xUnits, graph.yUnits, stats);
 
-    sketch.update(delta => {
-        box.update(delta);
-        // for (const stat of stats) selectedId = stat.update(delta);
+    sketch.update(() => {
+        for (const stat of stats) selectedId = stat.update();
     });
 
     sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.globals.width, sketch.globals.height);
 
-        box.show();
-        // graph.show();
-        // for (const stat of stats) stat.show();
+        graph.show();
+        for (const stat of stats) stat.show();
+
         // force selected stat to appear on top and show stat values on screen @ mouse location
-        // if (selectedId > -1) {
-        //     stats[selectedId].show();
-        //     stats[selectedId].selected();
-        // }
+        if (selectedId > -1) {
+            stats[selectedId].show();
+            stats[selectedId].selected();
+        }
     });
 });
-
-/**
- *
- * @param {CanvasRenderingContext2D} ctx
- * @param {number} x
- * @param {number} y
- */
-const Box = (ctx, x, y) => {
-    const pos = {x, y};
-    const vel = {x: 100, y: 0};
-    // const acc = {x: 0, y: 0};
-    /** @param {number} delta */
-    const update = delta => {
-        console.log(delta);
-        pos.x += vel.x * delta;
-        pos.y += vel.y * delta;
-        if (pos.x > 600) vel.x *= -1;
-        if (pos.x < 150) vel.x *= -1;
-    };
-    const show = () => {
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.fillRect(pos.x, pos.y, 40, 40);
-    };
-    return {update, show};
-};
 </script>

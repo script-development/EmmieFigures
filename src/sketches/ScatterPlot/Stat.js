@@ -23,7 +23,7 @@ export default (percentage, mm, date, id, sketch) => {
         mm,
         date,
         pos,
-        update: delta => update(id, color, pos, radius, delta),
+        update: () => update(id, color, pos, radius),
         show: () => show(sketch.context, color, pos, radius),
         selected: () => showSelected(sketch.context),
     };
@@ -41,10 +41,9 @@ const mouseInside = (pos, radius) =>
  * @param {Array<number>} color
  * @param {{x: number, y: number}} pos
  * @param {number} radius
- * @param {number} delta
  * @returns {number}
  */
-const update = (id, color, pos, radius, delta) => {
+const update = (id, color, pos, radius) => {
     if (insideId === id) {
         if (!mouseInside(pos, radius)) {
             insideId = -1;
@@ -59,10 +58,7 @@ const update = (id, color, pos, radius, delta) => {
     return insideId;
 };
 
-/**
- *
- * @param {CanvasRenderingContext2D} ctx
- */
+/** @param {CanvasRenderingContext2D} ctx */
 const showSelected = ctx => {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'magenta';
@@ -78,7 +74,6 @@ const showSelected = ctx => {
 };
 
 /**
- *
  * @param {CanvasRenderingContext2D} ctx
  * @param {Array<number>} color
  * @param {{x: number, y: number}} pos
@@ -92,7 +87,6 @@ const show = (ctx, color, pos, radius) => {
 };
 
 /**
- *
  * @param {{max: number, min: number, unitMin: number, length: number}} xUnits
  * @param {xUnits} yUnits
  * @param {Array<import("types/graph").Stat>} stats

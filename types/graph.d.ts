@@ -3,9 +3,9 @@ export interface Stat {
     percentage: number,
     mm: number,
     date: string,
-    show: function,
-    update: ((delta: number) => number),
-    selected: function,
+    show: (interpolate?: number) => void,
+    update: (delta?: number) => number,
+    selected: () => void,
 }
 
 export interface Precipitation {
