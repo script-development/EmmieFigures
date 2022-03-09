@@ -21,7 +21,7 @@
         "paths": {
             "components/*": ["./src/components/*"],
             "pages/*": ["./src/pages/*"],
-            "p5js/*": ["./src/p5js/*"],
+            "sketches/*": ["./src/sketches/*"],
             "assets/*": ["./src/assets/*"],
             "services/*": ["./src/services/*"]
         }

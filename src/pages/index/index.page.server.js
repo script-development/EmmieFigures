@@ -1,17 +1,23 @@
-import fs from 'fs';
+import {getFromApi} from 'services/api';
+import {getEnv} from 'services/env';
 
 export {onBeforeRender};
 
-/** @param {import('vite-plugin-ssr').PageContextBuiltIn} pageContext */
-function onBeforeRender(pageContext) {
-    const url = pageContext.url;
-    let weatherData = {};
-    const fetchedData = fs.readFileSync('./data/weather.json', {encoding: 'utf-8'});
-    weatherData = JSON.parse(fetchedData);
-    const pageProps = {weather: weatherData, url};
+/** @param {import("types").PageContext} context */
+async function onBeforeRender(context) {
+    let reportData;
+    getEnv;
+    try {
+        reportData = await getFromApi(getEnv('RAPP_REPORTS_URL'));
+    } catch (error) {
+        console.error(error); // eslint-disable-line no-console
+    }
     return {
         pageContext: {
-            pageProps,
+            pageProps: {
+                weather: context.weatherData ?? [],
+                reports: reportData?.reportsForMonth ?? [],
+            },
         },
     };
 }
