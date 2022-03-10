@@ -6,7 +6,7 @@ let render;
 
 // mainloop
 const maxFPS = 120;
-const step = 1000 / (maxFPS * 2); // factor(2) = amount of update tries per frame
+const step = 1000 / maxFPS; // higher steps = more framerate and less updates
 let delta = 0;
 let lastTimeStamp = 0;
 
@@ -16,7 +16,7 @@ let active = false; // eslint-disable-line
 let started = false;
 
 // logs
-let updateCount = 0;
+let updateCount = 0; // panic counter
 let totalUpdates = 0;
 let totalFrames = 0;
 let returns = 0;
@@ -28,6 +28,7 @@ let framesThisSecond = 0;
 
 /** @param {DOMHighResTimeStamp} timeStamp */
 const mainLoop = timeStamp => {
+    // throttle FPS
     if (timeStamp < lastTimeStamp + 1000 / maxFPS) {
         requestID = requestAnimationFrame(mainLoop);
         returns++;
@@ -38,10 +39,11 @@ const mainLoop = timeStamp => {
 
     calculateFPS(timeStamp);
     simulate();
+
+    /** @param {number} interpolation */
     render(delta / step);
 
     requestID = requestAnimationFrame(mainLoop);
-    console.log(totalFrames, totalUpdates, returns, (actualFPS * 10).toFixed(0)); // eslint-disable-line
 };
 
 const simulate = () => {
@@ -50,8 +52,8 @@ const simulate = () => {
         totalUpdates++;
         update(step);
         delta -= step;
+        // spiral of death prevention
         if (++updateCount >= 240) {
-            console.log('preventing spiral of death'); // eslint-disable-line
             delta = 0;
             break;
         }
@@ -107,4 +109,8 @@ export default {
     setRender: /** @param {function} script */ script => setRender(script),
     start: () => start(),
     stop: () => stop(),
+    frameCount: () => totalFrames,
+    updateCount: () => totalUpdates,
+    returnCount: () => returns,
+    frameRate: () => (actualFPS * 10).toFixed(0),
 };

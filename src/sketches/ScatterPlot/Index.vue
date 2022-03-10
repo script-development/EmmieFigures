@@ -1,7 +1,5 @@
 <template>
-    <div id="canvas-container">
-        <canvas id="scatter-plot" style="border: 1px solid black" />
-    </div>
+    <canvas id="scatter-plot" />
 </template>
 
 <script setup>
