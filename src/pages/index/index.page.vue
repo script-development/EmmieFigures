@@ -1,6 +1,6 @@
 <template>
-    <ScatterPlot :presence="presence" :precipitation="precipitation" />
-    <!-- <div>Nothing</div> -->
+    <NavBar />
+    <!-- <ScatterPlot :presence="presence" :precipitation="precipitation" /> -->
 </template>
 
 <script setup>
@@ -9,7 +9,9 @@
 /** @typedef {import('types/data').ReportData} ReportData */
 /** @typedef {import('@vue/runtime-core').PropType<ReportData[]>} Reports */
 
-import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+import NavBar from 'components/NavBar.vue';
+
+// import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 
 const props = defineProps({
     weather: {
