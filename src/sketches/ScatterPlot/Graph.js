@@ -1,7 +1,6 @@
 /** @typedef {import('types/graph').Precipitation} Precipitation */
 /** @typedef {import('types/graph').Presence} Presence */
 /** @typedef {import('types/graph').Stat} Stat */
-/** @typedef {{x1: number, y1: number, x2: number, y2: number}} vec4 */
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
@@ -9,39 +8,27 @@ let ctx;
 /** @type {import("types/sketches").Globals} */
 let globals;
 
+// origin position of the graph, eg: x1, y1 of axis' & title & units, etc.
 const origin = {x: 0, y: 0};
 
-const xAxis = () => {
-    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
-    const show = () => {
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(pos.x1, pos.y1);
-        ctx.lineTo(pos.x2, pos.y2);
-        ctx.stroke();
-    };
-    return {show};
-};
-
-const yAxis = () => {
-    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
-    const show = () => {
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(pos.x1, pos.y1);
-        ctx.lineTo(pos.x2, pos.y2);
-        ctx.stroke();
-    };
-    return {show};
-};
-
 /**
- * Create x-Axis
- * @param {string} title
- * @returns {{show: function}}
+ * @param {number} x2
+ * @param {number} y2
  */
+const mainAxis = (x2, y2) => {
+    const pos = {x1: origin.x, y1: origin.y, x2, y2};
+    const show = () => {
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(pos.x1, pos.y1);
+        ctx.lineTo(pos.x2, pos.y2);
+        ctx.stroke();
+    };
+    return {show};
+};
+
+/** @param {string} title */
 const xAxisTitle = title => {
     const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
     const show = () => {
@@ -54,11 +41,7 @@ const xAxisTitle = title => {
     return {show};
 };
 
-/**
- * Create y-Axis
- * @param {string} title
- * @returns {{show: function}}
- */
+/** @param {string} title */
 const yAxisTitle = title => {
     const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
     const show = () => {
@@ -110,9 +93,7 @@ const xAxisUnits = presence => {
     return {show, length, unitMin, min, max};
 };
 
-/**
- * @param {Array<Precipitation>} precipitation
- */
+/** @param {Array<Precipitation>} precipitation */
 const yAxisUnits = precipitation => {
     const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
     const max = precipitation.reduce((a, {mm}) => Math.max(a, mm), 0);
@@ -144,9 +125,7 @@ const yAxisUnits = precipitation => {
     return {show, length, unitMin, min, max};
 };
 
-/**
- * @param {string} title
- */
+/** @param {string} title */
 const graphTitle = title => {
     const pos = {x: globals.width / 2, y: globals.height * 0.1};
     const show = () => {
@@ -163,32 +142,6 @@ const graphTitle = title => {
 };
 
 /**
- * @param {number} x
- * @param {number} y
- * @param {number} w
- * @param {number} h
- */
-const graphLegend = (x, y, w, h) => {
-    const pos = {x: x - w / 2, y: y - h / 2};
-    const show = () => {
-        ctx.fillStyle = 'red';
-        ctx.strokeStyle = 'black';
-        ctx.beginPath();
-        ctx.strokeRect(pos.x, pos.y, w, h);
-        ctx.rect(pos.x + 10, pos.y + h / 2 - 5, 10, 10);
-        ctx.fill();
-        ctx.stroke();
-        ctx.font = '16px consolas';
-        ctx.fillStyle = 'black';
-        ctx.fillText('Legenda:', pos.x + w / 2 - 14, pos.y - 15);
-        ctx.font = '14px consolas';
-        ctx.textAlign = 'start';
-        ctx.fillText('alle dagdelen', pos.x + 25, pos.y + h / 2 + 1);
-    };
-    return {show};
-};
-
-/**
  * Scatter Plot -> Precipitation (mm) / Presence (%)
  * @param {import("types/sketches").Sketch} sketch
  * @param {Array<Precipitation>} precipitation
@@ -199,14 +152,13 @@ export default (sketch, precipitation, presence) => {
     globals = sketch.globals;
     origin.x = globals.width * 0.2;
     origin.y = globals.height * 0.8;
-    const x = xAxis();
-    const y = yAxis();
+    const x = mainAxis(globals.width * 0.8, origin.y);
+    const y = mainAxis(origin.x, globals.height * 0.2);
     const xTitle = xAxisTitle('Aanwezigheid (%)');
     const yTitle = yAxisTitle('Neerslag (in mm)');
     const xUnits = xAxisUnits(presence);
     const yUnits = yAxisUnits(precipitation);
     const title = graphTitle('Scatterplot voor aanwezigheid vs neerslag');
-    const legend = graphLegend(globals.width * 0.9, globals.height * 0.5, globals.width * 0.15, globals.height * 0.15);
 
     const show = () => {
         x.show();
@@ -216,7 +168,6 @@ export default (sketch, precipitation, presence) => {
         xUnits.show();
         yUnits.show();
         title.show();
-        legend.show();
     };
 
     return {show, xUnits, yUnits};
