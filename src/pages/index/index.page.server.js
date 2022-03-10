@@ -6,6 +6,7 @@ export {onBeforeRender};
 /** @param {import("types").PageContext} context */
 async function onBeforeRender(context) {
     let reportData;
+    getEnv;
     try {
         reportData = await getFromApi(getEnv('RAPP_REPORTS_URL'));
     } catch (error) {
