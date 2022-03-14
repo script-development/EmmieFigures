@@ -1,5 +1,6 @@
 import {getFromApi} from 'services/api';
 import {yesterdayQueryString} from 'services/dates';
+import {getEnv} from 'services/env';
 
 export {onBeforeRender};
 
@@ -10,7 +11,7 @@ async function onBeforeRender(context) {
     let endDate = yesterdayQueryString();
 
     try {
-        reportData = await getFromApi(`http://127.0.0.1:8000/api/reports-presence/${startDate}/${endDate}`);
+        reportData = await getFromApi(getEnv('RAPP_REPORTS_URL') + `/${startDate}/${endDate}`);
     } catch (error) {
         console.error(error); // eslint-disable-line no-console
     }
