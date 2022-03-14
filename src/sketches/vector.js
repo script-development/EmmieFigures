@@ -88,7 +88,7 @@ const limit = (v, max) => {
     const mSq = getMagnitudeSquared(v);
     if (mSq > max * max) v.div(Math.sqrt(mSq)).mult(max);
     return v;
-}
+};
 
 /** @type {import('types/vectors').vec} */
 const vec = {
@@ -97,6 +97,7 @@ const vec = {
     div: (v, n) => divideByNumber(v.copy(), n),
     mult: (v, n) => multiplyByNumber(v.copy(), n),
     random2D: () => randomize2D(vec2()),
+    limit: (v, n) => limit(v.copy(), n),
 };
 
 /**
@@ -141,9 +142,6 @@ const vec2 = (x = 0, y = 0) => {
         magSq: () => getMagnitudeSquared(self),
         /** @param {number} n */
         setMag: n => setMagnitude(self, n),
-        random2D: () => randomize2D(self),
-        /** @param {number} max */
-        limit: max => limit(self, max),
     };
     return self;
 };

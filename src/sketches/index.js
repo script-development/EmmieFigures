@@ -1,25 +1,7 @@
-/** @typedef {import("types/sketches").SketchApi} SketchApi */
-/** @typedef {import('types/sketches').DrawApi} DrawApi */
-/** @typedef {import('types/sketches').SetupApi} SetupApi */
-/** @typedef {import("types/sketches").SketchProperties} SketchProperties */
-/** @typedef {(e: DrawApi) => {}} DrawScript */
-/** @typedef {(e: SetupApi) => void} SetupScript */
+/** @typedef {import("types/sketches").Sketch} SketchAPI */
+/** @typedef {import("types/sketches").Globals} GlobalVariables */
 
-import Draw from './draw';
-import Setup from './setup';
-
-/** @type {Array<{draw: DrawScript, api: DrawApi}>} */
-const scripts = [];
-
-/** @type {boolean} */
-let active = true;
-let requestId = 0;
-
-const loop = () => {
-    scripts.forEach(script => script.draw(script.api));
-    requestId = requestAnimationFrame(loop);
-    if (!active) cancelAnimationFrame(requestId);
-};
+import Globals from './Globals';
 
 /**
  * get canvas element and extract context2D
@@ -34,28 +16,50 @@ const getContext = id => {
 };
 
 /**
+ * @param {HTMLCanvasElement} canvas
+ * @param {GlobalVariables} globals
+ * @param {number} width
+ * @param {number} height
+ */
+const setCanvasSize = (canvas, globals, width, height) => {
+    canvas.width = width;
+    canvas.height = height;
+    globals.width = width;
+    globals.height = height;
+};
+
+/** @param {HTMLCanvasElement} canvas */
+const CenterCanvas = canvas => {
+    canvas.style.position = 'absolute';
+    canvas.style.left = Math.floor((innerWidth - canvas.width) / 2) + 'px';
+    canvas.style.top = Math.floor((innerHeight - canvas.height) / 2) + 'px';
+};
+
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {GlobalVariables} globals
+ */
+const Mouse = (canvas, globals) => {
+    const canvasBoundingClientRect = canvas.getBoundingClientRect();
+    canvas.addEventListener('mousemove', evt => {
+        globals.mouseX = evt.clientX - canvasBoundingClientRect.left;
+        globals.mouseY = evt.clientY - canvasBoundingClientRect.top;
+    });
+};
+
+/**
  * @param {string} id the id of the canvas element
- * @returns {SketchApi}
+ * @returns {SketchAPI}
  */
 export default id => {
     const context = getContext(id);
-
-    /** @type {SketchProperties} */
-    const properties = {};
+    const globals = Globals();
 
     return {
-        /** @param {SetupScript} script*/
-        set setup(script) {
-            properties.setup = Setup(context);
-            script(properties.setup);
-        },
-        /** @param {DrawScript} script */
-        set draw(script) {
-            properties.draw = Draw(context);
-            scripts.push({draw: script, api: properties.draw});
-            loop();
-        },
-        loop: () => (active = true),
-        noLoop: () => (active = false),
+        context,
+        globals,
+        size: (width, height) => setCanvasSize(context.canvas, globals, width, height),
+        centerCanvas: () => CenterCanvas(context.canvas),
+        mouse: () => Mouse(context.canvas, globals),
     };
 };

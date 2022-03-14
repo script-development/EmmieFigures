@@ -1,59 +1,174 @@
+/** @typedef {import('types/graph').Precipitation} Precipitation */
+/** @typedef {import('types/graph').Presence} Presence */
+/** @typedef {import('types/graph').Stat} Stat */
+
+/** @type {CanvasRenderingContext2D} */
+let ctx;
+
+/** @type {import("types/sketches").Globals} */
+let globals;
+
+// origin position of the graph, eg: x1, y1 of axis' & title & units, etc.
+const origin = {x: 0, y: 0};
+
 /**
- * Precipitation graph with date
- * @param {number} width
- * @param {number} height
- * @param {Array<import('types').Precipitation>} precipitation
+ * @param {number} x2
+ * @param {number} y2
  */
-export default (width, height, precipitation) => {
-    const days = getDaysFromMonth(precipitation, 12);
-    // const max = props.reduce((a, {precip}) => Math.max(a, precip), 0);
-
-    // x1, y1 = Origin (De oorsprong)
-    const yAxis = {x1: width * 0.2, y1: height * 0.8 + 10, x2: width * 0.2, y2: height * 0.2};
-    const xAxis = {x1: width * 0.2 - 10, y1: height * 0.8, x2: width * 0.8, y2: height * 0.8};
-
-    // x-as eenheid
-    /** @param {import("..").DrawApi} Palet */
-    const show = ({noStroke, stroke, strokeWeight, line, fill, text}) => {
-        // X & Y - axis
-        stroke(0);
-        strokeWeight(4);
-        line(yAxis.x1, yAxis.y1, yAxis.x2, yAxis.y2);
-        line(xAxis.x1, xAxis.y1, xAxis.x2, xAxis.y2);
-
-        // X & Y-axis units and titles
-        const length = (xAxis.x2 - xAxis.x1) * 0.93;
-        const margin = xAxis.x2 - xAxis.x1 - length;
-        // const steps = 1;
-        const stepLength = (length * 1.05) / days.length;
-        days.forEach((day, index) => {
-            // X-axis units
-            let x = xAxis.x1 + margin / 2;
-            x += index * stepLength;
-            fill(255, 0, 0);
-            noStroke();
-            text(day, x, xAxis.y1 + 15);
-            // X-axis title
-
-            // Y-axis units
-
-            // Y-axis title
-
-            // Graph data (lines)
-        });
+const mainAxis = (x2, y2) => {
+    const pos = {x1: origin.x, y1: origin.y, x2, y2};
+    const show = () => {
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(pos.x1, pos.y1);
+        ctx.lineTo(pos.x2, pos.y2);
+        ctx.stroke();
     };
-    return {show, days};
+    return {show};
+};
+
+/** @param {string} title */
+const xAxisTitle = title => {
+    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
+    const show = () => {
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.textAlign = 'center';
+        ctx.font = '24px georgia';
+        ctx.fillText(title, pos.x1 + (pos.x2 - pos.x1) / 2, pos.y1 + 60);
+    };
+    return {show};
+};
+
+/** @param {string} title */
+const yAxisTitle = title => {
+    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
+    const show = () => {
+        ctx.fillStyle = 'black';
+        ctx.font = '24px georgia';
+        ctx.save();
+        ctx.translate(pos.x1 - 100, pos.y1 + (pos.y2 - pos.y1) / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.beginPath();
+        ctx.textAlign = 'center';
+        ctx.font = '24px georgia';
+        ctx.fillText(title, 0, 0);
+        ctx.restore();
+    };
+    return {show};
 };
 
 /**
- * @param {Array<import('types').Precipitation>} precipitation
- * @param {number} month
+ * @param {Array<Presence>} presence
  */
-const getDaysFromMonth = (precipitation, month) => {
-    return precipitation
-        .filter(i => i.day.search(`2021-${month}`) != -1)
-        .map(i => {
-            let day = i.day.substring(8);
-            return day.charAt(0) === '0' ? day.slice(1) : day;
-        });
+const xAxisUnits = presence => {
+    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
+    const max = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
+    const min = presence.reduce((a, {percentage}) => Math.min(a, percentage), max);
+    const steps = 10;
+    const unitMin = pos.x1 + 10;
+    const unitMax = pos.x2 - 10;
+    const length = unitMax - unitMin;
+    const show = () => {
+        ctx.fillStyle = 'black';
+        for (let i = 0; i <= steps; i++) {
+            let xP = unitMin + (length / steps) * i;
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(xP, pos.y1 - 5);
+            ctx.lineTo(xP, pos.y1 + 5);
+            ctx.stroke();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#ddd';
+            ctx.moveTo(xP, pos.y1);
+            ctx.lineTo(xP, pos.y1 - globals.height * 0.6);
+            ctx.stroke();
+            ctx.textAlign = 'center';
+            ctx.font = '16px georgia';
+            ctx.fillText((min + ((max - min) / steps) * i).toFixed(1), xP, pos.y1 + 15);
+        }
+    };
+    return {show, length, unitMin, min, max};
+};
+
+/** @param {Array<Precipitation>} precipitation */
+const yAxisUnits = precipitation => {
+    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
+    const max = precipitation.reduce((a, {mm}) => Math.max(a, mm), 0);
+    const min = 0;
+    const steps = 10;
+    const unitMin = pos.y1 - 10;
+    const unitMax = pos.y2 + 10;
+    const length = unitMax - unitMin;
+    const show = () => {
+        ctx.fillStyle = 'black';
+        for (let j = 0; j <= steps; j++) {
+            let yP = unitMin + (length / steps) * j;
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'black';
+            ctx.beginPath();
+            ctx.moveTo(pos.x1 - 5, yP);
+            ctx.lineTo(pos.x1 + 5, yP);
+            ctx.stroke();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = '#ddd';
+            ctx.moveTo(pos.x1, yP);
+            ctx.lineTo(pos.x1 + globals.width * 0.6, yP);
+            ctx.stroke();
+            ctx.textBaseline = 'middle';
+            ctx.font = '16px georgia';
+            ctx.fillText((min + ((max - min) / steps) * j).toFixed(2), pos.x1 - 30, yP);
+        }
+    };
+    return {show, length, unitMin, min, max};
+};
+
+/** @param {string} title */
+const graphTitle = title => {
+    const pos = {x: globals.width / 2, y: globals.height * 0.1};
+    const show = () => {
+        ctx.beginPath();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#555';
+        ctx.fillStyle = 'gray';
+        ctx.textAlign = 'center';
+        ctx.font = '32px sans-serif';
+        ctx.fillText(title, pos.x + 1, pos.y + 1);
+        ctx.strokeText(title, pos.x, pos.y);
+    };
+    return {show};
+};
+
+/**
+ * Scatter Plot -> Precipitation (mm) / Presence (%)
+ * @param {import("types/sketches").Sketch} sketch
+ * @param {Array<Precipitation>} precipitation
+ * @param {Array<Presence>} presence
+ */
+export default (sketch, precipitation, presence) => {
+    ctx = sketch.context;
+    globals = sketch.globals;
+    origin.x = globals.width * 0.2;
+    origin.y = globals.height * 0.8;
+    const x = mainAxis(globals.width * 0.8, origin.y);
+    const y = mainAxis(origin.x, globals.height * 0.2);
+    const xTitle = xAxisTitle('Aanwezigheid (%)');
+    const yTitle = yAxisTitle('Neerslag (in mm)');
+    const xUnits = xAxisUnits(presence);
+    const yUnits = yAxisUnits(precipitation);
+    const title = graphTitle('Scatterplot voor aanwezigheid vs neerslag');
+
+    const show = () => {
+        x.show();
+        y.show();
+        xTitle.show();
+        yTitle.show();
+        xUnits.show();
+        yUnits.show();
+        title.show();
+    };
+
+    return {show, xUnits, yUnits};
 };
