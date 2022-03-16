@@ -1,3 +1,9 @@
+export interface WeatherOptions {
+    key: 'precip'|'temp'|'windspeed'|'cloudcover'| 'pressure',
+    name: string,
+    unitOfMeasure: string,
+}
+
 export interface ReportData {
     morning_schedule_id: number | null,
     afternoon_schedule_id: number | null,

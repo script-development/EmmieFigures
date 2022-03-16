@@ -1,5 +1,4 @@
-/** @typedef {import('types/graph').Precipitation} Precipitation */
-/** @typedef {import('types/graph').Presence} Presence */
+/** @typedef {import('types/graph').GraphData} GraphData */
 /** @typedef {import('types/graph').Stat} Stat */
 
 /** @type {CanvasRenderingContext2D} */
@@ -8,8 +7,41 @@ let ctx;
 /** @type {import("types/sketches").Globals} */
 let globals;
 
-// origin position of the graph, eg: x1, y1 of axis' & title & units, etc.
+// origin position of the graph, eg: x1, y1 of axis' & title & units ea
 const origin = {x: 0, y: 0};
+
+/**
+ * Scatter Plot -> TypeX (Precipitation (mm)) / TypeY (Presence (%))
+ * @param {import("types/sketches").Sketch} sketch
+ * @param {GraphData} typeX
+ * @param {GraphData} typeY
+ * @returns
+ */
+export default (sketch, typeX, typeY) => {
+    ctx = sketch.context;
+    globals = sketch.globals;
+    origin.x = globals.width * 0.2;
+    origin.y = globals.height * 0.8;
+    const x = mainAxis(globals.width * 0.8, origin.y);
+    const y = mainAxis(origin.x, globals.height * 0.2);
+    const xTitle = xAxisTitle(`${typeX.title} (${typeX.unitOfMeasure})`);
+    const yTitle = yAxisTitle(`${typeY.title} (${typeY.unitOfMeasure})`);
+    const xUnits = xAxisUnits(typeX.data);
+    const yUnits = yAxisUnits(typeY.data);
+    const title = graphTitle(`Scatterplot voor ${typeY.title} vs ${typeX.title}`);
+
+    const show = () => {
+        x.show();
+        y.show();
+        xTitle.show();
+        yTitle.show();
+        xUnits.show();
+        yUnits.show();
+        title.show();
+    };
+
+    return {show, xUnits, yUnits};
+};
 
 /**
  * @param {number} x2
@@ -59,11 +91,11 @@ const yAxisTitle = title => {
     return {show};
 };
 
-/** @param {Array<Presence>} presence */
-const xAxisUnits = presence => {
+/** @param {GraphData["data"]} typeX */
+const xAxisUnits = typeX => {
     const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
-    const max = presence.reduce((a, {percentage}) => Math.max(a, percentage), 0);
-    const min = presence.reduce((a, {percentage}) => Math.min(a, percentage), max);
+    const max = typeX.reduce((a, {value}) => Math.max(a, value), 0);
+    const min = typeX.reduce((a, {value}) => Math.min(a, value), max);
     const steps = 10;
     const unitMin = pos.x1 + 10;
     const unitMax = pos.x2 - 10;
@@ -91,10 +123,10 @@ const xAxisUnits = presence => {
     return {show, length, unitMin, min, max};
 };
 
-/** @param {Array<Precipitation>} precipitation */
-const yAxisUnits = precipitation => {
+/** @param {GraphData["data"]} typeY */
+const yAxisUnits = typeY => {
     const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
-    const max = precipitation.reduce((a, {mm}) => Math.max(a, mm), 0);
+    const max = typeY.reduce((a, {value}) => Math.max(a, value), 0);
     const min = 0;
     const steps = 10;
     const unitMin = pos.y1 - 10;
@@ -137,36 +169,4 @@ const graphTitle = title => {
         ctx.strokeText(title, pos.x, pos.y);
     };
     return {show};
-};
-
-/**
- * Scatter Plot -> Precipitation (mm) / Presence (%)
- * @param {import("types/sketches").Sketch} sketch
- * @param {Array<Precipitation>} precipitation
- * @param {Array<Presence>} presence
- */
-export default (sketch, precipitation, presence) => {
-    ctx = sketch.context;
-    globals = sketch.globals;
-    origin.x = globals.width * 0.2;
-    origin.y = globals.height * 0.8;
-    const x = mainAxis(globals.width * 0.8, origin.y);
-    const y = mainAxis(origin.x, globals.height * 0.2);
-    const xTitle = xAxisTitle('Aanwezigheid (%)');
-    const yTitle = yAxisTitle('Neerslag (in mm)');
-    const xUnits = xAxisUnits(presence);
-    const yUnits = yAxisUnits(precipitation);
-    const title = graphTitle('Scatterplot voor aanwezigheid vs neerslag');
-
-    const show = () => {
-        x.show();
-        y.show();
-        xTitle.show();
-        yTitle.show();
-        xUnits.show();
-        yUnits.show();
-        title.show();
-    };
-
-    return {show, xUnits, yUnits};
 };

@@ -4,40 +4,64 @@
 
 <script setup>
 /**
- * @typedef {import('types/graph').Precipitation} Precipitation
- * @typedef {import('@vue/runtime-core').PropType<Precipitation[]>} Precip
- * @typedef {import('types/graph').Presence} Presence
- * @typedef {import('@vue/runtime-core').PropType<Presence[]>} Present
+ * @typedef {import('types/graph').GraphData} GraphData
+ * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
  * @typedef {import('types/graph').Stat} Stat
+ * @typedef {import('types/sketches').Sketch} SketchAPI
+ * @typedef {import('types/graph')}
  */
 
-import {onMounted} from 'vue';
+import {onMounted, onUpdated} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
 import Stat from './Stat';
 import {setStatPosition} from './Stat';
 
 const props = defineProps({
-    precipitation: {
-        /** @type {Precip} */
-        type: Array,
+    dataX: {
+        /** @type {GraphProp} weather data for x-axis */
+        type: Object,
         required: true,
     },
-    presence: {
-        /** @type {Present} */
-        type: Array,
+    dataY: {
+        /** @type {GraphProp} presence data for y-axis */
+        type: Object,
         required: true,
     },
 });
 
+/** @type {SketchAPI} */
+let sketch;
+
+/** @type {import('types/graph').Graph} */
+let graph;
+
+/** @type {Array<Stat>} */
+let stats = [];
+
 /** used for mouse hover over stat */
 let selectedId = -1;
 
-/** @type {Array<Stat>} */
-const stats = [];
+// create a statistic object for every date in presence
+const setStats = () => {
+    let id = 1;
+    props.dataY.data.forEach(y => {
+        const x = props.dataX.data.find(x => x.date === y.date);
+        if (!x) return;
+        stats.push(Stat(x.value, y.value, y.date, id, sketch));
+        id++;
+    });
+};
+
+onUpdated(() => {
+    graph = Graph(sketch, props.dataX, props.dataY);
+    stats = [];
+    setStats();
+    setStatPosition(graph.xUnits, graph.yUnits, stats);
+});
 
 onMounted(() => {
-    const sketch = Sketch('scatter-plot');
+    sketch = Sketch('scatter-plot');
 
     sketch.size(1280, 720);
 
@@ -47,15 +71,9 @@ onMounted(() => {
     // initialize mouse input
     sketch.mouse();
 
-    const graph = Graph(sketch, props.precipitation, props.presence);
+    graph = Graph(sketch, props.dataX, props.dataY);
 
-    // create a statistic object for every date in presence
-    props.presence.forEach((present, index) => {
-        const precip = props.precipitation.find(precip => precip.date === present.date);
-        if (!precip) return;
-        stats.push(Stat(present.percentage, precip.mm, present.date, index, sketch));
-    });
-
+    setStats();
     setStatPosition(graph.xUnits, graph.yUnits, stats);
 
     sketch.update(() => {

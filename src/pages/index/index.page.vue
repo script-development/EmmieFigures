@@ -1,10 +1,17 @@
 <template>
-    <ScatterPlot :presence="presence" :precipitation="precipitation" />
+    <ScatterPlot :data-x="dataX" :data-y="dataY" />
+    <label for="weather-options">Kies een weer type:</label>
+
+    <select id="weather-options" v-model="selected">
+        <option v-for="option in weatherOptions" :key="option.key" :value="option">
+            {{ `${option.name} (${option.unitOfMeasure})` }}
+        </option>
+    </select>
 </template>
 
 <script setup>
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import {computed} from 'vue';
+import {computed, ref} from 'vue';
 
 const props = defineProps({
     weather: {
@@ -17,25 +24,39 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    weatherOptions: {
+        /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
+        type: Array,
+        required: true,
+    },
 });
 
-/** @type {['morning', 'afternoon', 'evening']} */
-const dayparts = ['morning', 'afternoon', 'evening'];
+const selected = ref(props.weatherOptions[0]);
+
+const dataX = computed(() => ({
+    title: selected.value.name,
+    unitOfMeasure: selected.value.unitOfMeasure,
+    /** get weather values and dates from weather data */
+    data: props.weather.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
+}));
+
 const uniqueDates = [...new Set(props.reports.map(report => report.date))];
 
-/** filter precipitation and date from weather data */
-const precipitation = computed(() => props.weather.map(weather => ({date: weather.datetime, mm: weather.precip})));
-
-/** set presence for each unique day */
-const presence = computed(() => {
-    return uniqueDates.map(date => {
+const dataY = computed(() => ({
+    title: 'Aanwezigheid',
+    unitOfMeasure: '%',
+    /** get presence values and dates for each unique day */
+    data: uniqueDates.map(date => {
         const filteredReports = props.reports.filter(report => report.date === date);
         return {
             date,
-            percentage: calculatePresencePerDay(filteredReports),
+            value: calculatePresencePerDay(filteredReports),
         };
-    });
-});
+    }),
+}));
+
+/** @type {['morning', 'afternoon', 'evening']} */
+const dayparts = ['morning', 'afternoon', 'evening'];
 
 /** @param {Array<import('types/data').ReportData>} reports */
 const calculatePresencePerDay = reports => {

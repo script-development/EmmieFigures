@@ -5,22 +5,22 @@ let insideId = -1;
 let globals;
 
 /**
- * @param {number} percentage
- * @param {number} mm
+ * @param {number} valueX
+ * @param {number} valueY
  * @param {string} date
  * @param {number} id
  * @param {import("types/sketches").Sketch} sketch
  * @returns {import("types/graph").Stat}
  */
-export default (percentage, mm, date, id, sketch) => {
+export default (valueX, valueY, date, id, sketch) => {
     globals = sketch.globals;
     const color = [0, 100, 0];
     const pos = {x: 0, y: 0};
-    let radius = 5;
+    const radius = 5;
 
     return {
-        percentage,
-        mm,
+        valueX,
+        valueY,
         date,
         pos,
         update: () => update(id, color, pos, radius),
@@ -108,7 +108,7 @@ export const setStatPosition = (xUnits, yUnits, stats) => {
     };
 
     stats.forEach(stat => {
-        stat.pos.x = pos(xUnits.max, xUnits.min, xUnits.unitMin, xUnits.length, stat.percentage);
-        stat.pos.y = pos(yUnits.max, yUnits.min, yUnits.unitMin, yUnits.length, stat.mm);
+        stat.pos.x = pos(xUnits.max, xUnits.min, xUnits.unitMin, xUnits.length, stat.valueX);
+        stat.pos.y = pos(yUnits.max, yUnits.min, yUnits.unitMin, yUnits.length, stat.valueY);
     });
 };
