@@ -8,14 +8,12 @@
  * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
  * @typedef {import('types/graph').Stat} Stat
  * @typedef {import('types/sketches').Sketch} SketchAPI
- * @typedef {import('types/graph')}
  */
 
 import {onMounted, onUpdated} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
-import Stat from './Stat';
-import {setStatPosition} from './Stat';
+import {setStats, setStatsPosition} from './Stat';
 
 const props = defineProps({
     dataX: {
@@ -42,22 +40,11 @@ let stats = [];
 /** used for mouse hover over stat */
 let selectedId = -1;
 
-// create a statistic object for every date in presence
-const setStats = () => {
-    let id = 1;
-    props.dataY.data.forEach(y => {
-        const x = props.dataX.data.find(x => x.date === y.date);
-        if (!x) return;
-        stats.push(Stat(x.value, y.value, y.date, id, sketch));
-        id++;
-    });
-};
-
 onUpdated(() => {
+    // data changed, making new graph and stats
     graph = Graph(sketch, props.dataX, props.dataY);
-    stats = [];
-    setStats();
-    setStatPosition(graph.xUnits, graph.yUnits, stats);
+    stats = setStats(props.dataX, props.dataY, sketch);
+    setStatsPosition(graph.xUnits, graph.yUnits);
 });
 
 onMounted(() => {
@@ -73,8 +60,9 @@ onMounted(() => {
 
     graph = Graph(sketch, props.dataX, props.dataY);
 
-    setStats();
-    setStatPosition(graph.xUnits, graph.yUnits, stats);
+    // create a statistic object for every date in presence
+    stats = setStats(props.dataX, props.dataY, sketch);
+    setStatsPosition(graph.xUnits, graph.yUnits);
 
     sketch.update(() => {
         for (const stat of stats) selectedId = stat.update();
@@ -88,8 +76,8 @@ onMounted(() => {
 
         // force selected stat to appear on top and show stat values on screen @ mouse location
         if (selectedId > -1) {
-            stats[selectedId].show();
-            stats[selectedId].selected();
+            stats[selectedId - 1].show();
+            stats[selectedId - 1].selected();
         }
     });
 });

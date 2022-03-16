@@ -1,8 +1,36 @@
+/**
+ * @typedef {import("types/graph").Stat} Stat
+ * @typedef {import('types/graph').GraphData} GraphData
+ */
+
 /** set to id of selected stat (mouse hover), else -1 */
 let insideId = -1;
 
 /** @type {import("types/sketches").Globals} */
 let globals;
+
+/** @type {Array<Stat>} */
+let stats = [];
+
+/**
+ * Create Statistic objects from x & y-axis data
+ * @param {GraphData} dataX
+ * @param {GraphData} dataY
+ * @param {import("..").SketchAPI} sketch
+ * @returns {Array<Stat>}
+ */
+export const setStats = (dataX, dataY, sketch) => {
+    stats = [];
+    globals = sketch.globals;
+    let id = 1;
+    dataY.data.forEach(y => {
+        const x = dataX.data.find(x => x.date === y.date);
+        if (!x) return;
+        stats.push(makeStat(x.value, y.value, y.date, id, sketch));
+        id++;
+    });
+    return stats;
+};
 
 /**
  * @param {number} valueX
@@ -10,10 +38,9 @@ let globals;
  * @param {string} date
  * @param {number} id
  * @param {import("types/sketches").Sketch} sketch
- * @returns {import("types/graph").Stat}
+ * @returns {Stat}
  */
-export default (valueX, valueY, date, id, sketch) => {
-    globals = sketch.globals;
+const makeStat = (valueX, valueY, date, id, sketch) => {
     const color = [0, 100, 0];
     const pos = {x: 0, y: 0};
     const radius = 5;
@@ -89,9 +116,8 @@ const show = (ctx, color, pos, radius) => {
 /**
  * @param {{max: number, min: number, unitMin: number, length: number}} xUnits
  * @param {xUnits} yUnits
- * @param {Array<import("types/graph").Stat>} stats
  */
-export const setStatPosition = (xUnits, yUnits, stats) => {
+export const setStatsPosition = (xUnits, yUnits) => {
     /**
      * @param {number} max
      * @param {number} min
