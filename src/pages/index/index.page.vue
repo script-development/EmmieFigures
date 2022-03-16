@@ -10,6 +10,8 @@
 </template>
 
 <script setup>
+/** @typedef {import('types/data').ReportData} ReportData */
+
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import {computed, ref} from 'vue';
 
@@ -20,7 +22,7 @@ const props = defineProps({
         required: true,
     },
     reports: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').ReportData[]>} */
+        /** @type {import('@vue/runtime-core').PropType<ReportData[]>} */
         type: Array,
         required: true,
     },
@@ -31,8 +33,10 @@ const props = defineProps({
     },
 });
 
+/** selected weather type for x-axis */
 const selected = ref(props.weatherOptions[0]);
 
+/** data for x-axis based on current selected weather type */
 const dataX = computed(() => ({
     title: selected.value.name,
     unitOfMeasure: selected.value.unitOfMeasure,
@@ -42,6 +46,7 @@ const dataX = computed(() => ({
 
 const uniqueDates = [...new Set(props.reports.map(report => report.date))];
 
+/** data for y-axis */
 const dataY = computed(() => ({
     title: 'Aanwezigheid',
     unitOfMeasure: '%',
@@ -58,7 +63,7 @@ const dataY = computed(() => ({
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
 
-/** @param {Array<import('types/data').ReportData>} reports */
+/** @param {Array<ReportData>} reports */
 const calculatePresencePerDay = reports => {
     let total = 0; // all scheduled dayparts (morning, afternoon and evening)
     let present = 0; // all dayparts where client has been present

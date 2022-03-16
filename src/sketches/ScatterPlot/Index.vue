@@ -41,7 +41,7 @@ let stats = [];
 let selectedId = -1;
 
 onUpdated(() => {
-    // data changed, making new graph and stats
+    // props changed, making new graph and stats
     graph = Graph(sketch, props.dataX, props.dataY);
     stats = setStats(props.dataX, props.dataY, sketch);
     setStatsPosition(graph.xUnits, graph.yUnits);

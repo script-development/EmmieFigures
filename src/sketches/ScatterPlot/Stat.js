@@ -1,10 +1,16 @@
 /**
  * @typedef {import("types/graph").Stat} Stat
  * @typedef {import('types/graph').GraphData} GraphData
+ * @typedef {import('types/sketches').Sketch} SketchAPI
+ * @typedef {import('types/graph').Graph["xUnits"]} xUnits
+ * @typedef {import('types/graph').Graph["yUnits"]} yUnits
  */
 
 /** set to id of selected stat (mouse hover), else -1 */
 let insideId = -1;
+
+/** @type {CanvasRenderingContext2D} */
+let ctx;
 
 /** @type {import("types/sketches").Globals} */
 let globals;
@@ -16,20 +22,32 @@ let stats = [];
  * Create Statistic objects from x & y-axis data
  * @param {GraphData} dataX
  * @param {GraphData} dataY
- * @param {import("..").SketchAPI} sketch
+ * @param {SketchAPI} sketch
  * @returns {Array<Stat>}
  */
 export const setStats = (dataX, dataY, sketch) => {
     stats = [];
     globals = sketch.globals;
+    ctx = sketch.context;
     let id = 1;
     dataY.data.forEach(y => {
         const x = dataX.data.find(x => x.date === y.date);
         if (!x) return;
-        stats.push(makeStat(x.value, y.value, y.date, id, sketch));
+        stats.push(makeStat(x.value, y.value, y.date, id));
         id++;
     });
     return stats;
+};
+
+/**
+ * @param {xUnits} xUnits
+ * @param {yUnits} yUnits
+ */
+export const setStatsPosition = (xUnits, yUnits) => {
+    stats.forEach(stat => {
+        stat.pos.x = getPos(xUnits.max, xUnits.min, xUnits.unitMin, xUnits.length, stat.valueX);
+        stat.pos.y = getPos(yUnits.max, yUnits.min, yUnits.unitMin, yUnits.length, stat.valueY);
+    });
 };
 
 /**
@@ -37,10 +55,9 @@ export const setStats = (dataX, dataY, sketch) => {
  * @param {number} valueY
  * @param {string} date
  * @param {number} id
- * @param {import("types/sketches").Sketch} sketch
  * @returns {Stat}
  */
-const makeStat = (valueX, valueY, date, id, sketch) => {
+const makeStat = (valueX, valueY, date, id) => {
     const color = [0, 100, 0];
     const pos = {x: 0, y: 0};
     const radius = 5;
@@ -51,9 +68,24 @@ const makeStat = (valueX, valueY, date, id, sketch) => {
         date,
         pos,
         update: () => update(id, color, pos, radius),
-        show: () => show(sketch.context, color, pos, radius),
-        selected: () => showSelected(sketch.context),
+        show: () => show(color, pos, radius),
+        selected: () => showSelected(),
     };
+};
+
+/**
+ * @param {number} max
+ * @param {number} min
+ * @param {number} unitMin
+ * @param {number} length
+ * @param {number} stat
+ */
+const getPos = (max, min, unitMin, length, stat) => {
+    const range = max - min;
+    const leftOver = stat - min;
+    const posPercentage = leftOver / range;
+    const posLength = posPercentage * length;
+    return posLength + unitMin;
 };
 
 /**
@@ -85,8 +117,7 @@ const update = (id, color, pos, radius) => {
     return insideId;
 };
 
-/** @param {CanvasRenderingContext2D} ctx */
-const showSelected = ctx => {
+const showSelected = () => {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'magenta';
     ctx.beginPath();
@@ -101,40 +132,13 @@ const showSelected = ctx => {
 };
 
 /**
- * @param {CanvasRenderingContext2D} ctx
  * @param {Array<number>} color
  * @param {{x: number, y: number}} pos
  * @param {number} radius
  */
-const show = (ctx, color, pos, radius) => {
+const show = (color, pos, radius) => {
     ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
     ctx.beginPath();
     ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
     ctx.fill();
-};
-
-/**
- * @param {{max: number, min: number, unitMin: number, length: number}} xUnits
- * @param {xUnits} yUnits
- */
-export const setStatsPosition = (xUnits, yUnits) => {
-    /**
-     * @param {number} max
-     * @param {number} min
-     * @param {number} unitMin
-     * @param {number} length
-     * @param {number} stat
-     */
-    const pos = (max, min, unitMin, length, stat) => {
-        const range = max - min;
-        const leftOver = stat - min;
-        const posPercentage = leftOver / range;
-        const posLength = posPercentage * length;
-        return posLength + unitMin;
-    };
-
-    stats.forEach(stat => {
-        stat.pos.x = pos(xUnits.max, xUnits.min, xUnits.unitMin, xUnits.length, stat.valueX);
-        stat.pos.y = pos(yUnits.max, yUnits.min, yUnits.unitMin, yUnits.length, stat.valueY);
-    });
 };
