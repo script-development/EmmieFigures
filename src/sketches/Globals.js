@@ -1,7 +1,7 @@
 export default () => {
     return {
-        width: 300,
-        height: 150,
+        width: 1280,
+        height: 720,
         mouseX: 0,
         mouseY: 0,
     };

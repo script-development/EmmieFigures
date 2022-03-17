@@ -1,12 +1,17 @@
 <template>
-    <ScatterPlot :data-x="dataX" :data-y="dataY" />
-    <label for="weather-options">Kies een weer type:</label>
-
-    <select id="weather-options" v-model="selected">
-        <option v-for="option in weatherOptions" :key="option.key" :value="option">
-            {{ `${option.name} (${option.unitOfMeasure})` }}
-        </option>
-    </select>
+    <div class="flex justify-center align-middle">
+        <ScatterPlot :data-x="dataX" :data-y="dataY" />
+    </div>
+    <div class="flex justify-center">
+        <div class="mb-3 xl:w-96">
+            <label for="weather-options">Kies een weertype:</label>
+            <select id="weather-options" v-model="selected" :class="selectClass">
+                <option v-for="option in weatherOptions" :key="option.key" :value="option">
+                    {{ `${option.name} (${option.unitOfMeasure})` }}
+                </option>
+            </select>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -32,6 +37,11 @@ const props = defineProps({
         required: true,
     },
 });
+
+const selectClass =
+    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
+    'bg-no-repeat border border-solid border-gray-300 rounded' +
+    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 
 /** selected weather type for x-axis */
 const selected = ref(props.weatherOptions[0]);
