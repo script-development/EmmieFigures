@@ -10,6 +10,15 @@ let globals;
 // origin position of the graph, eg: x1, y1 of axis' & title & units ea
 const origin = {x: 0, y: 0};
 
+/** @type {{show: () => void}} */
+let xTitle;
+
+/** @type {import('types/graph').Graph["xUnits"]} */
+let xUnits;
+
+/** @type {{show: () => void}} */
+let title;
+
 /**
  * Scatter Plot -> TypeX (Precipitation (mm)) / TypeY (Presence (%))
  * @param {import("types/sketches").Sketch} sketch
@@ -24,11 +33,11 @@ export default (sketch, typeX, typeY) => {
     origin.y = globals.height * 0.8;
     const x = mainAxis(globals.width * 0.8, origin.y);
     const y = mainAxis(origin.x, globals.height * 0.2);
-    const xTitle = xAxisTitle(`${typeX.title} (${typeX.unitOfMeasure})`);
+    xTitle = xAxisTitle(`${typeX.title} (${typeX.unitOfMeasure})`);
     const yTitle = yAxisTitle(`${typeY.title} (${typeY.unitOfMeasure})`);
-    const xUnits = xAxisUnits(typeX.data);
+    xUnits = xAxisUnits(typeX.data);
     const yUnits = yAxisUnits(typeY.data);
-    const title = graphTitle(`Scatterplot voor ${typeY.title} vs ${typeX.title}`);
+    title = graphTitle(`Scatterplot voor ${typeY.title} vs ${typeX.title}`);
 
     const show = () => {
         x.show();
@@ -40,7 +49,15 @@ export default (sketch, typeX, typeY) => {
         title.show();
     };
 
-    return {show, xUnits, yUnits};
+    /** @param {GraphData} dataX */
+    const setX = dataX => {
+        xTitle = xAxisTitle(`${dataX.title} (${typeX.unitOfMeasure})`);
+        xUnits = xAxisUnits(dataX.data);
+        title = graphTitle(`Scatterplot voor ${typeY.title} vs ${dataX.title}`);
+        return xUnits;
+    };
+
+    return {setX, show, xUnits, yUnits};
 };
 
 /**
@@ -91,19 +108,19 @@ const yAxisTitle = title => {
     return {show};
 };
 
-/** @param {GraphData["data"]} typeX */
-const xAxisUnits = typeX => {
+/** @param {GraphData["data"]} dataX */
+const xAxisUnits = dataX => {
     const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
-    const max = typeX.reduce((a, {value}) => Math.max(a, value), 0);
-    const min = typeX.reduce((a, {value}) => Math.min(a, value), max);
+    const maxValue = dataX.reduce((a, {value}) => Math.max(a, value), 0);
+    const minValue = dataX.reduce((a, {value}) => Math.min(a, value), maxValue);
     const steps = 10;
-    const unitMin = pos.x1 + 10;
-    const unitMax = pos.x2 - 10;
-    const length = unitMax - unitMin;
+    const unitSX = pos.x1 + 10;
+    const unitEX = pos.x2 - 10;
+    const length = unitEX - unitSX;
     const show = () => {
         ctx.fillStyle = 'black';
         for (let i = 0; i <= steps; i++) {
-            let xP = unitMin + (length / steps) * i;
+            let xP = unitSX + (length / steps) * i;
             ctx.strokeStyle = 'black';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -117,42 +134,42 @@ const xAxisUnits = typeX => {
             ctx.stroke();
             ctx.textAlign = 'center';
             ctx.font = '16px georgia';
-            ctx.fillText((min + ((max - min) / steps) * i).toFixed(1), xP, pos.y1 + 15);
+            ctx.fillText((minValue + ((maxValue - minValue) / steps) * i).toFixed(1), xP, pos.y1 + 15);
         }
     };
-    return {show, length, unitMin, min, max};
+    return {show, length, unitSX, minValue, maxValue};
 };
 
 /** @param {GraphData["data"]} typeY */
 const yAxisUnits = typeY => {
     const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
-    const max = typeY.reduce((a, {value}) => Math.max(a, value), 0);
-    const min = 0;
+    const maxValue = typeY.reduce((a, {value}) => Math.max(a, value), 0);
+    const minValue = 0;
     const steps = 10;
-    const unitMin = pos.y1 - 10;
-    const unitMax = pos.y2 + 10;
-    const length = unitMax - unitMin;
+    const unitSY = pos.y1 - 10;
+    const unitEY = pos.y2 + 10;
+    const length = unitEY - unitSY;
     const show = () => {
         ctx.fillStyle = 'black';
         for (let j = 0; j <= steps; j++) {
-            let yP = unitMin + (length / steps) * j;
+            let yPos = unitSY + (length / steps) * j;
             ctx.lineWidth = 2;
             ctx.strokeStyle = 'black';
             ctx.beginPath();
-            ctx.moveTo(pos.x1 - 5, yP);
-            ctx.lineTo(pos.x1 + 5, yP);
+            ctx.moveTo(pos.x1 - 5, yPos);
+            ctx.lineTo(pos.x1 + 5, yPos);
             ctx.stroke();
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#ddd';
-            ctx.moveTo(pos.x1, yP);
-            ctx.lineTo(pos.x1 + globals.width * 0.6, yP);
+            ctx.moveTo(pos.x1, yPos);
+            ctx.lineTo(pos.x1 + globals.width * 0.6, yPos);
             ctx.stroke();
             ctx.textBaseline = 'middle';
             ctx.font = '16px georgia';
-            ctx.fillText((min + ((max - min) / steps) * j).toFixed(2), pos.x1 - 30, yP);
+            ctx.fillText((minValue + ((maxValue - minValue) / steps) * j).toFixed(2), pos.x1 - 30, yPos);
         }
     };
-    return {show, length, unitMin, min, max};
+    return {show, length, unitSY, minValue, maxValue};
 };
 
 /** @param {string} title */

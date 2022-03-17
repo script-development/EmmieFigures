@@ -55,6 +55,8 @@ const Mouse = (canvas, globals) => {
 export default id => {
     const context = getContext(id);
     const globals = Globals();
+    Mouse(context.canvas, globals);
+    setCanvasSize(context.canvas, globals, innerWidth, innerHeight);
 
     return {
         context,

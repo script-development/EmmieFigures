@@ -1,17 +1,27 @@
 export interface Graph {
+    // setX: (dataX: GraphData) => this["xUnits"],
     show: () => void,
     xUnits: {
-        min: number,
-        max: number,
-        unitMin: number,
+        show: () => void,
+        minValue: number,
+        maxValue: number,
+        unitSX: number,
         length: number,
     },
     yUnits: {
-        min: number,
-        max: number,
-        unitMin: number,
+        show: () => void,
+        minValue: number,
+        maxValue: number,
+        unitSY: number,
         length: number,
     },
+    setX: (dataX: GraphData) => this["xUnits"],
+}
+
+export interface Stats {
+    update: () => void,
+    show: () => void,
+    setX: (xUnits: Graph["xUnits"], yUnits: Graph["yUnits"], dataX: GraphData) => void,
 }
 
 export interface Stat {

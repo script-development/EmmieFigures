@@ -1,18 +1,17 @@
 <template>
-    <NavBar title="Rapp Presence">
+    <!-- <NavBar title="Rapp Presence">
         <template #logo>
             <Logo />
         </template>
-        <!-- <template #auth>Right Side</template> -->
-        Default Slot
-    </NavBar>
+        <template #auth />
+    </NavBar> -->
     <slot />
 </template>
 
-<script setup>
-import NavBar from 'components/NavBar.vue';
-import Logo from 'components/Logo.vue';
-</script>
+<!-- <script setup>
+// import NavBar from 'components/NavBar.vue';
+// import Logo from 'components/Logo.vue';
+</script> -->
 
 <style>
 body {

@@ -18,17 +18,48 @@ let globals;
 /** @type {Array<Stat>} */
 let stats = [];
 
+let selectedId = -1;
+
 /**
  * Create Statistic objects from x & y-axis data
+ * @param {SketchAPI} sketch
+ * @param {import("types/graph").Graph} graph
  * @param {GraphData} dataX
  * @param {GraphData} dataY
- * @param {SketchAPI} sketch
- * @returns {Array<Stat>}
+ * @returns {import("types/graph").Stats}
  */
-export const setStats = (dataX, dataY, sketch) => {
-    stats = [];
+export default (sketch, graph, dataX, dataY) => {
     globals = sketch.globals;
     ctx = sketch.context;
+    makeStats(dataX, dataY);
+    setStatsPosition(graph.xUnits, graph.yUnits);
+    return {
+        update: () => {
+            for (const stat of stats) selectedId = stat.update();
+        },
+        show: () => {
+            for (const stat of stats) stat.show();
+
+            // force selected stat to appear on top and show stat values on screen @ mouse location
+            if (selectedId > -1) {
+                stats[selectedId - 1].show();
+                stats[selectedId - 1].selected();
+            }
+        },
+        setX: (xUnits, yUnits, dataX) => {
+            stats = [];
+            makeStats(dataX, dataY);
+            setStatsPosition(xUnits, yUnits);
+        },
+    };
+};
+
+/**
+ *
+ * @param {GraphData} dataX
+ * @param {GraphData} dataY
+ */
+const makeStats = (dataX, dataY) => {
     let id = 1;
     dataY.data.forEach(y => {
         const x = dataX.data.find(x => x.date === y.date);
@@ -36,7 +67,6 @@ export const setStats = (dataX, dataY, sketch) => {
         stats.push(makeStat(x.value, y.value, y.date, id));
         id++;
     });
-    return stats;
 };
 
 /**
@@ -45,8 +75,8 @@ export const setStats = (dataX, dataY, sketch) => {
  */
 export const setStatsPosition = (xUnits, yUnits) => {
     stats.forEach(stat => {
-        stat.pos.x = getPos(xUnits.max, xUnits.min, xUnits.unitMin, xUnits.length, stat.valueX);
-        stat.pos.y = getPos(yUnits.max, yUnits.min, yUnits.unitMin, yUnits.length, stat.valueY);
+        stat.pos.x = getPos(xUnits.maxValue, xUnits.minValue, xUnits.unitSX, xUnits.length, stat.valueX);
+        stat.pos.y = getPos(yUnits.maxValue, yUnits.minValue, yUnits.unitSY, yUnits.length, stat.valueY);
     });
 };
 

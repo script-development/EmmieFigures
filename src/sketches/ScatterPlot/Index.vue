@@ -6,14 +6,12 @@
 /**
  * @typedef {import('types/graph').GraphData} GraphData
  * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
- * @typedef {import('types/graph').Stat} Stat
- * @typedef {import('types/sketches').Sketch} SketchAPI
  */
 
-import {onMounted, onUpdated} from 'vue';
+import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
-import {setStats, setStatsPosition} from './Stat';
+import Stats from './Stats';
 
 const props = defineProps({
     dataX: {
@@ -28,57 +26,39 @@ const props = defineProps({
     },
 });
 
-/** @type {SketchAPI} */
+/** @type {import('types/sketches').Sketch} */
 let sketch;
 
 /** @type {import('types/graph').Graph} */
 let graph;
 
-/** @type {Array<Stat>} */
-let stats = [];
+/** @type {import('types/graph').Stats} */
+let stats;
 
-/** used for mouse hover over stat */
-let selectedId = -1;
-
-onUpdated(() => {
-    // props changed, making new graph and stats
-    graph = Graph(sketch, props.dataX, props.dataY);
-    stats = setStats(props.dataX, props.dataY, sketch);
-    setStatsPosition(graph.xUnits, graph.yUnits);
-});
+watch(
+    () => props.dataX,
+    newDataX => {
+        // data for x-axis has changed, setting new data
+        const xUnits = graph.setX(newDataX);
+        stats.setX(xUnits, graph.yUnits, newDataX);
+    },
+);
 
 onMounted(() => {
     sketch = Sketch('scatter-plot');
 
-    sketch.size(1280, 720);
-
-    // setting position through javascript (css' floating point messes up mouse positioning);
-    sketch.centerCanvas();
-
-    // initialize mouse input
-    sketch.mouse();
-
     graph = Graph(sketch, props.dataX, props.dataY);
-
-    // create a statistic object for every date in presence
-    stats = setStats(props.dataX, props.dataY, sketch);
-    setStatsPosition(graph.xUnits, graph.yUnits);
+    stats = Stats(sketch, graph, props.dataX, props.dataY);
 
     sketch.update(() => {
-        for (const stat of stats) selectedId = stat.update();
+        stats.update();
     });
 
     sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.globals.width, sketch.globals.height);
 
         graph.show();
-        for (const stat of stats) stat.show();
-
-        // force selected stat to appear on top and show stat values on screen @ mouse location
-        if (selectedId > -1) {
-            stats[selectedId - 1].show();
-            stats[selectedId - 1].selected();
-        }
+        stats.show();
     });
 });
 </script>
