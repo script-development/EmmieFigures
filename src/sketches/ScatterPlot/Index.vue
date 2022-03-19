@@ -1,5 +1,5 @@
 <template>
-    <canvas id="scatter-plot" width="1280" height="720" />
+    <canvas id="scatter-plot" />
 </template>
 
 <script setup>
@@ -12,6 +12,7 @@ import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
 import Stats from './Stats';
+import globals from '../globals';
 
 const props = defineProps({
     dataX: {
@@ -25,9 +26,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-/** @type {import('types/sketches').Sketch} */
-let sketch;
 
 /** @type {import('types/graph').Graph} */
 let graph;
@@ -45,7 +43,14 @@ watch(
 );
 
 onMounted(() => {
-    sketch = Sketch('scatter-plot');
+    const sketch = Sketch('scatter-plot');
+    sketch.mouse();
+
+    sketch.onResize(() => {
+        graph.resize();
+        graph = Graph(sketch, props.dataX, props.dataY);
+        stats = Stats(sketch, graph, props.dataX, props.dataY);
+    });
 
     graph = Graph(sketch, props.dataX, props.dataY);
     stats = Stats(sketch, graph, props.dataX, props.dataY);
@@ -55,7 +60,7 @@ onMounted(() => {
     });
 
     sketch.render(() => {
-        sketch.context.clearRect(0, 0, sketch.globals.width, sketch.globals.height);
+        sketch.context.clearRect(0, 0, globals.canvas.width, globals.canvas.height);
 
         graph.show();
         stats.show();

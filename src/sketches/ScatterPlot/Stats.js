@@ -6,14 +6,14 @@
  * @typedef {import('types/graph').Graph["yUnits"]} yUnits
  */
 
+import globals from '../globals';
+const {mouse} = globals;
+
 /** set to id of selected stat (mouse hover), else -1 */
 let insideId = -1;
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
-
-/** @type {import("types/sketches").Globals} */
-let globals;
 
 /** @type {Array<Stat>} */
 let stats = [];
@@ -29,7 +29,6 @@ let selectedId = -1;
  * @returns {import("types/graph").Stats}
  */
 export default (sketch, graph, dataX, dataY) => {
-    globals = sketch.globals;
     ctx = sketch.context;
     makeStats(dataX, dataY);
     setStatsPosition(graph.xUnits, graph.yUnits);
@@ -122,8 +121,7 @@ const getPos = (max, min, unitMin, length, stat) => {
  * @param {{x: number, y: number}} pos
  * @param {number} radius
  */
-const mouseInside = (pos, radius) =>
-    Math.sqrt(Math.pow(globals.mouseX - pos.x, 2) + Math.pow(globals.mouseY - pos.y, 2)) < radius;
+const mouseInside = (pos, radius) => Math.sqrt(Math.pow(mouse.x - pos.x, 2) + Math.pow(mouse.y - pos.y, 2)) < radius;
 
 /**
  * @param {number} id
@@ -151,12 +149,12 @@ const showSelected = () => {
     ctx.lineWidth = 2;
     ctx.strokeStyle = 'magenta';
     ctx.beginPath();
-    ctx.moveTo(globals.mouseX, globals.mouseY);
-    ctx.lineTo(globals.mouseX + 30, globals.mouseY - 30);
+    ctx.moveTo(mouse.x, mouse.y);
+    ctx.lineTo(mouse.x + 30, mouse.y - 30);
     ctx.stroke();
     ctx.strokeStyle = 'black';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.rect(globals.mouseX + 30, globals.mouseY - 110, 200, 80);
+    ctx.rect(mouse.x + 30, mouse.y - 110, 200, 80);
     ctx.fill();
     ctx.stroke();
 };

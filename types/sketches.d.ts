@@ -1,16 +1,20 @@
 export interface Sketch {
     context: CanvasRenderingContext2D,
-    globals: Globals,
     update: (script: (delta: number) => void) => void,
     render: (script: (interpolate: number) => void) => void,
-    size: (width: number, height: number) => void,
-    centerCanvas: () => void,
-    mouse: () => void,
+    mouse: () => Globals["mouse"],
+    onResize: (script: () => void) => void,
 }
 
 export interface Globals {
-    width: number,
-    height: number,
-    mouseX: number,
-    mouseY: number,
+    mouse: {
+        x: number,
+        y: number,
+    },
+    canvas: {
+        width: number,
+        height: number,
+        top: number,
+        left: number,
+    },
 }
