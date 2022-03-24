@@ -50,7 +50,7 @@ const simulate = () => {
     updateCount = 0;
     while (delta >= step) {
         totalUpdates++;
-        update(step);
+        if (update) update(step);
         delta -= step;
         // spiral of death prevention
         if (++updateCount >= 240) {
@@ -75,7 +75,7 @@ const start = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
         requestID = requestAnimationFrame(timeStamp => {
-            render(); // initial render
+            render(0); // initial render
             active = true;
 
             lastTimeStamp = timeStamp;
@@ -101,7 +101,7 @@ const setUpdate = script => {
 /** @param {function} script */
 const setRender = script => {
     render = script;
-    start();
+    // start();
 };
 
 export default {

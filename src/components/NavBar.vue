@@ -21,10 +21,6 @@
 </template>
 
 <script setup>
-// import Logo from './Logo.vue';
-
-import {onMounted} from 'vue';
-
 defineProps({
     title: {
         type: String,

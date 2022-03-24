@@ -1,9 +1,7 @@
 <template>
-    <div class="flex justify-center align-middle">
-        <ScatterPlot :data-x="dataX" :data-y="dataY" />
-    </div>
+    <ScatterPlot :data-x="dataX" :data-y="dataY" />
     <div class="flex justify-center">
-        <div class="mb-3 xl:w-96">
+        <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options">Kies een weertype:</label>
             <select id="weather-options" v-model="selected" :class="selectClass">
                 <option v-for="option in weatherOptions" :key="option.key" :value="option">
