@@ -1,9 +1,6 @@
 /** @typedef {import('types/graph').GraphData} GraphData */
 /** @typedef {import('types/graph').Stat} Stat */
 
-import globals from '../globals';
-const {canvas} = globals;
-
 /** @type {CanvasRenderingContext2D} */
 let ctx;
 
@@ -28,10 +25,10 @@ let title;
  */
 export default (sketch, typeX, typeY) => {
     ctx = sketch.context;
-    origin.x = canvas.width * 0.2;
-    origin.y = canvas.height * 0.8;
-    const x = mainAxis(canvas.width * 0.8, origin.y);
-    const y = mainAxis(origin.x, canvas.height * 0.2);
+    origin.x = ctx.canvas.width * 0.2;
+    origin.y = ctx.canvas.height * 0.8;
+    const x = mainAxis(ctx.canvas.width * 0.8, origin.y);
+    const y = mainAxis(origin.x, ctx.canvas.height * 0.2);
     xTitle = xAxisTitle(`${typeX.title} (${typeX.unitOfMeasure})`);
     const yTitle = yAxisTitle(`${typeY.title} (${typeY.unitOfMeasure})`);
     xUnits = xAxisUnits(typeX.data);
@@ -83,7 +80,7 @@ const mainAxis = (x2, y2) => {
 
 /** @param {string} title */
 const xAxisTitle = title => {
-    const pos = {x1: origin.x, y1: origin.y, x2: canvas.width * 0.8, y2: origin.y};
+    const pos = {x1: origin.x, y1: origin.y, x2: ctx.canvas.width * 0.8, y2: origin.y};
     const show = () => {
         ctx.fillStyle = 'black';
         ctx.beginPath();
@@ -96,7 +93,7 @@ const xAxisTitle = title => {
 
 /** @param {string} title */
 const yAxisTitle = title => {
-    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: canvas.height * 0.2};
+    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: ctx.canvas.height * 0.2};
     const show = () => {
         ctx.fillStyle = 'black';
         ctx.font = '24px georgia';
@@ -114,7 +111,7 @@ const yAxisTitle = title => {
 
 /** @param {GraphData["data"]} dataX */
 const xAxisUnits = dataX => {
-    const pos = {x1: origin.x, y1: origin.y, x2: canvas.width * 0.8, y2: origin.y};
+    const pos = {x1: origin.x, y1: origin.y, x2: ctx.canvas.width * 0.8, y2: origin.y};
     const maxValue = dataX.reduce((a, {value}) => Math.max(a, value), 0);
     const minValue = dataX.reduce((a, {value}) => Math.min(a, value), maxValue);
     const steps = 10;
@@ -134,7 +131,7 @@ const xAxisUnits = dataX => {
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#ddd';
             ctx.moveTo(xP, pos.y1);
-            ctx.lineTo(xP, pos.y1 - canvas.height * 0.6);
+            ctx.lineTo(xP, pos.y1 - ctx.canvas.height * 0.6);
             ctx.stroke();
             ctx.textAlign = 'center';
             ctx.font = '16px georgia';
@@ -146,7 +143,7 @@ const xAxisUnits = dataX => {
 
 /** @param {GraphData["data"]} typeY */
 const yAxisUnits = typeY => {
-    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: canvas.height * 0.2};
+    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: ctx.canvas.height * 0.2};
     const maxValue = typeY.reduce((a, {value}) => Math.max(a, value), 0);
     const minValue = 0;
     const steps = 10;
@@ -166,7 +163,7 @@ const yAxisUnits = typeY => {
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#ddd';
             ctx.moveTo(pos.x1, yPos);
-            ctx.lineTo(pos.x1 + canvas.width * 0.6, yPos);
+            ctx.lineTo(pos.x1 + ctx.canvas.width * 0.6, yPos);
             ctx.stroke();
             ctx.textBaseline = 'middle';
             ctx.font = '16px georgia';
@@ -178,7 +175,7 @@ const yAxisUnits = typeY => {
 
 /** @param {string} title */
 const graphTitle = title => {
-    const pos = {x: canvas.width / 2, y: canvas.height * 0.1};
+    const pos = {x: ctx.canvas.width / 2, y: ctx.canvas.height * 0.1};
     const show = () => {
         ctx.beginPath();
         ctx.lineWidth = 1;

@@ -30,9 +30,9 @@ export interface Stat {
     valueX: number,
     valueY: number,
     date: string,
+    id: number,
     show: (interpolate?: number) => void,
-    update: (delta?: number) => number,
-    selected: () => void,
+    update: (delta?: number) => void,
 }
 
 export interface GraphData {

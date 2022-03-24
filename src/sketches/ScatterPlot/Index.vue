@@ -12,8 +12,6 @@ import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
 import Stats from './Stats';
-// import globals from '../globals';
-import engine from '../engine.js';
 
 const props = defineProps({
     dataX: {
@@ -46,8 +44,6 @@ watch(
 onMounted(() => {
     const sketch = Sketch('scatter-plot', {size: 'full'});
 
-    sketch.mouse();
-
     graph = Graph(sketch, props.dataX, props.dataY);
     stats = Stats(sketch, graph, props.dataX, props.dataY);
 
@@ -57,9 +53,9 @@ onMounted(() => {
 
     sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
+
         graph.show();
         stats.show();
     });
-    sketch.start();
 });
 </script>

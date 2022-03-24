@@ -6,19 +6,11 @@
  * @typedef {import('types/graph').Graph["yUnits"]} yUnits
  */
 
-import globals from '../globals';
-const {mouse} = globals;
-
-/** set to id of selected stat (mouse hover), else -1 */
-let insideId = -1;
-
 /** @type {CanvasRenderingContext2D} */
 let ctx;
 
 /** @type {Array<Stat>} */
 let stats = [];
-
-let selectedId = -1;
 
 /**
  * Create Statistic objects from x & y-axis data
@@ -34,16 +26,10 @@ export default (sketch, graph, dataX, dataY) => {
     setStatsPosition(graph.xUnits, graph.yUnits);
     return {
         update: () => {
-            for (const stat of stats) selectedId = stat.update();
+            for (const stat of stats) stat.update();
         },
         show: () => {
             for (const stat of stats) stat.show();
-
-            // force selected stat to appear on top and show stat values on screen @ mouse location
-            if (selectedId > -1) {
-                stats[selectedId - 1].show();
-                stats[selectedId - 1].selected();
-            }
         },
         setX: (xUnits, yUnits, dataX) => {
             stats = [];
@@ -96,9 +82,9 @@ const makeStat = (valueX, valueY, date, id) => {
         valueY,
         date,
         pos,
-        update: () => update(id, color, pos, radius),
+        id,
+        update: () => update(),
         show: () => show(color, pos, radius),
-        selected: () => showSelected(),
     };
 };
 
@@ -117,47 +103,7 @@ const getPos = (max, min, unitMin, length, stat) => {
     return posLength + unitMin;
 };
 
-/**
- * @param {{x: number, y: number}} pos
- * @param {number} radius
- */
-const mouseInside = (pos, radius) => Math.sqrt(Math.pow(mouse.x - pos.x, 2) + Math.pow(mouse.y - pos.y, 2)) < radius;
-
-/**
- * @param {number} id
- * @param {Array<number>} color
- * @param {{x: number, y: number}} pos
- * @param {number} radius
- * @returns {number}
- */
-const update = (id, color, pos, radius) => {
-    if (insideId === id) {
-        if (!mouseInside(pos, radius)) {
-            insideId = -1;
-            color[0] = 0;
-            return -1;
-        }
-    } else if (insideId < 0 && mouseInside(pos, radius)) {
-        insideId = id;
-        color[0] = 255;
-        return id;
-    }
-    return insideId;
-};
-
-const showSelected = () => {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'magenta';
-    ctx.beginPath();
-    ctx.moveTo(mouse.x, mouse.y);
-    ctx.lineTo(mouse.x + 30, mouse.y - 30);
-    ctx.stroke();
-    ctx.strokeStyle = 'black';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.rect(mouse.x + 30, mouse.y - 110, 200, 80);
-    ctx.fill();
-    ctx.stroke();
-};
+const update = () => {};
 
 /**
  * @param {Array<number>} color

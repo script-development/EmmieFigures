@@ -5,8 +5,8 @@ let update;
 let render;
 
 // mainloop
-const maxFPS = 120;
-const step = 1000 / maxFPS; // higher steps = more framerate and less updates
+let maxFPS = 120;
+let step = 1000 / maxFPS;
 let delta = 0;
 let lastTimeStamp = 0;
 
@@ -101,7 +101,7 @@ const setUpdate = script => {
 /** @param {function} script */
 const setRender = script => {
     render = script;
-    // start();
+    start();
 };
 
 export default {
@@ -112,5 +112,16 @@ export default {
     frameCount: () => totalFrames,
     updateCount: () => totalUpdates,
     returnCount: () => returns,
-    frameRate: () => (actualFPS * 10).toFixed(0),
+    /** @param {number} [fps] */
+    frameRate: fps => frameRate(fps),
+};
+
+/** @param {number} [fps] */
+const frameRate = fps => {
+    if (fps != undefined) {
+        maxFPS = fps;
+        step = 1000 / fps;
+        return;
+    }
+    return (actualFPS * 10).toFixed(0);
 };

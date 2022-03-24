@@ -1,7 +1,6 @@
 /** @typedef {import('types/sketches').SketchOptions} SketchOptions */
 
 import engine from './engine';
-import globals from './globals';
 
 /**
  * Make a new Sketch API for a canvas element
@@ -17,9 +16,6 @@ export default (id, options) => {
         context,
         update: script => engine.setUpdate(script),
         render: script => engine.setRender(script),
-        start: () => engine.start(),
-        stop: () => engine.stop(),
-        mouse: () => Mouse(context.canvas),
     };
 };
 
@@ -85,18 +81,4 @@ const setPos = (pos, canvas) => {
         canvas.style.left = (innerWidth - canvas.width) / 2 + 'px';
         canvas.style.top = (innerHeight - canvas.height) / 2 + 'px';
     }
-};
-
-/**
- * Create a new mouse event listener and set mouse globals for a canvas element
- * @param {HTMLCanvasElement} canvas
- * @returns {import('types/sketches').Globals["mouse"]}
- */
-const Mouse = canvas => {
-    canvas.addEventListener('mousemove', evt => {
-        globals.mouse.x = evt.clientX - globals.canvas.left;
-        globals.mouse.y = evt.clientY - globals.canvas.top;
-    });
-
-    return globals.mouse;
 };
