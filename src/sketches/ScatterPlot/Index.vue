@@ -42,7 +42,7 @@ watch(
 );
 
 onMounted(() => {
-    const sketch = Sketch('scatter-plot', {size: 'full'});
+    const sketch = Sketch('scatter-plot', {size: 'full', rows: 32, cols: 18});
 
     graph = Graph(sketch, props.dataX, props.dataY);
     stats = Stats(sketch, graph, props.dataX, props.dataY);
@@ -53,6 +53,8 @@ onMounted(() => {
 
     sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
+
+        // sketch.showGrid();
 
         graph.show();
         stats.show();

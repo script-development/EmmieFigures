@@ -1,6 +1,21 @@
 /** @typedef {import('types/graph').GraphData} GraphData */
 /** @typedef {import('types/graph').Stat} Stat */
 
+const graph = {
+    x: {
+        pos: {x: 0, y: 0},
+    },
+    y: {},
+    xTitle: {},
+    yTitle: {},
+    title: {},
+};
+
+const setPositions = () => {
+    origin.x = ctx.canvas.width * 0.2;
+    origin.y = ctx.canvas.height * 0.8;
+};
+
 /** @type {CanvasRenderingContext2D} */
 let ctx;
 
@@ -17,7 +32,7 @@ let xUnits;
 let title;
 
 /**
- * Scatter Plot -> TypeX (Precipitation (mm)) / TypeY (Presence (%))
+ * Scatter Plot -> TypeX (Weather type (unit of Measurement)) / TypeY (Presence (%))
  * @param {import("types/sketches").Sketch} sketch
  * @param {GraphData} typeX
  * @param {GraphData} typeY
@@ -25,8 +40,7 @@ let title;
  */
 export default (sketch, typeX, typeY) => {
     ctx = sketch.context;
-    origin.x = ctx.canvas.width * 0.2;
-    origin.y = ctx.canvas.height * 0.8;
+    setPositions();
     const x = mainAxis(ctx.canvas.width * 0.8, origin.y);
     const y = mainAxis(origin.x, ctx.canvas.height * 0.2);
     xTitle = xAxisTitle(`${typeX.title} (${typeX.unitOfMeasure})`);
@@ -52,13 +66,8 @@ export default (sketch, typeX, typeY) => {
         title = graphTitle(`Scatterplot voor ${typeY.title} vs ${dataX.title}`);
         return xUnits;
     };
-    const resize = () => setPositions();
 
-    return {resize, setX, show, xUnits, yUnits};
-};
-
-const setPositions = () => {
-    //
+    return {setX, show, xUnits, yUnits};
 };
 
 /**

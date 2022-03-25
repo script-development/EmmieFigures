@@ -15,8 +15,6 @@ export interface Graph {
         length: number,
     },
     setX: (dataX: GraphData) => this["xUnits"],
-    resize: () => void,
-
 }
 
 export interface Stats {

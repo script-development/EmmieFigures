@@ -11,4 +11,6 @@ export interface SketchOptions {
     w?: number,
     h?: number,
     pos?: "center"|"absolute",
+    rows? : number,
+    cols? : number,
 }
