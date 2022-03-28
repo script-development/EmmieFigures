@@ -5,6 +5,7 @@
         </template>
         <template #auth />
     </NavBar>
+    <button>{{ count }}</button>
     <slot />
 </template>
 
