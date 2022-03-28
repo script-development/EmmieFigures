@@ -1,5 +1,5 @@
 <template>
-    <ScatterPlot :data-x="weather" :data-y="reports" />
+    <!-- <ScatterPlot :data-x="weather" :data-y="reports" /> -->
     <div class="flex justify-center">
         <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options">Kies een weertype:</label>
@@ -15,18 +15,18 @@
 <script setup>
 /** @typedef {import('types/data').ReportData} ReportData */
 
-import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import {computed, ref} from 'vue';
+// import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+import {ref} from 'vue';
 
 const props = defineProps({
     weather: {
         /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherData[]>} */
-        type: Object,
+        type: Array,
         required: true,
     },
     reports: {
         /** @type {import('@vue/runtime-core').PropType<ReportData[]>} */
-        type: Object,
+        type: Array,
         required: true,
     },
     weatherOptions: {
@@ -70,10 +70,10 @@ const selected = ref(props.weatherOptions[0]);
 //     }),
 // }));
 
-/** @type {['morning', 'afternoon', 'evening']} */
-const dayparts = ['morning', 'afternoon', 'evening'];
+// /** @type {['morning', 'afternoon', 'evening']} */
+// const dayparts = ['morning', 'afternoon', 'evening'];
 
-/** @param {Array<ReportData>} reports */
+// /** @param {Array<ReportData>} reports */
 // const calculatePresencePerDay = reports => {
 //     let total = 0; // all scheduled dayparts (morning, afternoon and evening)
 //     let present = 0; // all dayparts where client has been present
