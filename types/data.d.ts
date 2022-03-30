@@ -14,6 +14,11 @@ export interface ReportData {
     date: string,
 }
 
+export interface VisualCrossingData {
+    days: WeatherData[],
+    queryCost: number,
+}
+
 export interface WeatherData {
     datetime: string,
     datetimeEpoch: number,

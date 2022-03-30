@@ -1,4 +1,4 @@
-import {putInCache, getFromCache} from 'services/cache';
+// import {putInCache, getFromCache} from 'services/cache';
 
 export {onBeforeRender};
 
@@ -31,12 +31,12 @@ const calculatePresencePerDay = reports => {
 async function onBeforeRender(context) {
     // const wDat = await readFile('./data/weatherHistory.json', 'utf-8');
     // const rDat = JSON.stringify(await readFile('./data/reports.json'));
-    const test = getFromCache('test');
-    if (!test) {
-        console.log('put');
-        putInCache('test', {some: true});
-    }
-    console.log(getFromCache('test'));
+    // const test = getFromCache('test');
+    // if (!test) {
+    //     console.log('put');
+    //     putInCache('test', {some: true});
+    // }
+    // console.log(getFromCache('test'));
 
     // const test = await getFromApi('https://deelay.me/5000/https://picsum.photos/200/300');
     // const reportData = await reports();

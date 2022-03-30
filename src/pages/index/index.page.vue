@@ -1,6 +1,6 @@
 <template>
     <!-- <ScatterPlot :data-x="weather" :data-y="reports" /> -->
-    <div class="flex justify-center">
+    <!-- <div class="flex justify-center">
         <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options">Kies een weertype:</label>
             <select id="weather-options" v-model="selected" :class="selectClass">
@@ -9,42 +9,47 @@
                 </option>
             </select>
         </div>
-    </div>
+    </div> -->
+    <div>{{ pageContent }}</div>
 </template>
 
 <script setup>
-/** @typedef {import('types/data').ReportData} ReportData */
+// import {weatherData} from 'store/weather';
+// console.log(weatherData);
+// /** @typedef {import('types/data').ReportData} ReportData */
 
 // import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import {ref} from 'vue';
+// import {ref} from 'vue';
 
-const props = defineProps({
-    weather: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherData[]>} */
-        type: Array,
-        required: true,
-    },
-    reports: {
-        /** @type {import('@vue/runtime-core').PropType<ReportData[]>} */
-        type: Array,
-        required: true,
-    },
-    weatherOptions: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
-        type: Array,
-        required: true,
-    },
-});
+// const props = defineProps({
+//     weather: {
+//         /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherData[]>} */
+//         type: Array,
+//         required: true,
+//     },
+//     reports: {
+//         /** @type {import('@vue/runtime-core').PropType<ReportData[]>} */
+//         type: Array,
+//         required: true,
+//     },
+//     weatherOptions: {
+//         /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
+//         type: Array,
+//         required: true,
+//     },
+// });
 
 // console.log(props);
 
-const selectClass =
-    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
-    'bg-no-repeat border border-solid border-gray-300 rounded' +
-    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
+const pageContent = 'Index';
+
+// const selectClass =
+//     'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
+//     'bg-no-repeat border border-solid border-gray-300 rounded' +
+//     'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 
 /** selected weather type for x-axis */
-const selected = ref(props.weatherOptions[0]);
+// const selected = ref(props.weatherOptions[0]);
 
 /** data for x-axis based on current selected weather type */
 // const dataX = computed(() => ({

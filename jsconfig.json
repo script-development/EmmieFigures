@@ -23,7 +23,8 @@
             "pages/*": ["./src/pages/*"],
             "sketches/*": ["./src/sketches/*"],
             "assets/*": ["./src/assets/*"],
-            "services/*": ["./src/services/*"]
+            "services/*": ["./src/services/*"],
+            "store/*": ["./src/store/*"],
         }
     },
     "typeAcquisition": {
