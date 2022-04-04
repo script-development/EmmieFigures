@@ -1,6 +1,6 @@
 import {createSSRApp, h} from 'vue';
 import PageShell from './PageShell.vue';
-import {setPageContext} from './usePageContext';
+// import {setPageContext} from './usePageContext';
 import 'virtual:windi.css';
 import 'assets/app.css';
 
@@ -26,7 +26,7 @@ function createApp(pageContext) {
     const app = createSSRApp(PageWithLayout);
 
     // We make `pageContext` available from any Vue component
-    setPageContext(app, pageContext);
+    // setPageContext(app, pageContext);
 
     return app;
 }

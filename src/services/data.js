@@ -5,9 +5,9 @@
  */
 
 import fs from 'fs/promises';
-import {setWeatherData} from '../store/weather.js';
+import {setData} from '../serverStore/index.js';
 import {getFromApi} from './api.js';
-import {dateQueryString} from './dates.js';
+import {dateQueryString, yesterdayQueryString} from './dates.js';
 import {getEnv} from './env.js';
 
 const BASE_URL = getEnv('WEATHER_API_BASE_URL');
@@ -27,51 +27,51 @@ const weatherApiError = 'something went wrong while fetching weatherData from Vi
  * If no data is present, fetches from Visual Crossing Weather and Rapp.
  */
 export const deploy = async () => {
-    await weather();
-    // await reports();
+    const weatherData = await weather();
+    setData('weatherData', weatherData);
+    const reportData = await reports();
+    setData('reportData', reportData);
 };
 
 const weather = async () => {
     try {
         await fs.access('./data/weatherHistory.json'); // catch will fetch data if file is not present
         const weatherData = await fs.readFile('./data/weatherHistory.json', 'utf-8');
-        // setWeatherData(weatherData);
+        return weatherData;
     } catch {
-        console.log('catch');
-        return;
         // maximum request for free account is 6 months, making 2 requests to get 1 year of data
 
-        const weatherData1 = await getWeatherData([1, 1, 2021], [3, 1, 2021]);
-        // const weatherData1 = await getWeatherData([1, 1, 2021], [30, 6, 2021]);
+        const weatherData1 = await getWeatherData([1, 1, 2021], [30, 6, 2021]);
         if (!weatherData1) throw new Error(weatherApiError);
 
         // 2nd request
-        const weatherData2 = await getWeatherData([4, 1, 2021], [6, 1, 2021]);
-        // const weatherData2 = await getWeatherData([1, 7, 2021], [31, 12, 2021]);
+        const weatherData2 = await getWeatherData([1, 7, 2021], [31, 12, 2021]);
         if (!weatherData2) throw new Error(weatherApiError);
 
         const weatherDays = weatherData1.days.concat(weatherData2.days);
         await fs.writeFile('./data/weatherHistory.json', JSON.stringify(weatherDays));
 
         weatherData1.queryCost += weatherData2.queryCost;
-        const {days, ...weatherMeta} = weatherData1;
+        const {days, ...weatherMeta} = weatherData1; // eslint-disable-line no-unused-vars
 
         await fs.writeFile('./data/weatherMeta.json', JSON.stringify(weatherMeta));
-        setWeatherData(days);
+        return weatherDays;
     }
 };
 
-// const reports = async () => {
-//     const startDate = '2021-01-01';
-//     const endDate = yesterdayQueryString();
-//     try {
-//         await fs.access('./data/reports.json'); // catch will fetch data if file is not present
-//         // const rDat = await fs.readFile('./data/reports.json', 'utf-8');
-//     } catch {
-//         const rDat = await getFromApi(getEnv('RAPP_REPORTS_URL') + `/${startDate}/${endDate}`);
-//         await fs.writeFile('./data/reports.json', JSON.stringify(rDat.reportsForMonth));
-//     }
-// };
+const reports = async () => {
+    const startDate = '2021-01-01';
+    const endDate = yesterdayQueryString();
+    try {
+        await fs.access('./data/reports.json'); // catch will fetch data if file is not present
+        const reports = await fs.readFile('./data/reports.json', 'utf-8');
+        return reports;
+    } catch {
+        const reports = await getFromApi(getEnv('RAPP_REPORTS_URL') + `/${startDate}/${endDate}`);
+        await fs.writeFile('./data/reports.json', JSON.stringify(reports.reportsForMonth));
+        return reports.reportsForMonths;
+    }
+};
 
 /**
  * @param {Array<number>} start startDate

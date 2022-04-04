@@ -5,8 +5,8 @@ import express from 'express';
 import vite from 'vite';
 import path from 'path';
 import {deploy} from './services/data.js';
+import {getData} from './serverStore/index.js';
 
-// TODO:: Make this run once on deployment
 await deploy();
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -27,6 +27,13 @@ const root = path.resolve(path.dirname(''));
     }
 
     const renderPage = createPageRenderer({viteDevServer, isProduction, root});
+
+    app.get('/weather-data', async (req, res) => {
+        res.send(getData('weatherData'));
+    });
+    app.get('/report-data', async (req, res) => {
+        res.send(getData('reportData'));
+    });
 
     app.get('*', async (req, res, next) => {
         const url = req.originalUrl;
