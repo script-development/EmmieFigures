@@ -26,8 +26,6 @@ const props = defineProps({
     },
 });
 
-console.log(props);
-
 /** @type {import('types/graph').Graph} */
 let graph;
 

@@ -28,10 +28,10 @@ const root = path.resolve(path.dirname(''));
 
     const renderPage = createPageRenderer({viteDevServer, isProduction, root});
 
-    app.get('/weather-data', async (req, res) => {
+    app.get('/api/weather-data', async (req, res) => {
         res.send(getData('weatherData'));
     });
-    app.get('/report-data', async (req, res) => {
+    app.get('/api/report-data', async (req, res) => {
         res.send(getData('reportData'));
     });
 

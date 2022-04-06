@@ -1,6 +1,6 @@
 <template>
-    <ScatterPlot :data-x="dataX" :data-y="dataY" />
-    <div class="flex justify-center">
+    <!-- <ScatterPlot :data-x="dataX" :data-y="dataY" /> -->
+    <div class="absolute bottom-0">
         <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options">Kies een weertype:</label>
             <select id="weather-options" v-model="selected" :class="selectClass">
@@ -14,66 +14,67 @@
 
 <script setup>
 /** @typedef {import('types/data').ReportData} ReportData */
+/** @typedef {import('types/data').WeatherData} WeatherData */
 
 import {computed} from '@vue/reactivity';
-import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+// import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import {onMounted, ref} from 'vue';
 import {getFromApi} from 'services/api';
+import {getEnv} from 'services/env';
 
 const props = defineProps({
-    // weather: {
-    //     /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherData[]>} */
-    //     type: Array,
-    //     required: true,
-    // },
-    // reports: {
-    //     /** @type {import('@vue/runtime-core').PropType<ReportData[]>} */
-    //     type: Array,
-    //     required: true,
-    // },
     weatherOptions: {
         /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
         type: Array,
         required: true,
     },
 });
+
+/** @type {import('@vue/runtime-core').Ref<WeatherData[]>} */
 const weather = ref([]);
+
+/** @type {import('@vue/runtime-core').Ref<ReportData[]>} */
+// const dataY = ref([]);
+
 const reports = ref([]);
-
-onMounted(async () => {
-    weather.value = await getFromApi('http://localhost:3003/weather-data');
-    reports.value = await getFromApi('http://localhost:3003/report-data');
-    console.log(reports.value);
-});
-// const weather = [];
-// const reports = [];
-
-// console.log(data);
-// console.log(weather);
-
-// const pageContent = 'Index';
-
-const selectClass =
-    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
-    'bg-no-repeat border border-solid border-gray-300 rounded' +
-    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 
 /** selected weather type for x-axis */
 const selected = ref(props.weatherOptions[0]);
-/** data for x-axis based on current selected weather type */
-const dataX = computed(() => ({
-    title: selected.value.name,
-    unitOfMeasure: selected.value.unitOfMeasure,
-    /** get weather values and dates from weather data */
-    data: weather.value.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
-}));
-
-const uniqueDates = [...new Set(reports.value.map(report => report.date))];
 
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
 
-/** @param {Array<ReportData>} reports */
+const uniqueDates = computed(() => {
+    return reports.value.reduce((acc, report) => {
+        if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
+        for (const daypart of dayparts) {
+            if (report[`${daypart}_schedule_id`]) {
+                acc[report.date].total++;
+                if (report[`${daypart}_present`]) acc[report.date].present++;
+            }
+        }
+        return acc;
+    }, {});
+});
+
+/**
+ * @param {ReportData[]} reports
+ * @param {string[]} uniqueDates
+ */
+const getPresence = computed(() => ({
+    title: 'Aanwezigheid',
+    unitOfMeasure: '%',
+    /** get presence values and dates for each unique day */
+    data: Object.keys(uniqueDates.value).map(date => {
+        console.log(uniqueDates.value[date]);
+        return {
+            date,
+            // value: calculatePresencePerDay(uniqueDates.value[date]),
+        };
+    }),
+}));
+
+/** @param {ReportData[]} reports */
 const calculatePresencePerDay = reports => {
     let total = 0; // all scheduled dayparts (morning, afternoon and evening)
     let present = 0; // all dayparts where client has been present
@@ -86,21 +87,28 @@ const calculatePresencePerDay = reports => {
             }
         }
     });
-
     return Math.round((present * 100) / total);
 };
 
-/** data for y-axis */
-const dataY = computed(() => ({
-    title: 'Aanwezigheid',
-    unitOfMeasure: '%',
-    /** get presence values and dates for each unique day */
-    data: uniqueDates.map(date => {
-        const filteredReports = reports.value.filter(report => report.date === date);
-        return {
-            date,
-            value: calculatePresencePerDay(filteredReports),
-        };
-    }),
+onMounted(async () => {
+    weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
+    reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
+    console.time('total');
+    console.log(getPresence.value);
+    console.timeEnd('total');
+});
+
+/** data for x-axis based on current selected weather type */
+const dataX = computed(() => ({
+    title: selected.value.name,
+    unitOfMeasure: selected.value.unitOfMeasure,
+    /** get weather values and dates from weather data */
+    data: weather.value.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
 }));
+
+// Temporarily select options (for functional purposes)
+const selectClass =
+    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
+    'bg-no-repeat border border-solid border-gray-300 rounded' +
+    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 </script>

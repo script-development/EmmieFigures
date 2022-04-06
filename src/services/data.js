@@ -29,7 +29,12 @@ const weatherApiError = 'something went wrong while fetching weatherData from Vi
 export const deploy = async () => {
     const weatherData = await weather();
     setData('weatherData', weatherData);
+    /** @type {ReportData[]} */
     const reportData = await reports();
+    // console.log(reportData.length);
+    // const uniqueDates = [...new Set(reportData.map(report => report.date))];
+    // /** @type {any} */
+    // const presenceData = getPresence(reportData, uniqueDates);
     setData('reportData', reportData);
 };
 
@@ -65,7 +70,7 @@ const reports = async () => {
     try {
         await fs.access('./data/reports.json'); // catch will fetch data if file is not present
         const reports = await fs.readFile('./data/reports.json', 'utf-8');
-        return reports;
+        return JSON.parse(reports);
     } catch {
         const reports = await getFromApi(getEnv('RAPP_REPORTS_URL') + `/${startDate}/${endDate}`);
         await fs.writeFile('./data/reports.json', JSON.stringify(reports.reportsForMonth));
