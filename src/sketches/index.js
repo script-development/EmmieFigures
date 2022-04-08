@@ -9,22 +9,14 @@ import engine from './engine';
  * @returns {import('types/sketches').Sketch}
  */
 export default (id, options) => {
-    const properties = {
-        grid: {},
-    };
     const context = getContext(id);
-    if (options) setOptions(options, properties, context.canvas);
+    if (options) setOptions(options, context.canvas);
 
     return {
         context,
-        showGrid: () => showGrid(properties),
         update: script => engine.setUpdate(script),
         render: script => engine.setRender(script),
     };
-};
-
-const showGrid = (context, {grid}) => {
-    // for (let y = 0; y < ) {}
 };
 
 /**
@@ -45,25 +37,12 @@ const getContext = id => {
 
 /**
  * @param {SketchOptions} options
- * @param {{}} properties
  * @param {HTMLCanvasElement} canvas
  */
-const setOptions = (options, properties, canvas) => {
+const setOptions = (options, canvas) => {
+    setXYWH(options, canvas);
     if (options.size) setSize(options.size, canvas);
     if (options.pos) setPos(options.pos, canvas);
-    if (options.cols && options.rows) setGrid(options, properties, canvas);
-    setXYWH(options, canvas);
-};
-
-/**
- *
- * @param {SketchOptions} options
- * @param {{}} properties
- * @param {HTMLCanvasElement} canvas
- */
-const setGrid = (options, properties, canvas) => {
-    properties.grid.unitWidth = (canvas.width / options.cols) | 0;
-    properties.grid.unitHeight = (canvas.height / options.rows) | 0;
 };
 
 /**
@@ -71,10 +50,10 @@ const setGrid = (options, properties, canvas) => {
  * @param {HTMLCanvasElement} canvas
  */
 const setXYWH = ({x, y, w, h}, canvas) => {
-    if (x != undefined) canvas.style.left = x + 'px';
-    if (y != undefined) canvas.style.height = y + 'px';
-    if (w != undefined) canvas.width = w;
-    if (h != undefined) canvas.height = h;
+    if (x) canvas.style.left = x + 'px';
+    if (y) canvas.style.height = y + 'px';
+    if (w) canvas.width = w;
+    if (h) canvas.height = h;
 };
 
 /**

@@ -1,15 +1,15 @@
 /** @typedef {import('types/graph').GraphData} GraphData */
 /** @typedef {import('types/graph').Stat} Stat */
 
-const graph = {
-    x: {
-        pos: {x: 0, y: 0},
-    },
-    y: {},
-    xTitle: {},
-    yTitle: {},
-    title: {},
-};
+// const graph = {
+//     x: {
+//         pos: {x: 0, y: 0},
+//     },
+//     y: {},
+//     xTitle: {},
+//     yTitle: {},
+//     title: {},
+// };
 
 const setPositions = () => {
     origin.x = ctx.canvas.width * 0.2;

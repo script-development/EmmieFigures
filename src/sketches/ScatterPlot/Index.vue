@@ -1,5 +1,5 @@
 <template>
-    <canvas id="scatter-plot" />
+    <canvas id="scatter-plot" class="hidden" />
 </template>
 
 <script setup>
@@ -8,10 +8,9 @@
  * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
  */
 
-import {onMounted, watch} from 'vue';
+import {onMounted} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
-import Stats from './Stats';
 
 const props = defineProps({
     dataX: {
@@ -26,38 +25,21 @@ const props = defineProps({
     },
 });
 
-/** @type {import('types/graph').Graph} */
-let graph;
-
-/** @type {import('types/graph').Stats} */
-let stats;
-
-watch(
-    () => props.dataX,
-    newDataX => {
-        // data for x-axis has changed, setting new data
-        const xUnits = graph.setX(newDataX);
-        stats.setX(xUnits, graph.yUnits, newDataX);
-    },
-);
-
 onMounted(() => {
-    const sketch = Sketch('scatter-plot', {size: 'full', rows: 32, cols: 18});
+    const sketch = Sketch('scatter-plot', {size: 'full'});
+    sketch.context.canvas.classList.remove('hidden');
+    sketch.context.canvas.classList.add('block');
 
-    graph = Graph(sketch, props.dataX, props.dataY);
-    stats = Stats(sketch, graph, props.dataX, props.dataY);
+    // const graph = Graph(sketch);
 
     sketch.update(() => {
-        stats.update();
+        //
     });
 
     sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
 
-        // sketch.showGrid();
-
-        graph.show();
-        stats.show();
+        // graph.show();
     });
 });
 </script>

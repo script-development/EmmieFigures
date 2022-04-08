@@ -1,5 +1,5 @@
 <template>
-    <!-- <ScatterPlot :data-x="dataX" :data-y="dataY" /> -->
+    <ScatterPlot :data-x="dataX" :data-y="dataY" />
     <div class="absolute bottom-0">
         <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options">Kies een weertype:</label>
@@ -17,7 +17,7 @@
 /** @typedef {import('types/data').WeatherData} WeatherData */
 
 import {computed} from '@vue/reactivity';
-// import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import {onMounted, ref} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
@@ -34,8 +34,6 @@ const props = defineProps({
 const weather = ref([]);
 
 /** @type {import('@vue/runtime-core').Ref<ReportData[]>} */
-// const dataY = ref([]);
-
 const reports = ref([]);
 
 /** selected weather type for x-axis */
@@ -44,58 +42,9 @@ const selected = ref(props.weatherOptions[0]);
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
 
-const uniqueDates = computed(() => {
-    return reports.value.reduce((acc, report) => {
-        if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
-        for (const daypart of dayparts) {
-            if (report[`${daypart}_schedule_id`]) {
-                acc[report.date].total++;
-                if (report[`${daypart}_present`]) acc[report.date].present++;
-            }
-        }
-        return acc;
-    }, {});
-});
-
-/**
- * @param {ReportData[]} reports
- * @param {string[]} uniqueDates
- */
-const getPresence = computed(() => ({
-    title: 'Aanwezigheid',
-    unitOfMeasure: '%',
-    /** get presence values and dates for each unique day */
-    data: Object.keys(uniqueDates.value).map(date => {
-        console.log(uniqueDates.value[date]);
-        return {
-            date,
-            // value: calculatePresencePerDay(uniqueDates.value[date]),
-        };
-    }),
-}));
-
-/** @param {ReportData[]} reports */
-const calculatePresencePerDay = reports => {
-    let total = 0; // all scheduled dayparts (morning, afternoon and evening)
-    let present = 0; // all dayparts where client has been present
-
-    reports.forEach(report => {
-        for (const daypart of dayparts) {
-            if (report[`${daypart}_schedule_id`]) {
-                total++;
-                if (report[`${daypart}_present`]) present++;
-            }
-        }
-    });
-    return Math.round((present * 100) / total);
-};
-
 onMounted(async () => {
     weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
     reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
-    console.time('total');
-    console.log(getPresence.value);
-    console.timeEnd('total');
 });
 
 /** data for x-axis based on current selected weather type */
@@ -104,6 +53,29 @@ const dataX = computed(() => ({
     unitOfMeasure: selected.value.unitOfMeasure,
     /** get weather values and dates from weather data */
     data: weather.value.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
+}));
+
+const presence = computed(() =>
+    reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
+        if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
+        for (const daypart of dayparts) {
+            if (report[`${daypart}_schedule_id`]) {
+                acc[report.date].total++;
+                if (report[`${daypart}_present`]) acc[report.date].present++;
+            }
+        }
+        return acc;
+    }, {}),
+);
+
+const dataY = computed(() => ({
+    title: 'Aanwezigheid',
+    unitOfMeasure: '%',
+    /** set presence values and dates for each unique day */
+    data: Object.keys(presence.value).map(date => ({
+        date,
+        value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
+    })),
 }));
 
 // Temporarily select options (for functional purposes)
