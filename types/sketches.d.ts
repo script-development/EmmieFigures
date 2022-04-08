@@ -1,5 +1,6 @@
 export interface Sketch {
     context: CanvasRenderingContext2D,
+    grid: {},
     update: (script: (delta: number) => void) => void,
     render: (script: (interpolate: number) => void) => void,
 }

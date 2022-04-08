@@ -1,6 +1,7 @@
 /** @typedef {import('types/sketches').SketchOptions} SketchOptions */
 
 import engine from './engine';
+import Grid from './grid';
 
 /**
  * Make a new Sketch API for a canvas element
@@ -11,9 +12,11 @@ import engine from './engine';
 export default (id, options) => {
     const context = getContext(id);
     if (options) setOptions(options, context.canvas);
+    const grid = Grid(context);
 
     return {
         context,
+        grid,
         update: script => engine.setUpdate(script),
         render: script => engine.setRender(script),
     };

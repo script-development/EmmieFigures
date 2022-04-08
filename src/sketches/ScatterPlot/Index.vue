@@ -26,11 +26,11 @@ const props = defineProps({
 });
 
 onMounted(() => {
-    const sketch = Sketch('scatter-plot', {size: 'full'});
+    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720});
     sketch.context.canvas.classList.remove('hidden');
     sketch.context.canvas.classList.add('block');
 
-    // const graph = Graph(sketch);
+    const graph = Graph(sketch);
 
     sketch.update(() => {
         //
@@ -39,7 +39,8 @@ onMounted(() => {
     sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
 
-        // graph.show();
+        graph.show();
+        sketch.grid.show();
     });
 });
 </script>
