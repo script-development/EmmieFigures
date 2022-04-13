@@ -1,25 +1,29 @@
-// /** @typedef {import('types/graph').GraphData} GraphData */
+/** @typedef {import('types/graph').GraphData} GraphData */
 // /** @typedef {import('types/graph').Stat} Stat */
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
 
+/** @type {import("types/sketches").Sketch["grid"]["properties"]} */
 let grid;
 
 const elements = {
     x: {
+        pos: {x1: 0, y1: 0, x2: 0, y2: 0},
         color: 'black',
         weight: 4,
         paint: 'line',
     },
     y: {
+        pos: {x1: 0, y1: 0, x2: 0, y2: 0},
         color: 'black',
         weight: 4,
         paint: 'line',
     },
     xTitle: {
-        text: 'Title',
-        size: '24px',
+        pos: {x: 0, y: 0},
+        text: '',
+        size: 24,
         weight: 'normal',
         color: 'black',
         font: 'sans-serif',
@@ -28,8 +32,9 @@ const elements = {
         paint: 'text',
     },
     yTitle: {
-        text: 'Title',
-        size: '24px',
+        pos: {x: 0, y: 0},
+        text: '',
+        size: 24,
         weight: 'normal',
         color: 'black',
         font: 'sans-serif',
@@ -37,6 +42,17 @@ const elements = {
         baseline: 'middle',
         paint: 'text',
         angle: -Math.PI / 2,
+    },
+    mainTitle: {
+        pos: {x: 0, y: 0},
+        text: 'Main Title',
+        size: 32,
+        weight: 'bold',
+        color: 'black',
+        font: 'sans-serif',
+        align: 'center',
+        baseline: 'middle',
+        paint: 'text',
     },
 };
 
@@ -53,8 +69,9 @@ const setPositions = () => {
         x2: grid.unitWidth * 4,
         y2: grid.unitHeight * 4,
     };
-    elements.xTitle.pos = {x: grid.unitWidth * 16, y: grid.unitHeight * 15};
-    elements.yTitle.pos = {x: grid.unitWidth * 3, y: grid.unitHeight * 9};
+    elements.xTitle.pos = {x: grid.unitWidth * 16, y: grid.unitHeight * 16};
+    elements.yTitle.pos = {x: grid.unitWidth * 2, y: grid.unitHeight * 9};
+    elements.mainTitle.pos = {x: grid.width * 0.5, y: grid.unitHeight * 3};
 };
 
 /**
@@ -65,14 +82,116 @@ const setPositions = () => {
 export default sketch => {
     ctx = sketch.context;
     grid = sketch.grid.properties;
-    console.log(grid);
     setPositions();
 
     const show = () => {
         Object.keys(elements).map(element => paint[elements[element].paint](elements[element]));
+        if (xUnits)
+            xUnits.units.forEach(u => {
+                paint.text(u);
+            });
+        if (yUnits)
+            yUnits.units.forEach(u => {
+                paint.text(u);
+            });
+        // yUnit.units.forEach(u => {
+        //     paint.text(u);
+        // });
     };
 
     return {show, elements};
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {string} text
+ */
+const unitDefinition = (x, y, text) => {
+    return {
+        pos: {x, y},
+        text,
+        size: 16,
+        weight: 'normal',
+        color: 'black',
+        font: 'sans-serif',
+        align: 'center',
+        baseline: 'middle',
+        paint: 'text',
+    };
+};
+
+/**
+ * X or Y-axis units
+ * @param {number} x1
+ * @param {number} y1
+ * @param {number} x2
+ * @param {number} y2
+ * @param {GraphData["data"]} dataX
+ * @returns
+ */
+const units = (x1, y1, x2, y2, dataX) => {
+    const steps = 9;
+    const max = dataX.reduce((a, {value}) => Math.max(a, value), 0);
+    const min = dataX.reduce((a, {value}) => Math.min(a, value), max);
+    const units = [];
+    for (let i = 0; i <= steps; i++) {
+        units.push(
+            unitDefinition(
+                x1 + ((x2 - x1) / steps) * i,
+                y1 + ((y2 - y1) / steps) * i,
+                (min + ((max - min) / steps) * i).toFixed(1),
+            ),
+        );
+    }
+    return {
+        /** @type {Object[]} */
+        units,
+    };
+};
+
+let xUnits;
+let yUnits;
+
+/** @param {GraphData} dataX */
+export const setX = dataX => {
+    elements.xTitle.text = `${dataX.title} (${dataX.unitOfMeasure})`;
+    xUnits = units(
+        elements.x.pos.x1 + grid.unitWidth * 0.25,
+        elements.x.pos.y1 + grid.unitHeight * 0.5,
+        elements.x.pos.x2 - grid.unitWidth * 0.25,
+        elements.x.pos.y2 + grid.unitHeight * 0.5,
+        dataX.data,
+    );
+};
+
+/** @param {GraphData} dataY */
+export const setY = dataY => {
+    elements.yTitle.text = `${dataY.title} (${dataY.unitOfMeasure})`;
+    yUnits = units(
+        elements.y.pos.x1 - grid.unitWidth * 0.5,
+        elements.y.pos.y1 - grid.unitHeight * 0.25,
+        elements.y.pos.x2 - grid.unitWidth * 0.5,
+        elements.y.pos.y2 + grid.unitHeight * 0.25,
+        dataY.data,
+    );
+    // const yAxisUnits = axisUnits()
+    // yUnit.pos.x1 = elements.y.pos.x1 - grid.unitWidth * 0.5;
+    // yUnit.pos.y1 = elements.x.pos.y1 - grid.unitHeight * 0.25;
+    // yUnit.pos.x2 = elements.x.pos.x2 - grid.unitWidth * 0.5;
+    // yUnit.pos.y2 = elements.x.pos.y2 + grid.unitHeight * 0.25;
+    // yUnit.length = yUnit.pos.x2 - yUnit.pos.x1;
+    // yUnit.max = dataY.data.reduce((a, {value}) => Math.max(a, value), 0);
+    // yUnit.min = dataY.data.reduce((a, {value}) => Math.min(a, value), yUnit.max);
+    // for (let i = 0; i < yUnit.steps; i++) {
+    //     yUnit.units.push(
+    //         unit(
+    //             yUnit.pos.x1 + (yUnit.length / yUnit.steps) * i,
+    //             yUnit.pos.y1,
+    //             (yUnit.min + ((yUnit.max - yUnit.min) / yUnit.steps) * i).toFixed(1),
+    //         ),
+    //     );
+    // }
 };
 
 const paint = {
@@ -80,14 +199,13 @@ const paint = {
         ctx.fillStyle = color;
         ctx.textAlign = align;
         ctx.textBaseline = baseline;
-        ctx.font = `${weight} ${size} ${font}`;
+        ctx.font = `${weight} ${size}px ${font}`;
         if (angle) {
             ctx.save();
             ctx.translate(pos.x, pos.y);
             ctx.rotate(angle);
             ctx.fillText(text, 0, 0);
             ctx.restore();
-            elements.yTitle.angle += 0.01;
         } else ctx.fillText(text, pos.x, pos.y);
     },
     line: element => {
@@ -99,86 +217,6 @@ const paint = {
         ctx.stroke();
     },
 };
-
-// /**
-//  * @param {number} x2
-//  * @param {number} y2
-//  */
-// const mainAxis = (x2, y2) => {
-//     const pos = {x1: origin.x, y1: origin.y, x2, y2};
-//     const show = () => {
-//         ctx.strokeStyle = 'black';
-//         ctx.lineWidth = 4;
-//         ctx.beginPath();
-//         ctx.moveTo(pos.x1, pos.y1);
-//         ctx.lineTo(pos.x2, pos.y2);
-//         ctx.stroke();
-//     };
-//     return {show};
-// };
-
-// /** @param {string} title */
-// const xAxisTitle = title => {
-//     const pos = {x1: origin.x, y1: origin.y, x2: ctx.canvas.width * 0.8, y2: origin.y};
-//     const show = () => {
-//         ctx.fillStyle = 'black';
-//         ctx.beginPath();
-//         ctx.textAlign = 'center';
-//         ctx.font = '24px georgia';
-//         ctx.fillText(title, pos.x1 + (pos.x2 - pos.x1) / 2, pos.y1 + 60);
-//     };
-//     return {show};
-// };
-
-// /** @param {string} title */
-// const yAxisTitle = title => {
-//     const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: ctx.canvas.height * 0.2};
-//     const show = () => {
-//         ctx.fillStyle = 'black';
-//         ctx.font = '24px georgia';
-//         ctx.save();
-//         ctx.translate(pos.x1 - 100, pos.y1 + (pos.y2 - pos.y1) / 2);
-//         ctx.rotate(-Math.PI / 2);
-//         ctx.beginPath();
-//         ctx.textAlign = 'center';
-//         ctx.font = '24px georgia';
-//         ctx.fillText(title, 0, 0);
-//         ctx.restore();
-//     };
-//     return {show};
-// };
-
-// /** @param {GraphData["data"]} dataX */
-// const xAxisUnits = dataX => {
-//     const pos = {x1: origin.x, y1: origin.y, x2: ctx.canvas.width * 0.8, y2: origin.y};
-//     const maxValue = dataX.reduce((a, {value}) => Math.max(a, value), 0);
-//     const minValue = dataX.reduce((a, {value}) => Math.min(a, value), maxValue);
-//     const steps = 10;
-//     const unitSX = pos.x1 + 10;
-//     const unitEX = pos.x2 - 10;
-//     const length = unitEX - unitSX;
-//     const show = () => {
-//         ctx.fillStyle = 'black';
-//         for (let i = 0; i <= steps; i++) {
-//             let xP = unitSX + (length / steps) * i;
-//             ctx.strokeStyle = 'black';
-//             ctx.lineWidth = 2;
-//             ctx.beginPath();
-//             ctx.moveTo(xP, pos.y1 - 5);
-//             ctx.lineTo(xP, pos.y1 + 5);
-//             ctx.stroke();
-//             ctx.lineWidth = 1;
-//             ctx.strokeStyle = '#ddd';
-//             ctx.moveTo(xP, pos.y1);
-//             ctx.lineTo(xP, pos.y1 - ctx.canvas.height * 0.6);
-//             ctx.stroke();
-//             ctx.textAlign = 'center';
-//             ctx.font = '16px georgia';
-//             ctx.fillText((minValue + ((maxValue - minValue) / steps) * i).toFixed(1), xP, pos.y1 + 15);
-//         }
-//     };
-//     return {show, length, unitSX, minValue, maxValue};
-// };
 
 // /** @param {GraphData["data"]} typeY */
 // const yAxisUnits = typeY => {
@@ -210,20 +248,4 @@ const paint = {
 //         }
 //     };
 //     return {show, length, unitSY, minValue, maxValue};
-// };
-
-// /** @param {string} title */
-// const graphTitle = title => {
-//     const pos = {x: ctx.canvas.width / 2, y: ctx.canvas.height * 0.1};
-//     const show = () => {
-//         ctx.beginPath();
-//         ctx.lineWidth = 1;
-//         ctx.strokeStyle = '#555';
-//         ctx.fillStyle = 'gray';
-//         ctx.textAlign = 'center';
-//         ctx.font = '32px sans-serif';
-//         ctx.fillText(title, pos.x + 1, pos.y + 1);
-//         ctx.strokeText(title, pos.x, pos.y);
-//     };
-//     return {show};
 // };

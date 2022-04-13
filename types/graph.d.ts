@@ -40,7 +40,6 @@ export interface GraphData {
         {
             date: string,
             value: number,
-
         }
     ]
 }

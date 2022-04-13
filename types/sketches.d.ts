@@ -1,6 +1,6 @@
 export interface Sketch {
     context: CanvasRenderingContext2D,
-    grid: {},
+    grid: Grid,
     update: (script: (delta: number) => void) => void,
     render: (script: (interpolate: number) => void) => void,
 }
@@ -14,4 +14,16 @@ export interface SketchOptions {
     pos?: "center"|"absolute",
     rows? : number,
     cols? : number,
+}
+
+interface Grid {
+    properties: {
+        width: number,
+        height: number,
+        xUnits: number,
+        yUnits: number,
+        unitWidth: number,
+        unitHeight: number,
+    }
+    show: () => void,
 }

@@ -8,9 +8,10 @@
  * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
  */
 
-import {onMounted} from 'vue';
+import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
+import {setX, setY} from './Graph';
 
 const props = defineProps({
     dataX: {
@@ -24,6 +25,20 @@ const props = defineProps({
         required: true,
     },
 });
+
+watch(
+    () => props.dataY,
+    dataY => {
+        setY(dataY);
+    },
+);
+
+watch(
+    () => props.dataX,
+    dataX => {
+        setX(dataX);
+    },
+);
 
 onMounted(() => {
     const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720});
@@ -40,7 +55,7 @@ onMounted(() => {
         sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
 
         graph.show();
-        sketch.grid.show();
+        // sketch.grid.show();
     });
 });
 </script>
