@@ -7,54 +7,63 @@ let ctx;
 /** @type {import("types/sketches").Sketch["grid"]["properties"]} */
 let grid;
 
+const defaults = {
+    text: {
+        text: '',
+        size: 24,
+        weight: 'normal',
+        color: 'black',
+        font: 'sans-serif',
+        /** @type {CanvasTextAlign} */
+        align: 'center',
+        /** @type {CanvasTextBaseline} */
+        baseline: 'middle',
+        show: 'text',
+    },
+};
+
+/** @type {Object.<string, any>} */
 const elements = {
     x: {
         pos: {x1: 0, y1: 0, x2: 0, y2: 0},
         color: 'black',
         weight: 4,
-        paint: 'line',
+        show: 'line',
     },
     y: {
         pos: {x1: 0, y1: 0, x2: 0, y2: 0},
         color: 'black',
         weight: 4,
-        paint: 'line',
+        show: 'line',
     },
     xTitle: {
+        ...defaults.text,
         pos: {x: 0, y: 0},
-        text: '',
-        size: 24,
-        weight: 'normal',
-        color: 'black',
-        font: 'sans-serif',
-        align: 'center',
-        baseline: 'middle',
-        paint: 'text',
     },
     yTitle: {
+        ...defaults.text,
         pos: {x: 0, y: 0},
-        text: '',
-        size: 24,
-        weight: 'normal',
-        color: 'black',
-        font: 'sans-serif',
-        align: 'center',
-        baseline: 'middle',
-        paint: 'text',
         angle: -Math.PI / 2,
     },
     mainTitle: {
+        ...defaults.text,
         pos: {x: 0, y: 0},
-        text: 'Main Title',
-        size: 32,
-        weight: 'bold',
-        color: 'black',
-        font: 'sans-serif',
-        align: 'center',
-        baseline: 'middle',
-        paint: 'text',
+        weight: 32,
+        normal: 'bold',
     },
 };
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {string} text
+ */
+const unitDefinition = (x, y, text) => ({
+    ...defaults.text,
+    pos: {x, y},
+    text,
+    size: 16,
+});
 
 const setPositions = () => {
     elements.x.pos = {
@@ -85,40 +94,14 @@ export default sketch => {
     setPositions();
 
     const show = () => {
-        Object.keys(elements).map(element => paint[elements[element].paint](elements[element]));
-        if (xUnits)
-            xUnits.units.forEach(u => {
-                paint.text(u);
-            });
-        if (yUnits)
-            yUnits.units.forEach(u => {
-                paint.text(u);
-            });
-        // yUnit.units.forEach(u => {
-        //     paint.text(u);
-        // });
+        Object.keys(elements).map(key => {
+            if (key == 'xUnits' || key == 'yUnits')
+                elements[key].map((/** @type {{ show: string }} */ el) => paint[el.show](el));
+            else paint[elements[key].show](elements[key]);
+        });
     };
 
     return {show, elements};
-};
-
-/**
- * @param {number} x
- * @param {number} y
- * @param {string} text
- */
-const unitDefinition = (x, y, text) => {
-    return {
-        pos: {x, y},
-        text,
-        size: 16,
-        weight: 'normal',
-        color: 'black',
-        font: 'sans-serif',
-        align: 'center',
-        baseline: 'middle',
-        paint: 'text',
-    };
 };
 
 /**
@@ -127,40 +110,40 @@ const unitDefinition = (x, y, text) => {
  * @param {number} y1
  * @param {number} x2
  * @param {number} y2
- * @param {GraphData["data"]} dataX
+ * @param {number} steps
+ * @param {GraphData["data"]} data
  * @returns
  */
-const units = (x1, y1, x2, y2, dataX) => {
-    const steps = 9;
-    const max = dataX.reduce((a, {value}) => Math.max(a, value), 0);
-    const min = dataX.reduce((a, {value}) => Math.min(a, value), max);
+const units = (x1, y1, x2, y2, steps, data) => {
+    const max = data.reduce((a, {value}) => Math.max(a, value), 0);
+    const min = data.reduce((a, {value}) => Math.min(a, value), max);
+    const minRounded = min - (min % steps);
+    const maxRounded = max - (max % steps) + steps;
+    const range = maxRounded - minRounded;
+    const amount = range / steps;
+
     const units = [];
-    for (let i = 0; i <= steps; i++) {
+    for (let i = 0; i <= amount; i++) {
         units.push(
             unitDefinition(
-                x1 + ((x2 - x1) / steps) * i,
-                y1 + ((y2 - y1) / steps) * i,
-                (min + ((max - min) / steps) * i).toFixed(1),
+                x1 + ((x2 - x1) / amount) * i,
+                y1 + ((y2 - y1) / amount) * i,
+                (minRounded + ((maxRounded - minRounded) / amount) * i).toFixed(0),
             ),
         );
     }
-    return {
-        /** @type {Object[]} */
-        units,
-    };
+    return units;
 };
-
-let xUnits;
-let yUnits;
 
 /** @param {GraphData} dataX */
 export const setX = dataX => {
     elements.xTitle.text = `${dataX.title} (${dataX.unitOfMeasure})`;
-    xUnits = units(
+    elements['xUnits'] = units(
         elements.x.pos.x1 + grid.unitWidth * 0.25,
         elements.x.pos.y1 + grid.unitHeight * 0.5,
         elements.x.pos.x2 - grid.unitWidth * 0.25,
         elements.x.pos.y2 + grid.unitHeight * 0.5,
+        2,
         dataX.data,
     );
 };
@@ -168,33 +151,19 @@ export const setX = dataX => {
 /** @param {GraphData} dataY */
 export const setY = dataY => {
     elements.yTitle.text = `${dataY.title} (${dataY.unitOfMeasure})`;
-    yUnits = units(
+    elements['yUnits'] = units(
         elements.y.pos.x1 - grid.unitWidth * 0.5,
         elements.y.pos.y1 - grid.unitHeight * 0.25,
         elements.y.pos.x2 - grid.unitWidth * 0.5,
         elements.y.pos.y2 + grid.unitHeight * 0.25,
+        10,
         dataY.data,
     );
-    // const yAxisUnits = axisUnits()
-    // yUnit.pos.x1 = elements.y.pos.x1 - grid.unitWidth * 0.5;
-    // yUnit.pos.y1 = elements.x.pos.y1 - grid.unitHeight * 0.25;
-    // yUnit.pos.x2 = elements.x.pos.x2 - grid.unitWidth * 0.5;
-    // yUnit.pos.y2 = elements.x.pos.y2 + grid.unitHeight * 0.25;
-    // yUnit.length = yUnit.pos.x2 - yUnit.pos.x1;
-    // yUnit.max = dataY.data.reduce((a, {value}) => Math.max(a, value), 0);
-    // yUnit.min = dataY.data.reduce((a, {value}) => Math.min(a, value), yUnit.max);
-    // for (let i = 0; i < yUnit.steps; i++) {
-    //     yUnit.units.push(
-    //         unit(
-    //             yUnit.pos.x1 + (yUnit.length / yUnit.steps) * i,
-    //             yUnit.pos.y1,
-    //             (yUnit.min + ((yUnit.max - yUnit.min) / yUnit.steps) * i).toFixed(1),
-    //         ),
-    //     );
-    // }
 };
 
+/** @type {Object.<string, any>} */
 const paint = {
+    /** @param {defaults["text"] & {pos: {x: number, y: number}, angle?: number}} param */
     text: ({color, align, baseline, weight, size, font, text, pos, angle}) => {
         ctx.fillStyle = color;
         ctx.textAlign = align;
@@ -208,6 +177,7 @@ const paint = {
             ctx.restore();
         } else ctx.fillText(text, pos.x, pos.y);
     },
+    /** @param {elements['x'] | elements['y']} element */
     line: element => {
         ctx.strokeStyle = element.color;
         ctx.lineWidth = element.weight;
