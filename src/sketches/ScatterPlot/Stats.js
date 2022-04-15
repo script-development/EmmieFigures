@@ -2,9 +2,8 @@
  * @typedef {import("types/graph").Stat} Stat
  * @typedef {import('types/graph').GraphData} GraphData
  * @typedef {import('types/sketches').Sketch} SketchAPI
- * @typedef {import('types/graph').Graph["xUnits"]} xUnits
- * @typedef {import('types/graph').Graph["yUnits"]} yUnits
  */
+import {elements} from './Graph';
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
@@ -12,18 +11,19 @@ let ctx;
 /** @type {Array<Stat>} */
 let stats = [];
 
+/** @type {GraphData} */
+let dataX;
+
+/** @type {GraphData} */
+let dataY;
+
 /**
  * Create Statistic objects from x & y-axis data
  * @param {SketchAPI} sketch
- * @param {import("types/graph").Graph} graph
- * @param {GraphData} dataX
- * @param {GraphData} dataY
- * @returns {import("types/graph").Stats}
+ * @returns
  */
-export default (sketch, graph, dataX, dataY) => {
+export const Stats = sketch => {
     ctx = sketch.context;
-    makeStats(dataX, dataY);
-    setStatsPosition(graph.xUnits, graph.yUnits);
     return {
         update: () => {
             for (const stat of stats) stat.update();
@@ -31,16 +31,31 @@ export default (sketch, graph, dataX, dataY) => {
         show: () => {
             for (const stat of stats) stat.show();
         },
-        setX: (xUnits, yUnits, dataX) => {
-            stats = [];
-            makeStats(dataX, dataY);
-            setStatsPosition(xUnits, yUnits);
-        },
     };
 };
 
+/** @param {GraphData} data */
+export const setStatsX = data => {
+    dataX = data;
+    if (dataY) {
+        stats = [];
+        makeStats(dataX, dataY);
+        setStatsPosition();
+    }
+};
+
+/** @param {GraphData} data */
+export const setStatsY = data => {
+    dataY = data;
+    if (dataX) {
+        stats = [];
+        makeStats(dataX, dataY);
+        setStatsPosition();
+    }
+};
+
 /**
- *
+ * Create all statistics objects from x-axis & y-axis data
  * @param {GraphData} dataX
  * @param {GraphData} dataY
  */
@@ -54,14 +69,12 @@ const makeStats = (dataX, dataY) => {
     });
 };
 
-/**
- * @param {xUnits} xUnits
- * @param {yUnits} yUnits
- */
-export const setStatsPosition = (xUnits, yUnits) => {
+const setStatsPosition = () => {
+    const xUnits = elements.xUnits;
+    const yUnits = elements.yUnits;
     stats.forEach(stat => {
-        stat.pos.x = getPos(xUnits.maxValue, xUnits.minValue, xUnits.unitSX, xUnits.length, stat.valueX);
-        stat.pos.y = getPos(yUnits.maxValue, yUnits.minValue, yUnits.unitSY, yUnits.length, stat.valueY);
+        stat.pos.x = getPos(xUnits.maxValue, xUnits.minValue, xUnits.startX, xUnits.length, stat.valueX);
+        stat.pos.y = getPos(yUnits.maxValue, yUnits.minValue, yUnits.startY, yUnits.length, stat.valueY);
     });
 };
 
@@ -75,7 +88,7 @@ export const setStatsPosition = (xUnits, yUnits) => {
 const makeStat = (valueX, valueY, date, id) => {
     const color = [0, 100, 0];
     const pos = {x: 0, y: 0};
-    const radius = 5;
+    const radius = 3;
 
     return {
         valueX,

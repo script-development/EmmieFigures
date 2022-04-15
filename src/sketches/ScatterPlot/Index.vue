@@ -10,8 +10,8 @@
 
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
-import Graph from './Graph';
-import {setX, setY} from './Graph';
+import {setGraphX, setGraphY, Graph} from './Graph';
+import {setStatsX, setStatsY, Stats} from './Stats';
 
 const props = defineProps({
     dataX: {
@@ -27,16 +27,17 @@ const props = defineProps({
 });
 
 watch(
-    () => props.dataY,
-    dataY => {
-        setY(dataY);
-    },
-);
-
-watch(
     () => props.dataX,
     dataX => {
-        setX(dataX);
+        setGraphX(dataX);
+        setStatsX(dataX);
+    },
+);
+watch(
+    () => props.dataY,
+    dataY => {
+        setGraphY(dataY);
+        setStatsY(dataY);
     },
 );
 
@@ -46,16 +47,17 @@ onMounted(() => {
     sketch.context.canvas.classList.add('block');
 
     const graph = Graph(sketch);
+    const stats = Stats(sketch);
 
     sketch.update(() => {
-        //
+        stats.update();
     });
 
     sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
 
         graph.show();
-        // sketch.grid.show();
+        stats.show();
     });
 });
 </script>
