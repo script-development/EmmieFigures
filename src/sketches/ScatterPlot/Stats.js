@@ -37,21 +37,13 @@ export const Stats = sketch => {
 /** @param {GraphData} data */
 export const setStatsX = data => {
     dataX = data;
-    if (dataY) {
-        stats = [];
-        makeStats(dataX, dataY);
-        setStatsPosition();
-    }
+    if (dataY) makeStats(dataX, dataY);
 };
 
 /** @param {GraphData} data */
 export const setStatsY = data => {
     dataY = data;
-    if (dataX) {
-        stats = [];
-        makeStats(dataX, dataY);
-        setStatsPosition();
-    }
+    if (dataX) makeStats(dataX, dataY);
 };
 
 /**
@@ -60,60 +52,46 @@ export const setStatsY = data => {
  * @param {GraphData} dataY
  */
 const makeStats = (dataX, dataY) => {
+    stats = [];
     let id = 1;
     dataY.data.forEach(y => {
         const x = dataX.data.find(x => x.date === y.date);
         if (!x) return;
-        stats.push(makeStat(x.value, y.value, y.date, id));
+        const pos = {x: getPos(elements.xUnits, x.value), y: getPos(elements.yUnits, y.value)};
+        stats.push(Statistic(pos, x.value, y.value, y.date, id));
         id++;
     });
 };
 
-const setStatsPosition = () => {
-    const xUnits = elements.xUnits;
-    const yUnits = elements.yUnits;
-    stats.forEach(stat => {
-        stat.pos.x = getPos(xUnits.maxValue, xUnits.minValue, xUnits.startX, xUnits.length, stat.valueX);
-        stat.pos.y = getPos(yUnits.maxValue, yUnits.minValue, yUnits.startY, yUnits.length, stat.valueY);
-    });
-};
-
 /**
+ * @param {{x: number, y: number}} pos
  * @param {number} valueX
  * @param {number} valueY
  * @param {string} date
  * @param {number} id
  * @returns {Stat}
  */
-const makeStat = (valueX, valueY, date, id) => {
-    const color = [0, 100, 0];
-    const pos = {x: 0, y: 0};
-    const radius = 3;
-
-    return {
-        valueX,
-        valueY,
-        date,
-        pos,
-        id,
-        update: () => update(),
-        show: () => show(color, pos, radius),
-    };
-};
+const Statistic = (pos, valueX, valueY, date, id) => ({
+    // color and radius hardcoded for the moment
+    valueX,
+    valueY,
+    date,
+    pos,
+    id,
+    update: () => update(),
+    show: () => show([0, 100, 0], pos, 3),
+});
 
 /**
- * @param {number} max
- * @param {number} min
- * @param {number} unitMin
- * @param {number} length
- * @param {number} stat
+ * @param {{}} units
+ * @param {number} statValue
  */
-const getPos = (max, min, unitMin, length, stat) => {
+const getPos = ({max, min, start, length}, statValue) => {
     const range = max - min;
-    const leftOver = stat - min;
+    const leftOver = statValue - min;
     const posPercentage = leftOver / range;
     const posLength = posPercentage * length;
-    return posLength + unitMin;
+    return posLength + start;
 };
 
 const update = () => {};

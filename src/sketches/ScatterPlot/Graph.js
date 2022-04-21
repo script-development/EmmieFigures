@@ -17,9 +17,17 @@ const defaults = {
         baseline: 'middle',
         show: 'text',
     },
+    units: {
+        /** @type {Array<{}>} */
+        units: [],
+        max: 0,
+        min: 0,
+        length: 0,
+        start: 0,
+        offset: {x1: 0, y1: 0, x2: 0, y2: 0},
+    },
 };
 
-/** @type {Object.<string, any>} */
 export const elements = {
     x: {
         pos: {x1: 0, y1: 0, x2: 0, y2: 0},
@@ -36,12 +44,12 @@ export const elements = {
     xTitle: {
         ...defaults.text,
         pos: {x: 0, y: 0},
-        kind: '',
+        type: '',
     },
     yTitle: {
         ...defaults.text,
         pos: {x: 0, y: 0},
-        kind: '',
+        type: '',
         angle: -Math.PI / 2,
     },
     mainTitle: {
@@ -52,18 +60,10 @@ export const elements = {
         weight: 'bold',
     },
     xUnits: {
-        units: [],
-        maxValue: 0,
-        minValue: 0,
-        length: 0,
-        startX: 0,
+        ...defaults.units,
     },
     yUnits: {
-        units: [],
-        maxValue: 0,
-        minValue: 0,
-        length: 0,
-        startY: 0,
+        ...defaults.units,
     },
 };
 
@@ -106,13 +106,18 @@ export const Graph = sketch => {
     grid = sketch.grid.properties;
     const paint = Paint(sketch.context);
     setPositions();
-    // careful: this might not be a good place for it with future alterations
+    setUnitOffsets();
 
+    // for every element: show value is type of draw with paint object
     const show = () => {
         Object.keys(elements).map(key => {
-            if (key == 'xUnits' || key == 'yUnits')
+            if (key == 'xUnits' || key == 'yUnits') {
+                // @ts-ignore
                 elements[key].units.map((/** @type {{ show: string }} */ el) => paint[el.show](el));
-            else paint[elements[key].show](elements[key]);
+            } else {
+                // @ts-ignore
+                paint[elements[key].show](elements[key]);
+            }
         });
     };
 
@@ -158,42 +163,64 @@ const units = (x1, y1, x2, y2, steps, data) => {
     };
 };
 
+const setUnitOffsets = () => {
+    elements.xUnits.offset = {
+        x1: grid.unitWidth * 0.25,
+        y1: grid.unitHeight * 0.5,
+        x2: -grid.unitWidth * 0.25,
+        y2: grid.unitHeight * 0.5,
+    };
+    elements.yUnits.offset = {
+        x1: -grid.unitWidth * 0.25,
+        y1: -grid.unitHeight * 0.25,
+        x2: -grid.unitWidth * 0.5,
+        y2: grid.unitHeight * 0.25,
+    };
+};
+
+/** @param {GraphData} data */
+export const newSetGraph = (data, titleElement, axisElement, unitElement) => {
+    elements.xTitle.text = `${data.title} (${data.unitOfMeasure})`;
+    elements.xTitle.type = data.title.toLowerCase();
+    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.type} vs ${elements.xTitle.type}`;
+};
+
 /** @param {GraphData} dataX */
 export const setGraphX = dataX => {
     elements.xTitle.text = `${dataX.title} (${dataX.unitOfMeasure})`;
-    elements.xTitle.kind = dataX.title.toLowerCase();
-    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.kind} vs ${elements.xTitle.kind}`;
+    elements.xTitle.type = dataX.title.toLowerCase();
+    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.type} vs ${elements.xTitle.type}`;
     const xUnits = units(
-        elements.x.pos.x1 + grid.unitWidth * 0.25,
-        elements.x.pos.y1 + grid.unitHeight * 0.5,
-        elements.x.pos.x2 - grid.unitWidth * 0.25,
-        elements.x.pos.y2 + grid.unitHeight * 0.5,
+        elements.x.pos.x1 + elements.xUnits.offset.x1,
+        elements.x.pos.y1 + elements.xUnits.offset.y1,
+        elements.x.pos.x2 + elements.xUnits.offset.x2,
+        elements.x.pos.y2 + elements.xUnits.offset.y2,
         2,
         dataX.data,
     );
     elements.xUnits.units = xUnits.units;
-    elements.xUnits.maxValue = xUnits.max;
-    elements.xUnits.minValue = xUnits.min;
+    elements.xUnits.max = xUnits.max;
+    elements.xUnits.min = xUnits.min;
     elements.xUnits.length = xUnits.lengthX;
-    elements.xUnits.startX = xUnits.x1;
+    elements.xUnits.start = xUnits.x1;
 };
 
 /** @param {GraphData} dataY */
 export const setGraphY = dataY => {
     elements.yTitle.text = `${dataY.title} (${dataY.unitOfMeasure})`;
-    elements.yTitle.kind = dataY.title.toLowerCase();
-    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.kind} vs ${elements.xTitle.kind}`;
+    elements.yTitle.type = dataY.title.toLowerCase();
+    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.type} vs ${elements.xTitle.type}`;
     const yUnits = units(
-        elements.y.pos.x1 - grid.unitWidth * 0.5,
-        elements.y.pos.y1 - grid.unitHeight * 0.25,
-        elements.y.pos.x2 - grid.unitWidth * 0.5,
-        elements.y.pos.y2 + grid.unitHeight * 0.25,
+        elements.y.pos.x1 + elements.yUnits.offset.x1,
+        elements.y.pos.y1 + elements.yUnits.offset.y1,
+        elements.y.pos.x2 + elements.yUnits.offset.x2,
+        elements.y.pos.y2 + elements.yUnits.offset.y2,
         10,
         dataY.data,
     );
     elements.yUnits.units = yUnits.units;
-    elements.yUnits.maxValue = yUnits.max;
-    elements.yUnits.minValue = yUnits.min;
+    elements.yUnits.max = yUnits.max;
+    elements.yUnits.min = yUnits.min;
     elements.yUnits.length = yUnits.lengthY;
-    elements.yUnits.startY = yUnits.y1;
+    elements.yUnits.start = yUnits.y1;
 };

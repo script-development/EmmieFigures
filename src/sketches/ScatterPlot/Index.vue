@@ -12,6 +12,7 @@ import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import {setGraphX, setGraphY, Graph} from './Graph';
 import {setStatsX, setStatsY, Stats} from './Stats';
+import {elements} from './Graph';
 
 const props = defineProps({
     dataX: {
