@@ -10,7 +10,7 @@
 
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
-import {setGraphX, setGraphY, Graph} from './Graph';
+import {setGraph, Graph} from './Graph';
 import {setStatsX, setStatsY, Stats} from './Stats';
 import {elements} from './Graph';
 
@@ -30,14 +30,14 @@ const props = defineProps({
 watch(
     () => props.dataX,
     dataX => {
-        setGraphX(dataX);
+        setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
         setStatsX(dataX);
     },
 );
 watch(
     () => props.dataY,
     dataY => {
-        setGraphY(dataY);
+        setGraph(dataY, elements.yTitle, elements.y, elements.yUnits);
         setStatsY(dataY);
     },
 );

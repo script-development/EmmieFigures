@@ -1,7 +1,13 @@
-/** @typedef {import('types/graph').GraphData} GraphData */
+/**
+ * @typedef {{
+ * units: UnitDefinition[], min: number, max: number, lengthX: number, lengthY: number, startX: number, startY: number,
+ * }} Units
+ * @typedef {defaults["text"] & {show: 'text'}} UnitDefinition
+ */
 import Paint from '../paint';
+import {Vec4} from 'sketches/vectors';
 
-/** @type {import("types/sketches").Sketch["grid"]["properties"]} */
+/** @type {import('types/sketches').Sketch["grid"]["properties"]} */
 let grid;
 
 const defaults = {
@@ -18,12 +24,13 @@ const defaults = {
         show: 'text',
     },
     units: {
-        /** @type {Array<{}>} */
         units: [],
         max: 0,
         min: 0,
-        length: 0,
-        start: 0,
+        lengthX: 0,
+        lengthY: 0,
+        startX: 0,
+        startY: 0,
         offset: {x1: 0, y1: 0, x2: 0, y2: 0},
     },
 };
@@ -70,7 +77,7 @@ export const elements = {
 /**
  * @param {number} x
  * @param {number} y
- * @param {string} text
+ * @param {'text'} text
  */
 const unitDefinition = (x, y, text) => ({
     ...defaults.text,
@@ -112,29 +119,23 @@ export const Graph = sketch => {
     const show = () => {
         Object.keys(elements).map(key => {
             if (key == 'xUnits' || key == 'yUnits') {
-                // @ts-ignore
-                elements[key].units.map((/** @type {{ show: string }} */ el) => paint[el.show](el));
+                elements[key].units.map(el => paint[el.show](el));
             } else {
-                // @ts-ignore
                 paint[elements[key].show](elements[key]);
             }
         });
     };
-
     return {show, elements};
 };
 
 /**
  * X or Y-axis units
- * @param {number} x1
- * @param {number} y1
- * @param {number} x2
- * @param {number} y2
+ * @param {Vec4d} pos
  * @param {number} steps
- * @param {GraphData["data"]} data
- * @returns
+ * @param {import('types/graph').GraphData["data"]} data
+ * @returns {Units}
  */
-const units = (x1, y1, x2, y2, steps, data) => {
+const units = (pos, steps, data) => {
     const max = data.reduce((a, {value}) => Math.max(a, value), 0);
     const min = data.reduce((a, {value}) => Math.min(a, value), max);
     const minRounded = min - (min % steps);
@@ -142,12 +143,13 @@ const units = (x1, y1, x2, y2, steps, data) => {
     const range = maxRounded - minRounded;
     const amount = range / steps;
 
+    /** @type {UnitDefinition[]} */
     const units = [];
     for (let i = 0; i <= amount; i++) {
         units.push(
             unitDefinition(
-                x1 + ((x2 - x1) / amount) * i,
-                y1 + ((y2 - y1) / amount) * i,
+                pos.x1 + ((pos.x2 - pos.x1) / amount) * i,
+                pos.y1 + ((pos.y2 - pos.y1) / amount) * i,
                 (minRounded + ((maxRounded - minRounded) / amount) * i).toFixed(0),
             ),
         );
@@ -156,10 +158,10 @@ const units = (x1, y1, x2, y2, steps, data) => {
         units,
         min: minRounded,
         max: maxRounded,
-        lengthX: x2 - x1,
-        lengthY: y2 - y1,
-        x1,
-        y1,
+        lengthX: pos.x2 - pos.x1,
+        lengthY: pos.y2 - pos.y1,
+        startX: pos.x1,
+        startY: pos.y1,
     };
 };
 
@@ -178,49 +180,17 @@ const setUnitOffsets = () => {
     };
 };
 
-/** @param {GraphData} data */
-export const newSetGraph = (data, titleElement, axisElement, unitElement) => {
-    elements.xTitle.text = `${data.title} (${data.unitOfMeasure})`;
-    elements.xTitle.type = data.title.toLowerCase();
+/**
+ *
+ * @param {import('types/graph').GraphData} data
+ * @param {elements["xTitle"]|elements["yTitle"]} title
+ * @param {elements["x"]|elements["y"]} axis
+ * @param {elements["xUnits"]|elements["yUnits"]} unit
+ */
+export const setGraph = (data, title, axis, unit) => {
+    title.text = `${data.title} (${data.unitOfMeasure})`;
+    title.type = data.title.toLowerCase();
     elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.type} vs ${elements.xTitle.type}`;
-};
-
-/** @param {GraphData} dataX */
-export const setGraphX = dataX => {
-    elements.xTitle.text = `${dataX.title} (${dataX.unitOfMeasure})`;
-    elements.xTitle.type = dataX.title.toLowerCase();
-    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.type} vs ${elements.xTitle.type}`;
-    const xUnits = units(
-        elements.x.pos.x1 + elements.xUnits.offset.x1,
-        elements.x.pos.y1 + elements.xUnits.offset.y1,
-        elements.x.pos.x2 + elements.xUnits.offset.x2,
-        elements.x.pos.y2 + elements.xUnits.offset.y2,
-        2,
-        dataX.data,
-    );
-    elements.xUnits.units = xUnits.units;
-    elements.xUnits.max = xUnits.max;
-    elements.xUnits.min = xUnits.min;
-    elements.xUnits.length = xUnits.lengthX;
-    elements.xUnits.start = xUnits.x1;
-};
-
-/** @param {GraphData} dataY */
-export const setGraphY = dataY => {
-    elements.yTitle.text = `${dataY.title} (${dataY.unitOfMeasure})`;
-    elements.yTitle.type = dataY.title.toLowerCase();
-    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.type} vs ${elements.xTitle.type}`;
-    const yUnits = units(
-        elements.y.pos.x1 + elements.yUnits.offset.x1,
-        elements.y.pos.y1 + elements.yUnits.offset.y1,
-        elements.y.pos.x2 + elements.yUnits.offset.x2,
-        elements.y.pos.y2 + elements.yUnits.offset.y2,
-        10,
-        dataY.data,
-    );
-    elements.yUnits.units = yUnits.units;
-    elements.yUnits.max = yUnits.max;
-    elements.yUnits.min = yUnits.min;
-    elements.yUnits.length = yUnits.lengthY;
-    elements.yUnits.start = yUnits.y1;
+    const units_ = units(Vec4.add(axis.pos, unit.offset), data.steps, data.data);
+    Object.assign(unit, units_);
 };

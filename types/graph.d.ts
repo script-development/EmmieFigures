@@ -1,3 +1,15 @@
+export interface GraphData {
+    title: string,
+    unitOfMeasure: string,
+    steps: number,
+    data: [
+        {
+            date: string,
+            value: number,
+        }
+    ]
+}
+
 export interface Graph {
     show: () => void,
     xUnits: {
@@ -33,13 +45,3 @@ export interface Stat {
     update: (delta?: number) => void,
 }
 
-export interface GraphData {
-    title: string,
-    unitOfMeasure: string,
-    data: [
-        {
-            date: string,
-            value: number,
-        }
-    ]
-}

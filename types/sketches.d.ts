@@ -16,7 +16,7 @@ export interface SketchOptions {
     cols? : number,
 }
 
-interface Grid {
+export interface Grid {
     properties: {
         width: number,
         height: number,

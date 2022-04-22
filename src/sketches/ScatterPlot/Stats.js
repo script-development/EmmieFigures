@@ -57,7 +57,22 @@ const makeStats = (dataX, dataY) => {
     dataY.data.forEach(y => {
         const x = dataX.data.find(x => x.date === y.date);
         if (!x) return;
-        const pos = {x: getPos(elements.xUnits, x.value), y: getPos(elements.yUnits, y.value)};
+        const pos = {
+            x: getPos(
+                elements.xUnits.max,
+                elements.xUnits.min,
+                elements.xUnits.startX,
+                elements.xUnits.lengthX,
+                x.value,
+            ),
+            y: getPos(
+                elements.yUnits.max,
+                elements.yUnits.min,
+                elements.yUnits.startY,
+                elements.yUnits.lengthY,
+                y.value,
+            ),
+        };
         stats.push(Statistic(pos, x.value, y.value, y.date, id));
         id++;
     });
@@ -83,10 +98,10 @@ const Statistic = (pos, valueX, valueY, date, id) => ({
 });
 
 /**
- * @param {{}} units
+ *
  * @param {number} statValue
  */
-const getPos = ({max, min, start, length}, statValue) => {
+const getPos = (max, min, start, length, statValue) => {
     const range = max - min;
     const leftOver = statValue - min;
     const posPercentage = leftOver / range;

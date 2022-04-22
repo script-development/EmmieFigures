@@ -51,6 +51,7 @@ onMounted(async () => {
 const dataX = computed(() => ({
     title: selected.value.name,
     unitOfMeasure: selected.value.unitOfMeasure,
+    steps: selected.value.steps,
     /** get weather values and dates from weather data */
     data: weather.value.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
 }));
@@ -71,6 +72,7 @@ const presence = computed(() =>
 const dataY = computed(() => ({
     title: 'Aanwezigheid',
     unitOfMeasure: '%',
+    steps: 10,
     /** set presence values and dates for each unique day */
     data: Object.keys(presence.value).map(date => ({
         date,

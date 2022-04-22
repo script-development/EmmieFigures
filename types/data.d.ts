@@ -2,6 +2,7 @@ export interface WeatherOptions {
     key: 'precip'|'temp'|'windspeed'|'cloudcover'| 'pressure',
     name: string,
     unitOfMeasure: string,
+    steps: number,
 }
 
 export interface ReportData {
