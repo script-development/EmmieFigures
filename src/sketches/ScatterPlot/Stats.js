@@ -98,7 +98,10 @@ const Statistic = (pos, valueX, valueY, date, id) => ({
 });
 
 /**
- *
+ * @param {number} max
+ * @param {number} min
+ * @param {number} start
+ * @param {number} length
  * @param {number} statValue
  */
 const getPos = (max, min, start, length, statValue) => {

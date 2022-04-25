@@ -1,11 +1,10 @@
-/**
- * @typedef {{
- * units: UnitDefinition[], min: number, max: number, lengthX: number, lengthY: number, startX: number, startY: number,
- * }} Units
- * @typedef {defaults["text"] & {show: 'text'}} UnitDefinition
- */
 import Paint from '../paint';
 import {Vec4} from 'sketches/vectors';
+
+/** @typedef {import('types/graph').GraphTextElement} TextElement */
+/** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
+/** @typedef {import('types/graph').GraphLineElement} LineElement */
+/** @typedef {import('types/graph').GraphElements} Elements */
 
 /** @type {import('types/sketches').Sketch["grid"]["properties"]} */
 let grid;
@@ -21,9 +20,11 @@ const defaults = {
         align: 'center',
         /** @type {CanvasTextBaseline} */
         baseline: 'middle',
-        show: 'text',
+        /** @type {'text'} */
+        paint: 'text',
     },
     units: {
+        /** @type {TextElement[]} */
         units: [],
         max: 0,
         min: 0,
@@ -35,28 +36,27 @@ const defaults = {
     },
 };
 
+/** @type {Elements} */
 export const elements = {
     x: {
         pos: {x1: 0, y1: 0, x2: 0, y2: 0},
         color: 'black',
         weight: 4,
-        show: 'line',
+        paint: 'line',
     },
     y: {
         pos: {x1: 0, y1: 0, x2: 0, y2: 0},
         color: 'black',
         weight: 4,
-        show: 'line',
+        paint: 'line',
     },
     xTitle: {
         ...defaults.text,
         pos: {x: 0, y: 0},
-        type: '',
     },
     yTitle: {
         ...defaults.text,
         pos: {x: 0, y: 0},
-        type: '',
         angle: -Math.PI / 2,
     },
     mainTitle: {
@@ -77,9 +77,9 @@ export const elements = {
 /**
  * @param {number} x
  * @param {number} y
- * @param {'text'} text
+ * @param {string} text
  */
-const unitDefinition = (x, y, text) => ({
+const Unit = (x, y, text) => ({
     ...defaults.text,
     pos: {x, y},
     text,
@@ -104,6 +104,8 @@ const setPositions = () => {
     elements.mainTitle.pos = {x: grid.width * 0.5, y: grid.unitHeight * 2};
 };
 
+/** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
+
 /**
  * Scatter Plot -> TypeX (Weather type (unit of Measurement)) / TypeY (Presence (%))
  * @param {import("types/sketches").Sketch} sketch
@@ -115,25 +117,59 @@ export const Graph = sketch => {
     setPositions();
     setUnitOffsets();
 
-    // for every element: show value is type of draw with paint object
+    // for every element: paint value is type of draw with paint object
     const show = () => {
-        Object.keys(elements).map(key => {
-            if (key == 'xUnits' || key == 'yUnits') {
-                elements[key].units.map(el => paint[el.show](el));
-            } else {
-                paint[elements[key].show](elements[key]);
+        Object.keys(elements).forEach(key => {
+            const keyChecked1 = checkKey1(key);
+            if (keyChecked1) elements[keyChecked1].units.map(el => paint[el.paint](el));
+            else {
+                const keyChecked2 = checkKey2(key);
+                if (keyChecked2) showElements(keyChecked2, paint);
+                else {
+                    const keyChecked3 = checkKey3(key);
+                    if (keyChecked3) showElements(keyChecked3, paint);
+                }
             }
         });
     };
     return {show, elements};
 };
 
+/** @param {string} key */
+const checkKey1 = key => {
+    if (key === 'xUnits' || key === 'yUnits') return key;
+    return;
+};
+
+/** @param {string} key */
+const checkKey2 = key => {
+    if (key === 'x' || key === 'y' || key === 'xTitle') return key;
+    return;
+};
+
+/** @param {string} key */
+const checkKey3 = key => {
+    if (key === 'yTitle' || key === 'mainTitle') return key;
+    return;
+};
+
+/**
+ *
+ * @param {GraphShowElementsNonUnits} key
+ * @param {*} paint
+ */
+const showElements = (key, paint) => {
+    const element = elements[key];
+    if (element.paint === 'line') paint[element.paint](element);
+    if (element.paint === 'text') paint[element.paint](element);
+};
+
 /**
  * X or Y-axis units
- * @param {Vec4d} pos
+ * @param {import('types/vectors').Vec4d} pos
  * @param {number} steps
  * @param {import('types/graph').GraphData["data"]} data
- * @returns {Units}
+ * @returns
  */
 const units = (pos, steps, data) => {
     const max = data.reduce((a, {value}) => Math.max(a, value), 0);
@@ -143,11 +179,10 @@ const units = (pos, steps, data) => {
     const range = maxRounded - minRounded;
     const amount = range / steps;
 
-    /** @type {UnitDefinition[]} */
     const units = [];
     for (let i = 0; i <= amount; i++) {
         units.push(
-            unitDefinition(
+            Unit(
                 pos.x1 + ((pos.x2 - pos.x1) / amount) * i,
                 pos.y1 + ((pos.y2 - pos.y1) / amount) * i,
                 (minRounded + ((maxRounded - minRounded) / amount) * i).toFixed(0),
@@ -183,14 +218,15 @@ const setUnitOffsets = () => {
 /**
  *
  * @param {import('types/graph').GraphData} data
- * @param {elements["xTitle"]|elements["yTitle"]} title
- * @param {elements["x"]|elements["y"]} axis
- * @param {elements["xUnits"]|elements["yUnits"]} unit
+ * @param {TextElement} title
+ * @param {LineElement} axis
+ * @param {UnitsElement} unit
  */
 export const setGraph = (data, title, axis, unit) => {
     title.text = `${data.title} (${data.unitOfMeasure})`;
-    title.type = data.title.toLowerCase();
-    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.type} vs ${elements.xTitle.type}`;
+    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.text
+        .split(' ')[0]
+        .toLowerCase()} vs ${elements.xTitle.text.split(' ')[0].toLowerCase()}`;
     const units_ = units(Vec4.add(axis.pos, unit.offset), data.steps, data.data);
     Object.assign(unit, units_);
 };

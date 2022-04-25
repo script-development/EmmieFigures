@@ -1,3 +1,5 @@
+/** @typedef {import("types/vectors").Vec4d} Vec4d */
+
 export const Vec4 = {
     /**
      * Add 2 double position vectors togethers without altering the source vectors
