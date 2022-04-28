@@ -5,6 +5,7 @@ import {Vec4} from 'sketches/vectors';
 /** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
 /** @typedef {import('types/graph').GraphLineElement} LineElement */
 /** @typedef {import('types/graph').GraphElements} Elements */
+/** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
 
 /** @type {import('types/sketches').Sketch["grid"]["properties"]} */
 let grid;
@@ -104,8 +105,6 @@ const setPositions = () => {
     elements.mainTitle.pos = {x: grid.width * 0.5, y: grid.unitHeight * 2};
 };
 
-/** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
-
 /**
  * Scatter Plot -> TypeX (Weather type (unit of Measurement)) / TypeY (Presence (%))
  * @param {import("types/sketches").Sketch} sketch
@@ -121,6 +120,7 @@ export const Graph = sketch => {
     const show = () => {
         Object.keys(elements).forEach(key => {
             const keyChecked1 = checkKey1(key);
+            // Horrible solution to avoid lint error, but it works
             if (keyChecked1) elements[keyChecked1].units.map(el => paint[el.paint](el));
             else {
                 const keyChecked2 = checkKey2(key);
@@ -140,16 +140,14 @@ const checkKey1 = key => {
     if (key === 'xUnits' || key === 'yUnits') return key;
     return;
 };
-
 /** @param {string} key */
 const checkKey2 = key => {
-    if (key === 'x' || key === 'y' || key === 'xTitle') return key;
+    if (key === 'x' || key === 'y') return key;
     return;
 };
-
 /** @param {string} key */
 const checkKey3 = key => {
-    if (key === 'yTitle' || key === 'mainTitle') return key;
+    if (key === 'xTitle' || key === 'yTitle' || key === 'mainTitle') return key;
     return;
 };
 
@@ -161,7 +159,7 @@ const checkKey3 = key => {
 const showElements = (key, paint) => {
     const element = elements[key];
     if (element.paint === 'line') paint[element.paint](element);
-    if (element.paint === 'text') paint[element.paint](element);
+    else if (element.paint === 'text') paint[element.paint](element);
 };
 
 /**
