@@ -33,7 +33,7 @@ export const weatherOptions = [
         key: 'precip',
         name: 'Neerslag',
         unitOfMeasure: 'mm',
-        steps: 1,
+        steps: 10,
     },
     {
         key: 'temp',
@@ -51,7 +51,7 @@ export const weatherOptions = [
         key: 'cloudcover',
         name: 'Bewolking',
         unitOfMeasure: '%',
-        steps: 5,
+        steps: 10,
     },
     {
         key: 'pressure',

@@ -14,6 +14,7 @@ export interface SketchOptions {
     pos?: "center"|"absolute",
     rows? : number,
     cols? : number,
+    border?: boolean,
 }
 
 export interface Grid {

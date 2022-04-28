@@ -46,6 +46,7 @@ const setOptions = (options, canvas) => {
     setXYWH(options, canvas);
     if (options.size) setSize(options.size, canvas);
     if (options.pos) setPos(options.pos, canvas);
+    if (options.border) canvas.style.border = '1px solid black';
 };
 
 /**

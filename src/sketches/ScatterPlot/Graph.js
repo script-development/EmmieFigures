@@ -170,10 +170,13 @@ const showElements = (key, paint) => {
  * @returns
  */
 const units = (pos, steps, data) => {
-    const max = data.reduce((a, {value}) => Math.max(a, value), 0);
-    const min = data.reduce((a, {value}) => Math.min(a, value), max);
-    const minRounded = min - (min % steps);
-    const maxRounded = max - (max % steps) + steps;
+    if (!data) return;
+    // const max = data.reduce((a, {value}) => Math.max(a, value), 0);
+    // const min = data.reduce((a, {value}) => Math.min(a, value), max);
+    // const minRounded = min - (min % steps);
+    // const maxRounded = max - (max % steps) + steps;
+    const minRounded = 0;
+    const maxRounded = 100;
     const range = maxRounded - minRounded;
     const amount = range / steps;
 

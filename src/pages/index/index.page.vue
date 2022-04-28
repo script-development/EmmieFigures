@@ -37,7 +37,7 @@ const weather = ref([]);
 const reports = ref([]);
 
 /** selected weather type for x-axis */
-const selected = ref(props.weatherOptions[0]);
+const selected = ref(props.weatherOptions[3]);
 
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];

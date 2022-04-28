@@ -3,13 +3,17 @@
  * @typedef {import('types/graph').GraphData} GraphData
  * @typedef {import('types/sketches').Sketch} SketchAPI
  */
+import {ref} from 'vue';
 import {elements} from './Graph';
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
 
 /** @type {Array<Stat>} */
-let stats = [];
+const stats = [];
+
+/** @type {import('@vue/runtime-core').Ref<boolean>} */
+export const statsActive = ref(false);
 
 /** @type {GraphData} */
 let dataX;
@@ -46,14 +50,24 @@ export const setStatsY = data => {
     if (dataX) makeStats(dataX, dataY);
 };
 
+export const getLinearRegressionData = () => {
+    /** @type {Array<{x: number, y: number}>} */
+    const data = [];
+    stats.forEach(stat => data.push({x: stat.pos.x, y: stat.pos.y}));
+    return data;
+};
+
 /**
  * Create all statistics objects from x-axis & y-axis data
  * @param {GraphData} dataX
  * @param {GraphData} dataY
  */
 const makeStats = (dataX, dataY) => {
-    stats = [];
+    stats.length = 0;
     let id = 1;
+    // color and radius hardcoded for the moment
+    const color = [0, 100, 0];
+    const radius = 4;
     dataY.data.forEach(y => {
         const x = dataX.data.find(x => x.date === y.date);
         if (!x) return;
@@ -73,9 +87,10 @@ const makeStats = (dataX, dataY) => {
                 y.value,
             ),
         };
-        stats.push(Statistic(pos, x.value, y.value, y.date, id));
+        stats.push(Statistic(pos, x.value, y.value, y.date, id, color, radius));
         id++;
     });
+    statsActive.value = true;
 };
 
 /**
@@ -84,17 +99,18 @@ const makeStats = (dataX, dataY) => {
  * @param {number} valueY
  * @param {string} date
  * @param {number} id
+ * @param {Array<number>} color
+ * @param {number} radius
  * @returns {Stat}
  */
-const Statistic = (pos, valueX, valueY, date, id) => ({
-    // color and radius hardcoded for the moment
+const Statistic = (pos, valueX, valueY, date, id, color, radius) => ({
     valueX,
     valueY,
     date,
     pos,
     id,
     update: () => update(),
-    show: () => show([0, 100, 0], pos, 3),
+    show: () => show(color, pos, radius),
 });
 
 /**
