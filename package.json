@@ -8,6 +8,7 @@
         "server": "node ./src",
         "server:prod": "cross-env NODE_ENV=production node ./src",
         "lint": "eslint \"src/**/*.{js,vue}\" --cache --format=json -o eslint.out",
+        "lint:local": "eslint \"src/**/*.{js,vue}\"",
         "lint:check": "eslint \"src/**/*.{js,vue}\" --fix --cache ",
         "prettier:check": "prettier --check \"src/**/*.{js,vue}\"",
         "prettier:write": "prettier --write \"src/**/*.{js,vue}\"",
