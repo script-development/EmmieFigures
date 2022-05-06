@@ -8,14 +8,13 @@
  * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
  */
 
+/** @typedef {import('types/graph').GraphOption} GraphOption */
+/** @typedef {import('@vue/runtime-core').PropType<GraphOption[]>} GraphOptions */
+
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
-import {setGraph, Graph} from './Graph';
-import {setStatsX, setStatsY, Stats, statsActive, getLinearRegressionData} from './Stats';
-import {elements} from './Graph';
-import {linearRegression} from './regression';
-
-let ctx;
+import {createGraph, setGraph, elements} from './Graph';
+import {setStatsX, setStatsY, createStats} from './Stats';
 
 const props = defineProps({
     dataX: {
@@ -28,28 +27,13 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    options: {
+        /** @type {GraphOptions} */
+        type: Array,
+        required: true,
+    },
 });
 
-watch(
-    () => statsActive.value,
-    active => {
-        if (active) {
-            const linearRegressionData = getLinearRegressionData();
-            console.log(linearRegressionData);
-            const regress = linearRegression(linearRegressionData);
-            const y1 = regress(elements.x.pos.x1);
-            const y2 = regress(elements.x.pos.x2);
-            console.log(y1);
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = 'black';
-            ctx.beginPath();
-            ctx.lineTo(elements.x.pos.x1, ctx.canvas.height - y1);
-            ctx.moveTo(elements.x.pos.x2, ctx.canvas.height - y2);
-            ctx.stroke();
-            console.log(ctx);
-        }
-    },
-);
 watch(
     () => props.dataX,
     dataX => {
@@ -66,23 +50,13 @@ watch(
 );
 
 onMounted(() => {
-    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720});
+    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720, clear: true});
     sketch.context.canvas.classList.remove('hidden');
     sketch.context.canvas.classList.add('block');
-    ctx = sketch.context;
 
-    const graph = Graph(sketch);
-    const stats = Stats(sketch);
+    createGraph(sketch);
+    createStats(sketch);
 
-    sketch.update(() => {
-        stats.update();
-    });
-
-    sketch.render(() => {
-        sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
-
-        graph.show();
-        stats.show();
-    });
+    sketch.start();
 });
 </script>

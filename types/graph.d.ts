@@ -12,6 +12,12 @@ export interface GraphData {
     ]
 }
 
+export interface GraphOption {
+    id: number,
+    name: string,
+    active: boolean,
+}
+
 export interface GraphTextElement {
         text: string,
         size: number,

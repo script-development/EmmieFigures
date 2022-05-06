@@ -1,7 +1,9 @@
 /** @typedef {import('types/sketches').SketchOptions} SketchOptions */
 
+import Paint from './paint';
 import engine from './engine';
 import Grid from './grid';
+import {setRender} from './engine';
 
 /**
  * Make a new Sketch API for a canvas element
@@ -13,13 +15,20 @@ export default (id, options) => {
     const context = getContext(id);
     if (options) setOptions(options, context.canvas);
     const grid = Grid(context);
-
+    const p = Paint(context);
+    // @ts-ignore
+    Object.keys(p).forEach(key => (paint[key] = p[key]));
     return {
         context,
         grid,
-        update: script => engine.setUpdate(script),
-        render: script => engine.setRender(script),
+        start: () => engine.start(),
+        stop: () => engine.stop(),
     };
+};
+
+export const paint = {
+    interpolate: 0,
+    clear: () => {},
 };
 
 /**
@@ -47,6 +56,7 @@ const setOptions = (options, canvas) => {
     if (options.size) setSize(options.size, canvas);
     if (options.pos) setPos(options.pos, canvas);
     if (options.border) canvas.style.border = '1px solid black';
+    if (options.clear) setClear();
 };
 
 /**
@@ -85,4 +95,12 @@ const setPos = (pos, canvas) => {
         canvas.style.left = (innerWidth - canvas.width) / 2 + 'px';
         canvas.style.top = (innerHeight - canvas.height) / 2 + 'px';
     }
+};
+
+// This must always be the first render in the engine (thus sketch has to be made before anything else)
+const setClear = () => {
+    setRender({
+        id: 'clear',
+        show: () => paint.clear(),
+    });
 };

@@ -3,6 +3,7 @@
  * @typedef {import('types/graph').GraphData} GraphData
  * @typedef {import('types/sketches').Sketch} SketchAPI
  */
+import {setRender} from 'sketches/engine';
 import {ref} from 'vue';
 import {elements} from './Graph';
 
@@ -26,16 +27,17 @@ let dataY;
  * @param {SketchAPI} sketch
  * @returns
  */
-export const Stats = sketch => {
+export const createStats = sketch => {
     ctx = sketch.context;
-    return {
-        update: () => {
-            for (const stat of stats) stat.update();
-        },
+    // update: () => {
+    //     for (const stat of stats) stat.update();
+    // },
+    setRender({
+        id: 'stats',
         show: () => {
             for (const stat of stats) stat.show();
         },
-    };
+    });
 };
 
 /** @param {GraphData} data */

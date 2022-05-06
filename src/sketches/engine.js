@@ -1,8 +1,10 @@
-/** @type {function} */
-let update;
+import {paint} from 'sketches/index.js';
 
-/** @type {function} */
-let render;
+/** @type {{update: function}[]} */
+let updates = [];
+
+/** @type {{show: function}[]} */
+export const render = [];
 
 // mainloop
 let maxFPS = 120;
@@ -12,7 +14,7 @@ let lastTimeStamp = 0;
 
 // start/stop
 let requestID = 0;
-let active = false; // eslint-disable-line
+let running = false;
 let started = false;
 
 // logs
@@ -28,9 +30,9 @@ let framesThisSecond = 0;
 
 /** @param {DOMHighResTimeStamp} timeStamp */
 const mainLoop = timeStamp => {
+    requestID = requestAnimationFrame(mainLoop);
     // throttle FPS
     if (timeStamp < lastTimeStamp + 1000 / maxFPS) {
-        requestID = requestAnimationFrame(mainLoop);
         returns++;
         return;
     }
@@ -40,17 +42,15 @@ const mainLoop = timeStamp => {
     calculateFPS(timeStamp);
     simulate();
 
-    /** @param {number} interpolation */
-    render(delta / step);
-
-    requestID = requestAnimationFrame(mainLoop);
+    paint.interpolate = delta / step;
+    for (let i = 0; i < render.length; i++) render[i].show(paint);
 };
 
 const simulate = () => {
     updateCount = 0;
     while (delta >= step) {
         totalUpdates++;
-        if (update) update(step);
+        for (let i = 0; i < updates.length; i++) updates[i].update(step); // initial render
         delta -= step;
         // spiral of death prevention
         if (++updateCount >= 240) {
@@ -75,9 +75,8 @@ const start = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
         requestID = requestAnimationFrame(timeStamp => {
-            render(0); // initial render
-            active = true;
-
+            for (let i = 0; i < render.length; i++) render[i].show(paint); // initial render
+            running = true;
             lastTimeStamp = timeStamp;
             lastFPSUpdate = timeStamp;
             framesThisSecond = 0;
@@ -88,27 +87,21 @@ const start = () => {
 };
 
 const stop = () => {
-    active = false;
+    running = false;
     started = false;
     cancelAnimationFrame(requestID);
 };
 
-/** @param {function} script */
-const setUpdate = script => {
-    update = script;
-};
+/** @param {{id: string, show: function}} obj */
+export const setRender = obj => render.push(obj);
 
-/** @param {function} script */
-const setRender = script => {
-    render = script;
-    start();
-};
+/** @param {{update: function}} obj */
+export const setUpdate = obj => updates.push(obj);
 
 export default {
-    setUpdate: /** @param {function} script */ script => setUpdate(script),
-    setRender: /** @param {function} script */ script => setRender(script),
     start: () => start(),
     stop: () => stop(),
+    running: () => running,
     frameCount: () => totalFrames,
     updateCount: () => totalUpdates,
     returnCount: () => returns,

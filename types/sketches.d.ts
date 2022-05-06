@@ -1,9 +1,18 @@
+import { GraphLineElement, GraphTextElement } from "./graph";
+
+export interface Paint {
+    clear: () => void,
+    interpolate: number,
+    text: (element: GraphTextElement) => void,
+    line: (element: GraphLineElement) => void,
+};
+
 export interface Sketch {
     context: CanvasRenderingContext2D,
     grid: Grid,
-    update: (script: (delta: number) => void) => void,
-    render: (script: (interpolate: number) => void) => void,
-}
+    start: () => void,
+    stop: () => void,
+};
 
 export interface SketchOptions {
     size?: "full",
@@ -15,7 +24,8 @@ export interface SketchOptions {
     rows? : number,
     cols? : number,
     border?: boolean,
-}
+    clear?: boolean,
+};
 
 export interface Grid {
     properties: {
@@ -25,6 +35,6 @@ export interface Grid {
         yUnits: number,
         unitWidth: number,
         unitHeight: number,
-    }
+    },
     show: () => void,
-}
+};
