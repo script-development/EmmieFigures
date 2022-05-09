@@ -43,13 +43,13 @@ export const createStats = sketch => {
 /** @param {GraphData} data */
 export const setStatsX = data => {
     dataX = data;
-    if (dataY) makeStats(dataX, dataY);
+    makeStats();
 };
 
 /** @param {GraphData} data */
 export const setStatsY = data => {
     dataY = data;
-    if (dataX) makeStats(dataX, dataY);
+    makeStats();
 };
 
 export const getLinearRegressionData = () => {
@@ -61,10 +61,9 @@ export const getLinearRegressionData = () => {
 
 /**
  * Create all statistics objects from x-axis & y-axis data
- * @param {GraphData} dataX
- * @param {GraphData} dataY
  */
-const makeStats = (dataX, dataY) => {
+const makeStats = () => {
+    if (!dataX || !dataY) return;
     stats.length = 0;
     let id = 1;
     // color and radius hardcoded for the moment

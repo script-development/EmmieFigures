@@ -1,4 +1,14 @@
-export interface WeatherOptions {
+export interface Settings {
+    weatherTypes: WeatherTypes[],
+    trendLines: Trendlines[],
+}
+
+export interface TrendLines {
+    key: string,
+    name: string,
+}
+
+export interface WeatherTypes {
     key: 'precip'|'temp'|'windspeed'|'cloudcover'| 'pressure',
     name: string,
     unitOfMeasure: string,

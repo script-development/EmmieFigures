@@ -27,36 +27,3 @@ export const getData = key => {
     if (typeof key === 'string') return store[key];
     else throw new Error('key must be a string');
 };
-
-export const weatherOptions = [
-    {
-        key: 'precip',
-        name: 'Neerslag',
-        unitOfMeasure: 'mm',
-        steps: 1,
-    },
-    {
-        key: 'temp',
-        name: 'Temperatuur',
-        unitOfMeasure: '°C',
-        steps: 1,
-    },
-    {
-        key: 'windspeed',
-        name: 'Windsnelheid',
-        unitOfMeasure: 'km/h',
-        steps: 2,
-    },
-    {
-        key: 'cloudcover',
-        name: 'Bewolking',
-        unitOfMeasure: '%',
-        steps: 10,
-    },
-    {
-        key: 'pressure',
-        name: 'Druk',
-        unitOfMeasure: 'bar',
-        steps: 4,
-    },
-];

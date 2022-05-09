@@ -1,41 +1,30 @@
 <template>
     <ScatterPlot :data-x="dataX" :data-y="dataY" />
-    <div v-for="option in options.graph" :key="option.id" :class="option.class">
-        <input
-            :id="`option${option.id}`"
-            type="checkbox"
-            :disabled="option.disabled"
-            @change="optionChange($event.target, option.id)"
-        />
-        <label :for="`option${option.id}`">{{ option.type }}</label>
+    <!-- Trendlines -->
+    <div v-for="(option, index) in settings.trendLines" :key="option.key" :class="`absolute bottom-${25 - index * 5}`">
+        <input :id="option.key" type="checkbox" :disabled="!statsActive" @change="trendLine($event.target, index)" />
+        <label :for="option.key">{{ option.name }}</label>
     </div>
-    <div class="absolute bottom-0">
-        <div class="mb-3 xl:w-96 z-1">
-            <label for="weather-options">Kies een weertype:</label>
-            <select id="weather-options" v-model="selected" :class="selectClass">
-                <option v-for="option in weatherOptions" :key="option.key" :value="option">
-                    {{ `${option.name} (${option.unitOfMeasure})` }}
-                </option>
-            </select>
-        </div>
-    </div>
+    <VSelect v-model="weatherType" class="absolute bottom-0" :options="settings.weatherTypes">Weer Type</VSelect>
 </template>
 
 <script setup>
+// @change="optionChange($event.target, option.id)"
 /** @typedef {import('types/data').ReportData} ReportData */
 /** @typedef {import('types/data').WeatherData} WeatherData */
 
-import {computed} from '@vue/reactivity';
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+import VSelect from 'components/Select.vue';
+import {computed} from '@vue/reactivity';
 import {onMounted, ref} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
-import {options, optionChange} from 'sketches/ScatterPlot/options';
+import {statsActive} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
-    weatherOptions: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
-        type: Array,
+    settings: {
+        /** @type {import('@vue/runtime-core').PropType<import('types/data').Settings>} */
+        type: Object,
         required: true,
     },
 });
@@ -47,7 +36,7 @@ const weather = ref([]);
 const reports = ref([]);
 
 /** selected weather type for x-axis */
-const selected = ref(props.weatherOptions[3]);
+const weatherType = ref(props.settings.weatherTypes[3]);
 
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
@@ -59,11 +48,11 @@ onMounted(async () => {
 
 /** data for x-axis based on current selected weather type */
 const dataX = computed(() => ({
-    title: selected.value.name,
-    unitOfMeasure: selected.value.unitOfMeasure,
-    steps: selected.value.steps,
+    title: weatherType.value.name,
+    unitOfMeasure: weatherType.value.unitOfMeasure,
+    steps: weatherType.value.steps,
     /** get weather values and dates from weather data */
-    data: weather.value.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
+    data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherType.value.key]})),
 }));
 
 const presence = computed(() =>
@@ -89,10 +78,4 @@ const dataY = computed(() => ({
         value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
     })),
 }));
-
-// Temporarily select options (for functional purposes)
-const selectClass =
-    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
-    'bg-no-repeat border border-solid border-gray-300 rounded' +
-    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 </script>
