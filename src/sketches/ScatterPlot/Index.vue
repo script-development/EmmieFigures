@@ -27,11 +27,6 @@ const props = defineProps({
         type: Object,
         required: true,
     },
-    options: {
-        /** @type {GraphOptions} */
-        type: Array,
-        required: true,
-    },
 });
 
 watch(

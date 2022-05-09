@@ -33,7 +33,7 @@ export const weatherOptions = [
         key: 'precip',
         name: 'Neerslag',
         unitOfMeasure: 'mm',
-        steps: 10,
+        steps: 1,
     },
     {
         key: 'temp',

@@ -1,7 +1,12 @@
 <template>
-    <ScatterPlot :data-x="dataX" :data-y="dataY" :options="activeOptions" />
-    <div v-for="option in graphOptions" :key="option.id" :class="option.class">
-        <input :id="`option${option.id}`" type="checkbox" @change="changeOptions($event.target, option.id)" />
+    <ScatterPlot :data-x="dataX" :data-y="dataY" />
+    <div v-for="option in options.graph" :key="option.id" :class="option.class">
+        <input
+            :id="`option${option.id}`"
+            type="checkbox"
+            :disabled="option.disabled"
+            @change="optionChange($event.target, option.id)"
+        />
         <label :for="`option${option.id}`">{{ option.type }}</label>
     </div>
     <div class="absolute bottom-0">
@@ -22,9 +27,10 @@
 
 import {computed} from '@vue/reactivity';
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import {onMounted, ref, reactive} from 'vue';
+import {onMounted, ref} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
+import {options, optionChange} from 'sketches/ScatterPlot/options';
 
 const props = defineProps({
     weatherOptions: {
@@ -33,31 +39,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-const graphOptions = [
-    {
-        id: 0,
-        type: 'linear-regression',
-        class: 'absolute bottom-25',
-    },
-    {
-        id: 1,
-        type: 'LOESS-regression',
-        class: 'absolute bottom-20',
-    },
-];
-
-const activeOptions = reactive(new Array(graphOptions.length).fill(null));
-
-/**
- * @param {HTMLInputElement} el
- * @param {number} id
- */
-const changeOptions = (el, id) => {
-    // const g = graphOptions.find(option => option.id === id);
-    if (el.checked) activeOptions[id] = graphOptions.find(option => option.id === id);
-    else activeOptions[id] = null;
-};
 
 /** @type {import('@vue/runtime-core').Ref<WeatherData[]>} */
 const weather = ref([]);
