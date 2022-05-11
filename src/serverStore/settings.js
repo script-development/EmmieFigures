@@ -33,6 +33,10 @@ const weatherTypes = [
 
 const trendLines = [
     {
+        key: 'none',
+        name: 'Geen',
+    },
+    {
         key: 'linear-regression',
         name: 'Lineaire regressie',
     },

@@ -3,7 +3,7 @@
         <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options"><slot /></label>
             <select id="weather-options" :value="modelValue" :class="selectClass" @input="updateValue($event.target)">
-                <option v-for="option in options" :key="option.key" :value="option">
+                <option v-for="option in options" :key="option.key" :value="option.key">
                     {{ `${option.name} (${option.unitOfMeasure})` }}
                 </option>
             </select>
@@ -14,7 +14,7 @@
 <script setup>
 defineProps({
     modelValue: {
-        type: Object,
+        type: String,
         required: true,
     },
     options: {
