@@ -17,15 +17,15 @@ const data = [
         y: 5,
     },
     {
-        x: 3,
-        y: 4,
+        x: 6,
+        y: 5,
     },
 ];
 
 const regress = linearRegression(data);
 
-const x1 = 0;
-const x2 = 10;
+const x1 = 1;
+const x2 = 6;
 
 const y1 = regress(x1);
 const y2 = regress(x2);

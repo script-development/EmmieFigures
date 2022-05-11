@@ -22,11 +22,12 @@
         :model-value="trendLineKey"
         class="absolute bottom-0 mb-24 xl:w-96 z-1"
         :options="settings.trendLines"
+        :disabled="!statsActive"
         @update:model-value="change"
     >
         Regression Type
     </VSelect>
-    <VSelect v-model="weatherType" class="absolute bottom-0" :options="settings.weatherTypes">Weer Type</VSelect>
+    <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes">Weer Type</VSelect>
     <!-- <div class="absolute bottom-0"> -->
     <!-- <div class="absolute bottom-0 mb-3 xl:w-96 z-1">
         <label for="weather-options">Kies een weertype:</label>
@@ -49,7 +50,7 @@ import {computed} from '@vue/reactivity';
 import {onMounted, ref} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
-import {statsActive} from 'sketches/ScatterPlot/Stats';
+import {statsActive, showLinearRegression} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
     settings: {
@@ -59,11 +60,22 @@ const props = defineProps({
     },
 });
 
-/** @param {HTMLSelectElement} target */
-const change = target => {
-    //
+/** @param {"linear-regression" | "loess-regression" | "none"} type */
+const change = type => {
+    if (type === 'linear-regression') activateLinearRegression();
+    if (type === 'loess-regression') activateLinearRegression();
+    if (type === 'none') deactiveLinearRegression();
 };
 
+const deactiveLinearRegression = () => {
+    // console.log('deactivated');
+};
+
+const activateLinearRegression = () => {
+    showLinearRegression();
+};
+
+/** selected trendLine for plot */
 const trendLineKey = ref('none');
 
 /** @type {import('@vue/runtime-core').Ref<WeatherData[]>} */
@@ -73,7 +85,7 @@ const weather = ref([]);
 const reports = ref([]);
 
 /** selected weather type for x-axis */
-const weatherType = ref(props.settings.weatherTypes[3].key);
+const weatherTypeKey = ref('cloudcover');
 
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
@@ -83,18 +95,20 @@ onMounted(async () => {
     reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
 });
 
-const selectedWeatherSettingObject = computed(() =>
-    props.settings.weatherTypes.find(setting => setting.key === weatherType.value),
+const weatherSetting = computed(
+    () =>
+        props.settings.weatherTypes.find(setting => setting.key === weatherTypeKey.value) ||
+        props.settings.weatherTypes[3],
 );
 
 /** data for x-axis based on current selected weather type */
 const dataX = computed(() => {
     return {
-        title: selectedWeatherSettingObject.value?.name,
-        unitOfMeasure: selectedWeatherSettingObject.value?.unitOfMeasure,
-        steps: selectedWeatherSettingObject.value?.steps,
+        title: weatherSetting.value.name,
+        unitOfMeasure: weatherSetting.value.unitOfMeasure,
+        steps: weatherSetting.value.steps,
         /** get weather values and dates from weather data */
-        data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherType.value]})),
+        data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]})),
     };
 });
 
@@ -121,9 +135,4 @@ const dataY = computed(() => ({
         value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
     })),
 }));
-
-const selectClass =
-    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
-    'bg-no-repeat border border-solid border-gray-300 rounded' +
-    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 </script>

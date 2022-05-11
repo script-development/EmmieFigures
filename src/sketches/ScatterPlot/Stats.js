@@ -6,6 +6,7 @@
 import {setRender} from 'sketches/engine';
 import {ref} from 'vue';
 import {elements} from './Graph';
+import {linearRegression} from './regression';
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
@@ -52,11 +53,51 @@ export const setStatsY = data => {
     makeStats();
 };
 
-export const getLinearRegressionData = () => {
+const getLinearRegressionData = () => {
     /** @type {Array<{x: number, y: number}>} */
     const data = [];
-    stats.forEach(stat => data.push({x: stat.pos.x, y: stat.pos.y}));
+    stats.forEach(stat => data.push({x: stat.valueX, y: stat.valueY}));
     return data;
+};
+
+export const showLinearRegression = () => {
+    const data = getLinearRegressionData();
+    const regression = linearRegression(data);
+    const yValue1 = regression(elements.xUnits.min);
+    const yValue2 = regression(elements.xUnits.max);
+    // console.log(elements.xUnits.min, y1, elements.xUnits.max, y2);
+    const y1 = getPos(
+        elements.yUnits.max,
+        elements.yUnits.min,
+        elements.yUnits.startY,
+        elements.yUnits.lengthY,
+        yValue1,
+    );
+    const y2 = getPos(
+        elements.yUnits.max,
+        elements.yUnits.min,
+        elements.yUnits.startY,
+        elements.yUnits.lengthY,
+        yValue2,
+    );
+    // x: getPos(
+    //     elements.xUnits.max,
+    //     elements.xUnits.min,
+    //     elements.xUnits.startX,
+    //     elements.xUnits.lengthX,
+    //     x.value,
+    // ),
+    setRender({
+        id: 'linear-regression',
+        show: () => {
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(elements.x.pos.x1, y1);
+            ctx.lineTo(elements.x.pos.x2, y2);
+            ctx.stroke();
+        },
+    });
 };
 
 /**

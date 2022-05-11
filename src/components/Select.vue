@@ -2,9 +2,20 @@
     <div>
         <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options"><slot /></label>
-            <select id="weather-options" :value="modelValue" :class="selectClass" @input="updateValue($event.target)">
-                <option v-for="option in options" :key="option.key" :value="option.key">
-                    {{ `${option.name} (${option.unitOfMeasure})` }}
+            <select
+                id="weather-options"
+                :value="modelValue"
+                :disabled="disabled"
+                :class="selectClass"
+                @input="updateValue($event.target)"
+            >
+                <option
+                    v-for="option in options"
+                    :key="option.key"
+                    :value="option.key"
+                    :selected="modelValue === option.key"
+                >
+                    {{ option.name }}
                 </option>
             </select>
         </div>
@@ -20,6 +31,10 @@ defineProps({
     options: {
         type: Object,
         required: true,
+    },
+    disabled: {
+        type: Boolean,
+        default: false,
     },
 });
 
