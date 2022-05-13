@@ -14,7 +14,7 @@
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import {createGraph, setGraph, elements} from './Graph';
-import {setStatsX, setStatsY, createStats} from './Stats';
+import {setStatsX, setStatsY, createStats, changeRegression} from './Stats';
 
 const props = defineProps({
     dataX: {
@@ -27,6 +27,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    options: {
+        type: Object,
+        required: true,
+    },
 });
 
 watch(
@@ -34,6 +38,7 @@ watch(
     dataX => {
         setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
         setStatsX(dataX);
+        changeRegression(props.options.trendLineKey, props.options.trendLineKey);
     },
 );
 watch(
@@ -41,6 +46,12 @@ watch(
     dataY => {
         setGraph(dataY, elements.yTitle, elements.y, elements.yUnits);
         setStatsY(dataY);
+    },
+);
+watch(
+    () => props.options.trendLineKey,
+    (newKey, oldKey) => {
+        changeRegression(newKey, oldKey);
     },
 );
 

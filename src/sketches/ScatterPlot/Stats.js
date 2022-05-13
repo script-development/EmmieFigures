@@ -3,10 +3,11 @@
  * @typedef {import('types/graph').GraphData} GraphData
  * @typedef {import('types/sketches').Sketch} SketchAPI
  */
-import {setRender} from 'sketches/engine';
+import {setRender, unsetRender} from 'sketches/engine';
 import {ref} from 'vue';
 import {elements} from './Graph';
 import {linearRegression} from './regression';
+import {regressionLoess} from 'd3-regression';
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
@@ -26,13 +27,9 @@ let dataY;
 /**
  * Create Statistic objects from x & y-axis data
  * @param {SketchAPI} sketch
- * @returns
  */
 export const createStats = sketch => {
     ctx = sketch.context;
-    // update: () => {
-    //     for (const stat of stats) stat.update();
-    // },
     setRender({
         id: 'stats',
         show: () => {
@@ -60,44 +57,74 @@ const getLinearRegressionData = () => {
     return data;
 };
 
-export const showLinearRegression = () => {
+/** @param {import('types/sketches').Paint} paint */
+const showRegression = paint => paint.line(regressionElement);
+
+/** @type {import('types/graph').GraphLineElement} */
+const regressionElement = {
+    pos: {x1: 0, y1: 0, x2: 0, y2: 0},
+    color: 'red',
+    weight: 2,
+    paint: 'line',
+};
+
+const showLinearRegression = () => {
+    regressionElement.pos.x1 = elements.x.pos.x1;
+    regressionElement.pos.x2 = elements.x.pos.x2;
     const data = getLinearRegressionData();
     const regression = linearRegression(data);
     const yValue1 = regression(elements.xUnits.min);
     const yValue2 = regression(elements.xUnits.max);
-    // console.log(elements.xUnits.min, y1, elements.xUnits.max, y2);
-    const y1 = getPos(
+    regressionElement.pos.y1 = getPos(
         elements.yUnits.max,
         elements.yUnits.min,
         elements.yUnits.startY,
         elements.yUnits.lengthY,
         yValue1,
     );
-    const y2 = getPos(
+    regressionElement.pos.y2 = getPos(
         elements.yUnits.max,
         elements.yUnits.min,
         elements.yUnits.startY,
         elements.yUnits.lengthY,
         yValue2,
     );
-    // x: getPos(
-    //     elements.xUnits.max,
-    //     elements.xUnits.min,
-    //     elements.xUnits.startX,
-    //     elements.xUnits.lengthX,
-    //     x.value,
-    // ),
     setRender({
         id: 'linear-regression',
-        show: () => {
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(elements.x.pos.x1, y1);
-            ctx.lineTo(elements.x.pos.x2, y2);
-            ctx.stroke();
-        },
+        show: showRegression,
     });
+};
+
+const showLoessRegression = () => {
+    const regressionGenerator = regressionLoess()
+        .x(d => d.valueX)
+        .y(d => d.valueY);
+    const line = regressionGenerator(stats);
+    line.forEach((el, index) => {
+        if (!(index & 1)) {
+            // careful is data = uneven length (for now they are all 256 in length)
+            // console.log(index);
+            // const newEl = {...regressionElement};
+            // regressionElement.pos.x1 = getPos(100, 0, 170, 940, el[0]);
+            // regressionElement.pos.y1 = getPos(100, 20, 550, -380, el[1]);
+            // regressionElement.pos.x2 = getPos
+        }
+    });
+};
+
+/**
+ * @param {"linear-regression"|"loess-regression"|"none"} newKey
+ * @param {"linear-regression"|"loess-regression"|"none"} oldKey
+ */
+export const changeRegression = (newKey, oldKey) => {
+    if (oldKey != 'none') unsetRender(oldKey);
+    if (newKey != 'none') setRegression(newKey);
+};
+
+/** @param {"linear-regression"|"loess-regression"} type */
+const setRegression = type => {
+    if (type === 'linear-regression') showLinearRegression();
+    if (type === 'loess-regression') showLoessRegression();
 };
 
 /**

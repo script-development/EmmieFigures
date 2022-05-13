@@ -3,7 +3,7 @@ import {paint} from 'sketches/index.js';
 /** @type {{update: function}[]} */
 let updates = [];
 
-/** @type {{show: function}[]} */
+/** @type {{id: string, show: function}[]} */
 export const render = [];
 
 // mainloop
@@ -94,6 +94,12 @@ const stop = () => {
 
 /** @param {{id: string, show: function}} obj */
 export const setRender = obj => render.push(obj);
+
+/** @param {string} id */
+export const unsetRender = id => {
+    const index = render.findIndex(obj => obj.id === id);
+    if (index != -1) render.splice(index, 1);
+};
 
 /** @param {{update: function}} obj */
 export const setUpdate = obj => updates.push(obj);

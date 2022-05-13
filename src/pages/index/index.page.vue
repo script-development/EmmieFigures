@@ -1,43 +1,14 @@
 <template>
-    <ScatterPlot :data-x="dataX" :data-y="dataY" />
-    <!-- Trendlines -->
-    <!-- <div
-        v-for="(option, index) in settings.trendLines"
-        :key="option.key"
-        :class="`absolute bottom-0 mb-${20 - index * 5}`"
-    >
-        <input :id="option.key" type="checkbox" :disabled="!statsActive" @change="trendLine($event.target, index)" />
-        <label :for="option.key">{{ option.name }}</label>
-    </div> -->
-    <!-- <div class="absolute bottom-0 mb-24 xl:w-96 z-1">
-        <label for="regression-options">Kies een regressiontype:</label>
-        <select id="regression-options" :class="selectClass" @update="change($event.target)">
-            <option selected>Geen</option>
-            <option v-for="option in settings.trendLines" :key="option.key" :value="option" :disabled="!statsActive">
-                {{ `${option.name}` }}
-            </option>
-        </select>
-    </div> -->
+    <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
     <VSelect
-        :model-value="trendLineKey"
+        v-model="trendLineKey"
         class="absolute bottom-0 mb-24 xl:w-96 z-1"
         :options="settings.trendLines"
         :disabled="!statsActive"
-        @update:model-value="change"
     >
-        Regression Type
+        Regressie Type
     </VSelect>
     <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes">Weer Type</VSelect>
-    <!-- <div class="absolute bottom-0"> -->
-    <!-- <div class="absolute bottom-0 mb-3 xl:w-96 z-1">
-        <label for="weather-options">Kies een weertype:</label>
-        <select id="weather-options" v-model="weatherType" :class="selectClass">
-            <option v-for="option in settings.weatherTypes" :key="option.key" :value="option">
-                {{ `${option.name} (${option.unitOfMeasure})` }}
-            </option>
-        </select>
-    </div> -->
-    <!-- </div> -->
 </template>
 
 <script setup>
@@ -50,7 +21,7 @@ import {computed} from '@vue/reactivity';
 import {onMounted, ref} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
-import {statsActive, showLinearRegression} from 'sketches/ScatterPlot/Stats';
+import {statsActive} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
     settings: {
@@ -59,21 +30,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-/** @param {"linear-regression" | "loess-regression" | "none"} type */
-const change = type => {
-    if (type === 'linear-regression') activateLinearRegression();
-    if (type === 'loess-regression') activateLinearRegression();
-    if (type === 'none') deactiveLinearRegression();
-};
-
-const deactiveLinearRegression = () => {
-    // console.log('deactivated');
-};
-
-const activateLinearRegression = () => {
-    showLinearRegression();
-};
 
 /** selected trendLine for plot */
 const trendLineKey = ref('none');
