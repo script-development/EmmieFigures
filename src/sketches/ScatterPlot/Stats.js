@@ -63,7 +63,7 @@ const showRegression = paint => paint.line(regressionElement);
 /** @type {import('types/graph').GraphLineElement} */
 const regressionElement = {
     pos: {x1: 0, y1: 0, x2: 0, y2: 0},
-    color: 'orange',
+    color: 'red',
     weight: 2,
     paint: 'line',
 };
@@ -111,23 +111,65 @@ const showLoessRegression = () => {
     setRender({
         id: 'loess-regression',
         /** @param {import('types/sketches').Paint} paint */
-        show: paint => linesConverted.forEach(l => paint.line(l)),
+        show: paint => linesConverted.forEach(el => paint.line(el)),
     });
 };
+
+/** @type {HTMLElement} */
+let span;
+
+/** @type {HTMLInputElement} */
+let slider;
 
 /**
  * @param {"linear-regression"|"loess-regression"|"none"} newKey
  * @param {"linear-regression"|"loess-regression"|"none"} oldKey
  */
 export const changeRegression = (newKey, oldKey) => {
-    if (oldKey != 'none') unsetRender(oldKey);
+    if (oldKey != 'none') {
+        if (oldKey === 'loess-regression') {
+            // remove slider and reset bandwidth
+            document.body.removeChild(span);
+            document.body.removeChild(slider);
+            // optional: remove to keep value after selection changes or make it an option
+            bandwidth = 0.3;
+        }
+        unsetRender(oldKey);
+    }
     if (newKey != 'none') setRegression(newKey);
 };
 
 /** @param {"linear-regression"|"loess-regression"} type */
 const setRegression = type => {
     if (type === 'linear-regression') showLinearRegression();
-    if (type === 'loess-regression') showLoessRegression();
+    if (type === 'loess-regression') {
+        showLoessRegression();
+
+        // create slider
+        span = document.createElement('span');
+        slider = document.createElement('input');
+        Object.assign(slider, {
+            type: 'range',
+            min: 0,
+            max: 1,
+            step: 0.01,
+            class: 'slider',
+            id: 'myRange',
+        });
+        slider.value = '0.3';
+        slider.className = 'absolute bottom-22 mb-24 xl:w-96 z-1';
+        span.innerHTML = `bandwidth: ${slider.value}`;
+        span.className = 'absolute bottom-18 mb-24 xl:w-96 z-1';
+        slider.addEventListener('input', evt => {
+            const target = /** @type {HTMLInputElement} */ (evt.target);
+            span.innerHTML = `bandwidth: ${target.value}`;
+            bandwidth = parseFloat(target.value);
+            unsetRender('loess-regression');
+            showLoessRegression();
+        });
+        document.body.appendChild(slider);
+        document.body.appendChild(span);
+    }
 };
 
 /**
