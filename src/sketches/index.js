@@ -97,7 +97,7 @@ const setPos = (pos, canvas) => {
     }
 };
 
-// This must always be the first render in the engine (thus sketch has to be made before anything else)
+// This must always be the first render in the engine (sketch has to be made before anything else)
 const setClear = () => {
     setRender({
         id: 'clear',

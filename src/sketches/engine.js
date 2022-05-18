@@ -92,7 +92,10 @@ const stop = () => {
     cancelAnimationFrame(requestID);
 };
 
-/** @param {{id: string, show: function}} obj */
+/**
+ * @param {{id: string, show: function}} obj
+ * @returns {number} the length of the render array
+ */
 export const setRender = obj => render.push(obj);
 
 /** @param {string} id */

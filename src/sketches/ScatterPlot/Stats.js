@@ -63,7 +63,7 @@ const showRegression = paint => paint.line(regressionElement);
 /** @type {import('types/graph').GraphLineElement} */
 const regressionElement = {
     pos: {x1: 0, y1: 0, x2: 0, y2: 0},
-    color: 'red',
+    color: 'orange',
     weight: 2,
     paint: 'line',
 };
@@ -95,20 +95,35 @@ const showLinearRegression = () => {
     });
 };
 
+let bandwidth = 0.3; // [default] smoothing parameter
+
 const showLoessRegression = () => {
     const regressionGenerator = regressionLoess()
+        // @ts-ignore
         .x(d => d.valueX)
-        .y(d => d.valueY);
-    const line = regressionGenerator(stats);
-    line.forEach((el, index) => {
-        if (!(index & 1)) {
-            // careful is data = uneven length (for now they are all 256 in length)
-            // console.log(index);
-            // const newEl = {...regressionElement};
-            // regressionElement.pos.x1 = getPos(100, 0, 170, 940, el[0]);
-            // regressionElement.pos.y1 = getPos(100, 20, 550, -380, el[1]);
-            // regressionElement.pos.x2 = getPos
-        }
+        // @ts-ignore
+        .y(d => d.valueY)
+        .bandwidth(bandwidth);
+    const lines = regressionGenerator(stats);
+    /** @type {import('types/graph').GraphLineElement[]} */
+    const linesConverted = [];
+    for (let i = 0; i < lines.length - 1; i++) {
+        linesConverted.push({
+            pos: {
+                x1: getPosX(elements.xUnits, lines[i][0]),
+                y1: getPosY(elements.yUnits, lines[i][1]),
+                x2: getPosX(elements.xUnits, lines[i + 1][0]),
+                y2: getPosY(elements.yUnits, lines[i + 1][1]),
+            },
+            color: 'orange',
+            weight: 2,
+            paint: 'line',
+        });
+    }
+    setRender({
+        id: 'loess-regression',
+        /** @param {import('types/sketches').Paint} paint */
+        show: paint => linesConverted.forEach(l => paint.line(l)),
     });
 };
 
@@ -195,6 +210,30 @@ const getPos = (max, min, start, length, statValue) => {
     const posPercentage = leftOver / range;
     const posLength = posPercentage * length;
     return posLength + start;
+};
+
+/**
+ * @param {import('types/graph').GraphUnitsElement} unitsElement
+ * @param {number} statValue
+ */
+const getPosX = (unitsElement, statValue) => {
+    const range = unitsElement.max - unitsElement.min;
+    const leftOver = statValue - unitsElement.min;
+    const posPercentage = leftOver / range;
+    const posLength = posPercentage * unitsElement.lengthX;
+    return posLength + unitsElement.startX;
+};
+
+/**
+ * @param {import('types/graph').GraphUnitsElement} unitsElement
+ * @param {number} statValue
+ */
+const getPosY = (unitsElement, statValue) => {
+    const range = unitsElement.max - unitsElement.min;
+    const leftOver = statValue - unitsElement.min;
+    const posPercentage = leftOver / range;
+    const posLength = posPercentage * unitsElement.lengthY;
+    return posLength + unitsElement.startY;
 };
 
 const update = () => {};
