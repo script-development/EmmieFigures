@@ -75,20 +75,8 @@ const showLinearRegression = () => {
     const regression = linearRegression(data);
     const yValue1 = regression(elements.xUnits.min);
     const yValue2 = regression(elements.xUnits.max);
-    regressionElement.pos.y1 = getPos(
-        elements.yUnits.max,
-        elements.yUnits.min,
-        elements.yUnits.startY,
-        elements.yUnits.lengthY,
-        yValue1,
-    );
-    regressionElement.pos.y2 = getPos(
-        elements.yUnits.max,
-        elements.yUnits.min,
-        elements.yUnits.startY,
-        elements.yUnits.lengthY,
-        yValue2,
-    );
+    regressionElement.pos.y1 = getPosY(elements.yUnits, yValue1);
+    regressionElement.pos.y2 = getPosY(elements.yUnits, yValue2);
     setRender({
         id: 'linear-regression',
         show: showRegression,
@@ -156,20 +144,8 @@ const makeStats = () => {
         const x = dataX.data.find(x => x.date === y.date);
         if (!x) return;
         const pos = {
-            x: getPos(
-                elements.xUnits.max,
-                elements.xUnits.min,
-                elements.xUnits.startX,
-                elements.xUnits.lengthX,
-                x.value,
-            ),
-            y: getPos(
-                elements.yUnits.max,
-                elements.yUnits.min,
-                elements.yUnits.startY,
-                elements.yUnits.lengthY,
-                y.value,
-            ),
+            x: getPosX(elements.xUnits, x.value),
+            y: getPosY(elements.yUnits, y.value),
         };
         stats.push(Statistic(pos, x.value, y.value, y.date, id, color, radius));
         id++;
@@ -196,21 +172,6 @@ const Statistic = (pos, valueX, valueY, date, id, color, radius) => ({
     update: () => update(),
     show: () => show(color, pos, radius),
 });
-
-/**
- * @param {number} max
- * @param {number} min
- * @param {number} start
- * @param {number} length
- * @param {number} statValue
- */
-const getPos = (max, min, start, length, statValue) => {
-    const range = max - min;
-    const leftOver = statValue - min;
-    const posPercentage = leftOver / range;
-    const posLength = posPercentage * length;
-    return posLength + start;
-};
 
 /**
  * @param {import('types/graph').GraphUnitsElement} unitsElement
