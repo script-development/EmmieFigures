@@ -8,7 +8,9 @@
     >
         Regressie Type
     </VSelect>
-    <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes">Weer Type</VSelect>
+    <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes" :disabled="false">
+        Weer Type
+    </VSelect>
 </template>
 
 <script setup>
@@ -17,8 +19,7 @@
 
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import VSelect from 'components/Select.vue';
-import {computed} from '@vue/reactivity';
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, computed} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
 import {statsActive} from 'sketches/ScatterPlot/Stats';
@@ -81,6 +82,7 @@ const presence = computed(() =>
     }, {}),
 );
 
+/** data for y-axis (static: presence) */
 const dataY = computed(() => ({
     title: 'Aanwezigheid',
     unitOfMeasure: '%',

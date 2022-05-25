@@ -2,17 +2,12 @@
     <div>
         <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options"><slot /></label>
-            <select
-                id="weather-options"
-                :value="modelValue"
-                :disabled="disabled"
-                :class="selectClass"
-                @input="updateValue($event.target)"
-            >
+            <select id="weather-options" :value="modelValue" :class="selectClass" @input="updateValue($event.target)">
                 <option
                     v-for="option in options"
                     :key="option.key"
                     :value="option.key"
+                    :disabled="disabled"
                     :selected="modelValue === option.key"
                 >
                     {{ option.name }}
@@ -40,9 +35,9 @@ defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-/** @param {HTMLSelectElement} target */
+/** @param {EventTarget|null} target */
 const updateValue = target => {
-    emit('update:modelValue', target.value);
+    if (target instanceof HTMLSelectElement) emit('update:modelValue', target.value);
 };
 
 // Temporarily select classes

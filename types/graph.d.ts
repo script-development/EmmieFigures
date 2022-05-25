@@ -4,12 +4,10 @@ export interface GraphData {
     title: string,
     unitOfMeasure: string,
     steps: number,
-    data: [
-        {
+    data: {
             date: string,
             value: number,
-        }
-    ]
+        }[],
 }
 
 export interface GraphOption {
