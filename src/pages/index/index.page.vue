@@ -50,6 +50,15 @@ const dayparts = ['morning', 'afternoon', 'evening'];
 onMounted(async () => {
     weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
     reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
+    // setting earliest date from available data
+    const minimumDateInt = reports.value.sort((a, b) => a - b)[0];
+    // const max = dates.sort((a, b) => b - a)[0];
+    // const str = min.toString();
+    // const str2 = [];
+    // str2.push(str.substring(0, 4));
+    // str2.push(str.substring(4, 6));
+    // str2.push(str.substring(6, 8));
+    // const str3 = str2.join('-');
 });
 
 const weatherSetting = computed(
@@ -72,15 +81,30 @@ const dataX = computed(() => {
 const presence = computed(() =>
     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
         if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
-        for (const daypart of dayparts) {
-            if (report[`${daypart}_schedule_id`]) {
-                acc[report.date].total++;
-                if (report[`${daypart}_present`]) acc[report.date].present++;
-            }
-        }
+        setTotalAndPresent(report, acc);
         return acc;
     }, {}),
 );
+
+const reportDatesInt = computed(() => Object.keys(presence.value).map(date => parseInt(date.split('-').join(''))));
+const reportDatesIntSorted = computed(() => {
+    const asdf = reportDatesInt.value.sort((a, b) => a - b);
+    return asdf;
+    }
+
+/**
+ *
+ * @param {ReportData} report
+ * @param {Object.<string, {total: number, present: number}>} acc
+ */
+const setTotalAndPresent = (report, acc) => {
+    for (const daypart of dayparts) {
+        if (report[`${daypart}_schedule_id`]) {
+            acc[report.date].total++;
+            if (report[`${daypart}_present`]) acc[report.date].present++;
+        }
+    }
+};
 
 /** data for y-axis (static: presence) */
 const dataY = computed(() => ({
