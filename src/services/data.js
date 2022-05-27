@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import {getFromApi} from './api.js';
+import {dateQueryString} from './dates.js';
 import {getEnv} from './env.js';
 
 const BASE_URL = getEnv('WEATHER_API_BASE_URL');
@@ -61,12 +62,3 @@ const getQueryString = (startDate, endDate) => {
     qString += `?unitGroup=metric${options.outputSection}&key=${API_KEY}${options.elements}&contentType=json`;
     return qString;
 };
-
-/**
- * @param {number} day
- * @param {number} month
- * @param {number} year
- * @returns {String}
- */
-const dateQueryString = (day, month, year) =>
-    `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;

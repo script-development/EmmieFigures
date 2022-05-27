@@ -1,6 +1,8 @@
 export interface Sketch {
     context: CanvasRenderingContext2D,
     globals: Globals,
+    update: (script: (delta: number) => void) => void,
+    render: (script: (interpolate: number) => void) => void,
     size: (width: number, height: number) => void,
     centerCanvas: () => void,
     mouse: () => void,

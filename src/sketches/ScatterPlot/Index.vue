@@ -1,81 +1,64 @@
 <template>
-    <div id="canvas-container">
-        <canvas id="scatter-plot" style="border: 1px solid black" />
-    </div>
+    <canvas id="scatter-plot" width="1280" height="720" />
 </template>
 
 <script setup>
 /**
- * @typedef {import('types/graph').Precipitation} Precipitation
- * @typedef {import('@vue/runtime-core').PropType<Precipitation[]>} Precip
- * @typedef {import('types/graph').Presence} Presence
- * @typedef {import('@vue/runtime-core').PropType<Presence[]>} Present
- * @typedef {import('types/graph').Stat} Stat
+ * @typedef {import('types/graph').GraphData} GraphData
+ * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
  */
 
-import {onMounted} from 'vue';
+import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import Graph from './Graph';
-import Stat from './Stat';
-import {setStatPosition} from './Stat';
+import Stats from './Stats';
 
 const props = defineProps({
-    precipitation: {
-        /** @type {Precip} */
-        type: Array,
+    dataX: {
+        /** @type {GraphProp} weather data for x-axis */
+        type: Object,
         required: true,
     },
-    presence: {
-        /** @type {Present} */
-        type: Array,
+    dataY: {
+        /** @type {GraphProp} presence data for y-axis */
+        type: Object,
         required: true,
     },
 });
 
-/** used for mouse hover over stat */
-let selectedId = -1;
+/** @type {import('types/sketches').Sketch} */
+let sketch;
 
-/** @type {Array<Stat>} */
-const stats = [];
+/** @type {import('types/graph').Graph} */
+let graph;
+
+/** @type {import('types/graph').Stats} */
+let stats;
+
+watch(
+    () => props.dataX,
+    newDataX => {
+        // data for x-axis has changed, setting new data
+        const xUnits = graph.setX(newDataX);
+        stats.setX(xUnits, graph.yUnits, newDataX);
+    },
+);
 
 onMounted(() => {
-    const sketch = Sketch('scatter-plot');
+    sketch = Sketch('scatter-plot');
 
-    sketch.size(1280, 720);
+    graph = Graph(sketch, props.dataX, props.dataY);
+    stats = Stats(sketch, graph, props.dataX, props.dataY);
 
-    // setting position through javascript (css' floating point messes up mouse positioning);
-    sketch.centerCanvas();
-
-    // initialize mouse input
-    sketch.mouse();
-
-    const graph = Graph(sketch, props.precipitation, props.presence);
-
-    // create a statistic object for every date in presence
-    props.presence.forEach((present, index) => {
-        const precip = props.precipitation.find(precip => precip.date === present.date);
-        if (!precip) return;
-        stats.push(Stat(present.percentage, precip.mm, present.date, index, sketch));
+    sketch.update(() => {
+        stats.update();
     });
 
-    setStatPosition(graph.xUnits, graph.yUnits, stats);
-
-    const loop = () => {
+    sketch.render(() => {
         sketch.context.clearRect(0, 0, sketch.globals.width, sketch.globals.height);
 
         graph.show();
-        for (const stat of stats) {
-            selectedId = stat.update();
-            stat.show();
-        }
-        // force selected stat to appear on top and show stat values on screen @ mouse location
-        if (selectedId > -1) {
-            stats[selectedId].show();
-            stats[selectedId].selected();
-        }
-
-        requestAnimationFrame(loop);
-    };
-    loop();
+        stats.show();
+    });
 });
 </script>

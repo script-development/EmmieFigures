@@ -1,6 +1,7 @@
 /** @typedef {import("types/sketches").Sketch} SketchAPI */
 /** @typedef {import("types/sketches").Globals} GlobalVariables */
 
+import engine from './engine';
 import Globals from './Globals';
 
 /**
@@ -54,10 +55,13 @@ const Mouse = (canvas, globals) => {
 export default id => {
     const context = getContext(id);
     const globals = Globals();
+    Mouse(context.canvas, globals);
 
     return {
         context,
         globals,
+        update: script => engine.setUpdate(script),
+        render: script => engine.setRender(script),
         size: (width, height) => setCanvasSize(context.canvas, globals, width, height),
         centerCanvas: () => CenterCanvas(context.canvas),
         mouse: () => Mouse(context.canvas, globals),

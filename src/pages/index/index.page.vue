@@ -1,10 +1,24 @@
 <template>
-    <ScatterPlot :precipitation="precipitation" :presence="presence" />
+    <div class="flex justify-center align-middle">
+        <ScatterPlot :data-x="dataX" :data-y="dataY" />
+    </div>
+    <div class="flex justify-center">
+        <div class="mb-3 xl:w-96">
+            <label for="weather-options">Kies een weertype:</label>
+            <select id="weather-options" v-model="selected" :class="selectClass">
+                <option v-for="option in weatherOptions" :key="option.key" :value="option">
+                    {{ `${option.name} (${option.unitOfMeasure})` }}
+                </option>
+            </select>
+        </div>
+    </div>
 </template>
 
 <script setup>
+/** @typedef {import('types/data').ReportData} ReportData */
+
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import {computed} from 'vue';
+import {computed, ref} from 'vue';
 
 const props = defineProps({
     weather: {
@@ -13,31 +27,53 @@ const props = defineProps({
         required: true,
     },
     reports: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').ReportData[]>} */
+        /** @type {import('@vue/runtime-core').PropType<ReportData[]>} */
+        type: Array,
+        required: true,
+    },
+    weatherOptions: {
+        /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
         type: Array,
         required: true,
     },
 });
 
-/** @type {['morning', 'afternoon', 'evening']} */
-const dayparts = ['morning', 'afternoon', 'evening'];
+const selectClass =
+    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
+    'bg-no-repeat border border-solid border-gray-300 rounded' +
+    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
+
+/** selected weather type for x-axis */
+const selected = ref(props.weatherOptions[0]);
+
+/** data for x-axis based on current selected weather type */
+const dataX = computed(() => ({
+    title: selected.value.name,
+    unitOfMeasure: selected.value.unitOfMeasure,
+    /** get weather values and dates from weather data */
+    data: props.weather.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
+}));
+
 const uniqueDates = [...new Set(props.reports.map(report => report.date))];
 
-/** filter precipitation and date from weather data */
-const precipitation = computed(() => props.weather.map(weather => ({date: weather.datetime, mm: weather.precip})));
-
-/** set presence for each unique day */
-const presence = computed(() => {
-    return uniqueDates.map(date => {
+/** data for y-axis */
+const dataY = computed(() => ({
+    title: 'Aanwezigheid',
+    unitOfMeasure: '%',
+    /** get presence values and dates for each unique day */
+    data: uniqueDates.map(date => {
         const filteredReports = props.reports.filter(report => report.date === date);
         return {
             date,
-            percentage: calculatePresencePerDay(filteredReports),
+            value: calculatePresencePerDay(filteredReports),
         };
-    });
-});
+    }),
+}));
 
-/** @param {Array<import('types/data').ReportData>} reports */
+/** @type {['morning', 'afternoon', 'evening']} */
+const dayparts = ['morning', 'afternoon', 'evening'];
+
+/** @param {Array<ReportData>} reports */
 const calculatePresencePerDay = reports => {
     let total = 0; // all scheduled dayparts (morning, afternoon and evening)
     let present = 0; // all dayparts where client has been present
