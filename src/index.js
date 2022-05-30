@@ -32,6 +32,7 @@ const root = path.resolve(path.dirname(''));
         res.send(getData('weatherData'));
     });
     app.get('/api/report-data', async (req, res) => {
+        // TODO: Sort date > ascending
         res.send(getData('reportData'));
     });
 

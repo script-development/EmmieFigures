@@ -187,7 +187,7 @@ const setUnitOffsets = () => {
         y2: grid.unitHeight * 0.5,
     };
     elements.yUnits.offset = {
-        x1: -grid.unitWidth * 0.25,
+        x1: -grid.unitWidth * 0.5,
         y1: -grid.unitHeight * 0.25,
         x2: -grid.unitWidth * 0.5,
         y2: grid.unitHeight * 0.25,

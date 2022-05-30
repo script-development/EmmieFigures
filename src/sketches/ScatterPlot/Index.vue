@@ -1,5 +1,5 @@
 <template>
-    <canvas id="scatter-plot" class="hidden" />
+    <canvas id="scatter-plot" class="hidden" style="z-index: -1" />
 </template>
 
 <script setup>
