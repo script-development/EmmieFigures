@@ -76,13 +76,13 @@ const dayparts = ['morning', 'afternoon', 'evening'];
 
 const dateInputsActive = ref(false);
 
-const minStartDate = ref('2018-01-01');
+const minStartDate = ref('');
 const selectedStartDate = ref(minStartDate.value);
-const maxStartDate = ref('2018-12-31');
+const maxStartDate = ref('');
 
-const minEndDate = ref('2018-01-01');
+const minEndDate = ref('');
 const selectedEndDate = ref(minEndDate.value);
-const maxEndDate = ref('2018-12-31');
+const maxEndDate = ref('');
 
 /** @param {Event} evt */
 const changeStartDate = evt => {
