@@ -46,6 +46,7 @@ watch(
     dataY => {
         setGraph(dataY, elements.yTitle, elements.y, elements.yUnits);
         setStatsY(dataY);
+        changeRegression(props.options.trendLineKey, props.options.trendLineKey);
     },
 );
 watch(
