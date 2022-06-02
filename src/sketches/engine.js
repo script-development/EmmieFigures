@@ -1,16 +1,16 @@
 import {paint} from 'sketches/index.js';
 
-/** @type {{update: function}[]} */
+/** @type {{id: string, update: function}[]} */
 let updates = [];
 
 /** @type {{id: string, show: function}[]} */
-export const render = [];
+const render = [];
 
 // mainloop
 let maxFPS = 120;
 let step = 1000 / maxFPS;
 let delta = 0;
-let lastTimeStamp = 0;
+let lastTimestamp = 0;
 
 // start/stop
 let requestID = 0;
@@ -28,22 +28,24 @@ let actualFPS = 0;
 let lastFPSUpdate = 0;
 let framesThisSecond = 0;
 
-/** @param {DOMHighResTimeStamp} timeStamp */
-const mainLoop = timeStamp => {
+/** @param {DOMHighResTimeStamp} timestamp */
+const mainLoop = timestamp => {
     requestID = requestAnimationFrame(mainLoop);
     // throttle FPS
-    if (timeStamp < lastTimeStamp + 1000 / maxFPS) {
+    if (timestamp < lastTimestamp + 1000 / maxFPS) {
         returns++;
         return;
     }
-    delta += timeStamp - lastTimeStamp;
-    lastTimeStamp = timeStamp;
+    delta += timestamp - lastTimestamp;
+    lastTimestamp = timestamp;
 
-    calculateFPS(timeStamp);
+    calculateFPS(timestamp);
     simulate();
 
     paint.interpolate = delta / step;
     for (let i = 0; i < render.length; i++) render[i].show(paint);
+    // console.log(timestamp);
+    // if (timestamp > 5000) stop();
 };
 
 const simulate = () => {
@@ -60,11 +62,11 @@ const simulate = () => {
     }
 };
 
-/** @param {DOMHighResTimeStamp} timeStamp */
-const calculateFPS = timeStamp => {
-    if (timeStamp > lastFPSUpdate + 100) {
+/** @param {DOMHighResTimeStamp} timestamp */
+const calculateFPS = timestamp => {
+    if (timestamp > lastFPSUpdate + 100) {
         actualFPS = 0.25 * framesThisSecond + (1 - 0.25) * actualFPS;
-        lastFPSUpdate = timeStamp;
+        lastFPSUpdate = timestamp;
         framesThisSecond = 0;
     }
     framesThisSecond++;
@@ -74,11 +76,11 @@ const calculateFPS = timeStamp => {
 const start = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
-        requestID = requestAnimationFrame(timeStamp => {
+        requestID = requestAnimationFrame(timestamp => {
             for (let i = 0; i < render.length; i++) render[i].show(paint); // initial render
             running = true;
-            lastTimeStamp = timeStamp;
-            lastFPSUpdate = timeStamp;
+            lastTimestamp = timestamp;
+            lastFPSUpdate = timestamp;
             framesThisSecond = 0;
 
             requestID = requestAnimationFrame(mainLoop);
@@ -104,8 +106,17 @@ export const unsetRender = id => {
     if (index != -1) render.splice(index, 1);
 };
 
-/** @param {{update: function}} obj */
+/**
+ * @param {{id: string, update: function}} obj
+ * @returns {number} the length of the render array
+ */
 export const setUpdate = obj => updates.push(obj);
+
+/** @param {string} id */
+export const unsetUpdate = id => {
+    const index = updates.findIndex(obj => obj.id === id);
+    if (index != -1) updates.splice(index, 1);
+};
 
 export default {
     start: () => start(),

@@ -3,11 +3,12 @@
  * @typedef {import('types/graph').GraphData} GraphData
  * @typedef {import('types/sketches').Sketch} SketchAPI
  */
-import {setRender, unsetRender} from 'sketches/engine';
+import engine, {setRender, setUpdate, unsetRender} from 'sketches/engine';
 import {ref} from 'vue';
 import {elements} from './Graph';
 import {linearRegression} from './regression';
 import {regressionLoess} from 'd3-regression';
+import {Vec2} from 'sketches/vectors';
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
@@ -30,6 +31,12 @@ let dataY;
  */
 export const createStats = sketch => {
     ctx = sketch.context;
+    setUpdate({
+        id: 'stats',
+        update: () => {
+            for (const stat of stats) stat.update(stat);
+        },
+    });
     setRender({
         id: 'stats',
         show: () => {
@@ -108,6 +115,7 @@ const showLoessRegression = () => {
             paint: 'line',
         });
     }
+
     setRender({
         id: 'loess-regression',
         /** @param {import('types/sketches').Paint} paint */
@@ -172,47 +180,96 @@ const setRegression = type => {
     }
 };
 
+// @ts-ignore
+let oldStatsPos;
+
+const setOldStatsPos = () => {
+    oldStatsPos.length = 0;
+    stats.forEach(s =>
+        // oldStatsPos.push({
+        //     x: s.pos.x,
+        //     y: s.pos.y,
+        //     dx: Math.random() * 5,
+        //     dy: Math.random() * 5,
+        //     max: Math.random() * 8 + 2,
+        // }),
+        oldStatsPos.push({
+            x: s.pos.x,
+            y: s.pos.y,
+            dx: Math.random() * 6 - 3,
+            dy: Math.random() * 6 - 3,
+            max: Math.random() * 5 + 2,
+        }),
+    );
+};
+
 /**
  * Create all statistics objects from x-axis & y-axis data
  */
 const makeStats = () => {
     if (!dataX || !dataY) return;
+    if (statsActive.value === true) setOldStatsPos();
+    else {
+        oldStatsPos = Array.from({length: 256}, () => ({x: 1300 / 2, y: 25, dx: 0, dy: 0, max: 5}));
+    }
+    statsActive.value = false;
     stats.length = 0;
     let id = 1;
-    // color and radius hardcoded for the moment
-    const color = [0, 100, 0];
-    const radius = 4;
     dataY.data.forEach(y => {
         const x = dataX.data.find(x => x.date === y.date);
         if (!x) return;
-        const pos = {
+        const acc = {x: 0, y: 0};
+        const vel = {x: oldStatsPos[id - 1].dx, y: oldStatsPos[id - 1].dy};
+        const pos = {x: oldStatsPos[id - 1].x, y: oldStatsPos[id - 1].y};
+        let maxSpeed = oldStatsPos[id - 1].max;
+        let maxForce = 0.3;
+        const target = {
             x: getPosX(elements.xUnits, x.value),
             y: getPosY(elements.yUnits, y.value),
         };
-        stats.push(Statistic(pos, x.value, y.value, y.date, id, color, radius));
+        let seek = true;
+        stats.push(
+            Statistic(seek, pos, vel, acc, maxSpeed, maxForce, target, x.value, y.value, y.date, id, [0, 100, 0], 4),
+        );
         id++;
     });
-    statsActive.value = true;
 };
 
 /**
+ * @param {boolean} seek
  * @param {{x: number, y: number}} pos
+ * @param {{x: number, y: number}} vel
+ * @param {{x: number, y: number}} acc
+ * @param {number} maxSpeed
+ * @param {number} maxForce
+ * @param {{x: number, y: number}} target
  * @param {number} valueX
  * @param {number} valueY
  * @param {string} date
  * @param {number} id
- * @param {Array<number>} color
+ * @param {[number, number, number]} color
  * @param {number} radius
  * @returns {Stat}
  */
-const Statistic = (pos, valueX, valueY, date, id, color, radius) => ({
+const Statistic = (seek, pos, vel, acc, maxSpeed, maxForce, target, valueX, valueY, date, id, color, radius) => ({
     valueX,
     valueY,
     date,
+    target,
     pos,
+    vel,
+    acc,
     id,
-    update: () => update(),
+    seek,
+    color,
+    maxSpeed,
+    maxForce,
+    update: stat => update(stat),
     show: () => show(color, pos, radius),
+    applyForce: force => {
+        acc.x += force.x;
+        acc.y += force.y;
+    },
 });
 
 /**
@@ -239,7 +296,68 @@ const getPosY = (unitsElement, statValue) => {
     return posLength + unitsElement.startY;
 };
 
-const update = () => {};
+let onSpot = 0;
+const constrain = (n, low, high) => {
+    return Math.max(Math.min(n, high), low);
+};
+const map = (n, start1, stop1, start2, stop2, withinBounds) => {
+    const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
+    if (!withinBounds) {
+        return newval;
+    }
+    if (start2 < stop2) {
+        return constrain(newval, start2, stop2);
+    } else {
+        return constrain(newval, stop2, start2);
+    }
+};
+
+/** @param {Stat} stat */
+const seek = stat => {
+    const desired = Vec2.sub(stat.target, stat.pos);
+
+    // Arrive
+    const r = 200;
+    const dist = Vec2.dist(stat.pos, stat.target);
+    if (dist < 0.5) {
+        onSpot++;
+        stat.seek = false;
+        // stat.color[0] = 100;
+        stat.pos.x = stat.target.x;
+        stat.pos.y = stat.target.y;
+        stat.vel.x = 0;
+        stat.vel.y = 0;
+        stat.acc.x = 0;
+        stat.acc.y = 0;
+        if (onSpot === stats.length) {
+            statsActive.value = true;
+            onSpot = 0;
+        }
+        return;
+    }
+    if (dist < r) {
+        const m = map(dist, 0, r, 0, stat.maxSpeed);
+        Vec2.setMag(desired, m);
+    } else Vec2.setMag(desired, stat.maxSpeed);
+    const steering = Vec2.sub(desired, stat.vel);
+    Vec2.limit(steering, stat.maxForce);
+    stat.applyForce(steering);
+};
+
+/**
+ * @param {Stat} stat
+ */
+const update = stat => {
+    if (stat.seek && engine.frameCount() > stat.id / 3 + 100) seek(stat);
+
+    stat.vel.x += stat.acc.x;
+    stat.vel.y += stat.acc.y;
+    Vec2.limit(stat.vel, stat.maxSpeed);
+    stat.pos.x += stat.vel.x;
+    stat.pos.y += stat.vel.y;
+    stat.acc.x = 0;
+    stat.acc.y = 0;
+};
 
 /**
  * @param {Array<number>} color

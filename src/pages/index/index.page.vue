@@ -2,13 +2,18 @@
     <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
     <VSelect
         v-model="trendLineKey"
-        class="absolute bottom-0 mb-24 xl:w-96 z-1"
+        class="absolute bottom-0 mb-24 xl:w-96"
         :options="settings.trendLines"
         :disabled="!statsActive"
     >
         Regressie Type
     </VSelect>
-    <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes" :disabled="false">
+    <VSelect
+        v-model="weatherTypeKey"
+        class="absolute bottom-0"
+        :options="settings.weatherTypes"
+        :disabled="!statsActive"
+    >
         Weer Type
     </VSelect>
     <div>
@@ -70,6 +75,13 @@ const reports = ref([]);
 
 /** selected weather type for x-axis */
 const weatherTypeKey = ref('cloudcover');
+
+let rotate = 4;
+// setInterval(() => {
+//     weatherTypeKey.value = props.settings.weatherTypes[rotate].key;
+//     rotate++;
+//     if (rotate === 5) rotate = 0;
+// }, 8000);
 
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];

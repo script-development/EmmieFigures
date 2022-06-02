@@ -1,3 +1,5 @@
+import { Vec2d } from "sketches/vectors"
+
 export interface GraphData {
     title: string,
     unitOfMeasure: string,
@@ -62,12 +64,20 @@ export interface Stats {
 }
 
 export interface Stat {
+    seek: boolean,
     pos: {x: number, y: number},
+    vel: {x: number, y: number},
+    acc: {x: number, y: number},
+    target: {x: number, y: number},
+    maxSpeed: number,
+    maxForce: number,
     valueX: number,
     valueY: number,
     date: string,
     id: number,
+    color: [number, number, number],
     show: (interpolate?: number) => void,
-    update: (delta?: number) => void,
+    update: (stat: Stat) => void,
+    applyForce: (Vec2d) => void,
 }
 
