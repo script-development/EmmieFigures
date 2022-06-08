@@ -75,9 +75,7 @@ export interface Stat {
     valueY: number,
     date: string,
     id: number,
-    color: [number, number, number],
-    show: (interpolate?: number) => void,
-    update: (stat: Stat) => void,
-    applyForce: (Vec2d) => void,
+    color: number[],
+    radius: number,
 }
 

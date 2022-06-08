@@ -25,6 +25,7 @@ export interface SketchOptions {
     cols? : number,
     border?: boolean,
     clear?: boolean,
+    bg?: string,
 };
 
 export interface Grid {

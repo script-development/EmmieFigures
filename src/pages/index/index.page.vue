@@ -76,13 +76,6 @@ const reports = ref([]);
 /** selected weather type for x-axis */
 const weatherTypeKey = ref('cloudcover');
 
-let rotate = 4;
-// setInterval(() => {
-//     weatherTypeKey.value = props.settings.weatherTypes[rotate].key;
-//     rotate++;
-//     if (rotate === 5) rotate = 0;
-// }, 8000);
-
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
 

@@ -9,7 +9,7 @@ const render = [];
 // mainloop
 let maxFPS = 120;
 let step = 1000 / maxFPS;
-let delta = 0;
+let deltaTime = 0;
 let lastTimestamp = 0;
 
 // start/stop
@@ -36,27 +36,25 @@ const mainLoop = timestamp => {
         returns++;
         return;
     }
-    delta += timestamp - lastTimestamp;
+    deltaTime += timestamp - lastTimestamp;
     lastTimestamp = timestamp;
 
     calculateFPS(timestamp);
     simulate();
 
-    paint.interpolate = delta / step;
+    paint.interpolate = deltaTime / step;
     for (let i = 0; i < render.length; i++) render[i].show(paint);
-    // console.log(timestamp);
-    // if (timestamp > 5000) stop();
 };
 
 const simulate = () => {
     updateCount = 0;
-    while (delta >= step) {
+    while (deltaTime >= step) {
         totalUpdates++;
         for (let i = 0; i < updates.length; i++) updates[i].update(step); // initial render
-        delta -= step;
+        deltaTime -= step;
         // spiral of death prevention
         if (++updateCount >= 240) {
-            delta = 0;
+            deltaTime = 0;
             break;
         }
     }
@@ -108,7 +106,7 @@ export const unsetRender = id => {
 
 /**
  * @param {{id: string, update: function}} obj
- * @returns {number} the length of the render array
+ * @returns {number} the length of the updates array
  */
 export const setUpdate = obj => updates.push(obj);
 

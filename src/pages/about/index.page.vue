@@ -3,49 +3,78 @@
 </template>
 
 <script setup>
+import {setRender, setUpdate} from 'sketches/engine';
 import Sketch from 'sketches/index.js';
 import {onMounted} from 'vue';
-import {linearRegression} from 'sketches/ScatterPlot/regression.js';
 
-const data = [
-    {
-        x: 1,
-        y: 3,
-    },
-    {
-        x: 2,
-        y: 5,
-    },
-    {
-        x: 6,
-        y: 5,
-    },
-];
+const Particle = (x, y, mass) => {
+    return {
+        x,
+        y,
+        prevx: x,
+        prevy: y,
+        mass,
+    };
+};
 
-const regress = linearRegression(data);
+const particles = [];
+const sticks = [];
 
-const x1 = 1;
-const x2 = 6;
+const pA = Particle(220, 20, 10000);
+const pB = Particle(280, 20, 10000);
+const pC = Particle(280, 60, 10000);
+const pD = Particle(220, 60, 10000);
+particles.push(pA, pB, pC, pD);
 
-const y1 = regress(x1);
-const y2 = regress(x2);
+const keepInsideView = particle => {
+    if (particle.y >= 400) particle.y = 400;
+    if (particle.x >= 500) particle.x = 500;
+    if (particle.y < 0) particle.y = 0;
+    if (particle.x < 0) particle.x = 0;
+};
+
+const update = deltaTime => {
+    for (let i = 0; i < particles.length; i++) {
+        let particle = particles[i];
+
+        let force = {x: 0.0, y: 0.5};
+
+        let acceleration = {x: force.x / particle.mass, y: force.y / particle.mass};
+
+        let prevPosition = {x: particle.x, y: particle.y};
+
+        particle.x = particle.x * 2 - particle.prevx + acceleration.x * (deltaTime * deltaTime);
+        particle.y = particle.y * 2 - particle.prevy + acceleration.y * (deltaTime * deltaTime);
+
+        particle.prevx = prevPosition.x;
+        particle.prevy = prevPosition.y;
+
+        keepInsideView(particle);
+    }
+};
+
+const show = ctx => {
+    ctx.clearRect(0, 0, 500, 400);
+    for (let i = 0; i < particles.length; i++) {
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(particles[i].x, particles[i].y, 10, 0, Math.PI * 2);
+        ctx.fill();
+    }
+};
 
 onMounted(() => {
-    const sketch = Sketch('test', {w: 400, h: 400, border: true});
-    const c = sketch.context;
+    const sketch = Sketch('test', {pos: 'center', w: 500, h: 400, bg: 'black'});
+    const ctx = sketch.context;
 
-    const unitLength = 40;
-    const size = 4;
-
-    c.fillStyle = 'red';
-    data.forEach(d => {
-        c.fillRect(d.x * unitLength, 400 - d.y * unitLength, size, size);
+    setUpdate({
+        id: 'test',
+        update,
     });
-    c.strokeStyle = 'black';
-    c.lineWidth = 2;
-    c.beginPath();
-    c.moveTo(x1 * unitLength, 400 - y1 * unitLength);
-    c.lineTo(x2 * unitLength, 400 - y2 * unitLength);
-    c.stroke();
+    setRender({
+        id: 'test',
+        show: () => show(ctx),
+    });
+    sketch.start();
 });
 </script>

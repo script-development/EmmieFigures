@@ -62,35 +62,24 @@ onMounted(() => {
     const sketch = Sketch('scatter-plot', {size: 'full', clear: true});
     sketch.context.canvas.classList.remove('hidden');
     sketch.context.canvas.classList.add('block');
-    // const ctx = sketch.context;
-
-    // const pos = {x: 0, y: 0};
 
     // setUpdate({
     //     id: 'test',
     //     /** @param {number} dt */
     //     update: dt => {
-    //         // pos.x += 0.83;
-    //         // pos.y += 0.83;
+    //         //
     //     },
     // });
 
     // setRender({
     //     id: 'test',
     //     show: () => {
-    //         // ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
-    //         // ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    //         // ctx.beginPath();
-    //         // ctx.fillStyle = 'red';
-    //         // ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
-    //         // ctx.fill();
+    //         //
     //     },
     // });
 
     createGraph(sketch);
     createStats(sketch);
-
-    //
 
     sketch.start();
 });

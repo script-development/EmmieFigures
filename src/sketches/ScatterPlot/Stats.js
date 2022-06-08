@@ -2,6 +2,7 @@
  * @typedef {import("types/graph").Stat} Stat
  * @typedef {import('types/graph').GraphData} GraphData
  * @typedef {import('types/sketches').Sketch} SketchAPI
+ * @typedef {import('types/vectors').Vec2D} Vec2D
  */
 import engine, {setRender, setUpdate, unsetRender} from 'sketches/engine';
 import {ref} from 'vue';
@@ -9,6 +10,7 @@ import {elements} from './Graph';
 import {linearRegression} from './regression';
 import {regressionLoess} from 'd3-regression';
 import {Vec2} from 'sketches/vectors';
+import {map} from './math-helpers';
 
 /** @type {CanvasRenderingContext2D} */
 let ctx;
@@ -34,13 +36,13 @@ export const createStats = sketch => {
     setUpdate({
         id: 'stats',
         update: () => {
-            for (const stat of stats) stat.update(stat);
+            for (const stat of stats) update(stat);
         },
     });
     setRender({
         id: 'stats',
         show: () => {
-            for (const stat of stats) stat.show();
+            for (const stat of stats) show(stat);
         },
     });
 };
@@ -180,19 +182,12 @@ const setRegression = type => {
     }
 };
 
-// @ts-ignore
+/** @type {{x: number, y: number, dx: number, dy: number, max: number}[]} */
 let oldStatsPos;
 
 const setOldStatsPos = () => {
     oldStatsPos.length = 0;
     stats.forEach(s =>
-        // oldStatsPos.push({
-        //     x: s.pos.x,
-        //     y: s.pos.y,
-        //     dx: Math.random() * 5,
-        //     dy: Math.random() * 5,
-        //     max: Math.random() * 8 + 2,
-        // }),
         oldStatsPos.push({
             x: s.pos.x,
             y: s.pos.y,
@@ -203,55 +198,57 @@ const setOldStatsPos = () => {
     );
 };
 
+const statDef = {
+    id: 0,
+    valueX: 0,
+    valueY: 0,
+    date: '',
+    pos: {x: 0, y: 0},
+    vel: {x: 0, y: 0},
+    acc: {x: 0, y: 0},
+    target: {x: 0, y: 0},
+    maxSpeed: 5,
+    maxForce: 0.3,
+    seek: true,
+    radius: 4,
+    color: [0, 100, 0],
+};
+
 /**
  * Create all statistics objects from x-axis & y-axis data
  */
 const makeStats = () => {
     if (!dataX || !dataY) return;
-    if (statsActive.value === true) setOldStatsPos();
-    else {
-        oldStatsPos = Array.from({length: 256}, () => ({x: 1300 / 2, y: 25, dx: 0, dy: 0, max: 5}));
-    }
+    statsActive.value
+        ? setOldStatsPos()
+        : (oldStatsPos = Array.from({length: 256}, () => ({x: 1300 / 2, y: 25, dx: 0, dy: 0, max: 5})));
     statsActive.value = false;
     stats.length = 0;
-    let id = 1;
+    statDef.id = 1;
     dataY.data.forEach(y => {
         const x = dataX.data.find(x => x.date === y.date);
         if (!x) return;
-        const acc = {x: 0, y: 0};
-        const vel = {x: oldStatsPos[id - 1].dx, y: oldStatsPos[id - 1].dy};
-        const pos = {x: oldStatsPos[id - 1].x, y: oldStatsPos[id - 1].y};
-        let maxSpeed = oldStatsPos[id - 1].max;
-        let maxForce = 0.3;
-        const target = {
+        statDef.valueX = x.value;
+        statDef.valueY = y.value;
+        statDef.date = y.date;
+        statDef.pos = {x: oldStatsPos[statDef.id - 1].x, y: oldStatsPos[statDef.id - 1].y};
+        statDef.vel = {x: oldStatsPos[statDef.id - 1].dx, y: oldStatsPos[statDef.id - 1].dy};
+        statDef.maxSpeed = oldStatsPos[statDef.id - 1].max;
+        statDef.target = {
             x: getPosX(elements.xUnits, x.value),
             y: getPosY(elements.yUnits, y.value),
         };
-        let seek = true;
-        stats.push(
-            Statistic(seek, pos, vel, acc, maxSpeed, maxForce, target, x.value, y.value, y.date, id, [0, 100, 0], 4),
-        );
-        id++;
+        stats.push(Statistic(statDef));
+        statDef.id++;
     });
 };
 
 /**
- * @param {boolean} seek
- * @param {{x: number, y: number}} pos
- * @param {{x: number, y: number}} vel
- * @param {{x: number, y: number}} acc
- * @param {number} maxSpeed
- * @param {number} maxForce
- * @param {{x: number, y: number}} target
- * @param {number} valueX
- * @param {number} valueY
- * @param {string} date
- * @param {number} id
- * @param {[number, number, number]} color
- * @param {number} radius
- * @returns {Stat}
+ *
+ * @param {Stat} stat
+ * @returns
  */
-const Statistic = (seek, pos, vel, acc, maxSpeed, maxForce, target, valueX, valueY, date, id, color, radius) => ({
+const Statistic = ({id, valueX, valueY, date, pos, vel, acc, target, maxSpeed, maxForce, seek, radius, color}) => ({
     valueX,
     valueY,
     date,
@@ -264,12 +261,7 @@ const Statistic = (seek, pos, vel, acc, maxSpeed, maxForce, target, valueX, valu
     color,
     maxSpeed,
     maxForce,
-    update: stat => update(stat),
-    show: () => show(color, pos, radius),
-    applyForce: force => {
-        acc.x += force.x;
-        acc.y += force.y;
-    },
+    radius,
 });
 
 /**
@@ -297,29 +289,15 @@ const getPosY = (unitsElement, statValue) => {
 };
 
 let onSpot = 0;
-const constrain = (n, low, high) => {
-    return Math.max(Math.min(n, high), low);
-};
-const map = (n, start1, stop1, start2, stop2, withinBounds) => {
-    const newval = ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
-    if (!withinBounds) {
-        return newval;
-    }
-    if (start2 < stop2) {
-        return constrain(newval, start2, stop2);
-    } else {
-        return constrain(newval, stop2, start2);
-    }
-};
 
 /** @param {Stat} stat */
 const seek = stat => {
     const desired = Vec2.sub(stat.target, stat.pos);
 
     // Arrive
-    const r = 200;
-    const dist = Vec2.dist(stat.pos, stat.target);
-    if (dist < 0.5) {
+    const slowRadius = 200;
+    const distance = Vec2.dist(stat.pos, stat.target);
+    if (distance < 0.5) {
         onSpot++;
         stat.seek = false;
         // stat.color[0] = 100;
@@ -335,13 +313,22 @@ const seek = stat => {
         }
         return;
     }
-    if (dist < r) {
-        const m = map(dist, 0, r, 0, stat.maxSpeed);
-        Vec2.setMag(desired, m);
-    } else Vec2.setMag(desired, stat.maxSpeed);
+    let max = stat.maxSpeed;
+    if (distance < slowRadius) max = map(distance, 0, slowRadius, 0, stat.maxSpeed);
+    Vec2.setMag(desired, max);
     const steering = Vec2.sub(desired, stat.vel);
     Vec2.limit(steering, stat.maxForce);
-    stat.applyForce(steering);
+    applyForce(stat, steering);
+};
+
+/**
+ *
+ * @param {Stat} stat
+ * @param {Vec2D} force
+ */
+const applyForce = (stat, force) => {
+    stat.acc.x += force.x;
+    stat.acc.y += force.y;
 };
 
 /**
@@ -360,13 +347,11 @@ const update = stat => {
 };
 
 /**
- * @param {Array<number>} color
- * @param {{x: number, y: number}} pos
- * @param {number} radius
+ * @param {Stat} stat
  */
-const show = (color, pos, radius) => {
-    ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+const show = stat => {
+    ctx.fillStyle = `rgb(${stat.color[0]}, ${stat.color[1]}, ${stat.color[2]})`;
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+    ctx.arc(stat.pos.x, stat.pos.y, stat.radius, 0, Math.PI * 2);
     ctx.fill();
 };

@@ -144,7 +144,7 @@ const showElements = (key, paint) => {
 
 /**
  * X or Y-axis units
- * @param {import('types/vectors').Vec4d} pos
+ * @param {import('types/vectors').Vec4D} pos
  * @param {number} steps
  * @param {import('types/graph').GraphData["data"]} data
  * @returns
