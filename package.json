@@ -24,7 +24,7 @@
         "node-cache": "^5.1.2",
         "vite": "2.9.9",
         "vite-plugin-ssr": "^0.3.60",
-        "vite-plugin-windicss": "^1.8.3",
+        "vite-plugin-windicss": "^1.8.4",
         "vue": "^3.2.31"
     },
     "devDependencies": {
