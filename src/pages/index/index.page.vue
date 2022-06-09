@@ -1,32 +1,38 @@
 <template>
-    <ScatterPlot :data-x="dataX" :data-y="dataY" />
-    <div class="absolute bottom-0">
-        <div class="mb-3 xl:w-96 z-1">
-            <label for="weather-options">Kies een weertype:</label>
-            <select id="weather-options" v-model="selected" :class="selectClass">
-                <option v-for="option in weatherOptions" :key="option.key" :value="option">
-                    {{ `${option.name} (${option.unitOfMeasure})` }}
-                </option>
-            </select>
-        </div>
-    </div>
+    <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
+    <VSelect
+        v-model="trendLineKey"
+        class="absolute bottom-0 mb-24 xl:w-96 z-1"
+        :options="settings.trendLines"
+        :disabled="!statsActive"
+    >
+        Regressie Type
+    </VSelect>
+    <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes" :disabled="false">
+        Weer Type
+    </VSelect>
 </template>
 
 <script setup>
 /** @typedef {import('types/data').ReportData} ReportData */
 /** @typedef {import('types/data').WeatherData} WeatherData */
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
+import {statsActive} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
-    weatherOptions: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
-        type: Array,
+    settings: {
+        /** @type {import('@vue/runtime-core').PropType<import('types/data').Settings>} */
+        type: Object,
         required: true,
     },
 });
+
+/** selected trendLine for plot */
+const trendLineKey = ref('none');
 
 /** @type {import('@vue/runtime-core').Ref<WeatherData[]>} */
 const weather = ref([]);
@@ -35,7 +41,7 @@ const weather = ref([]);
 const reports = ref([]);
 
 /** selected weather type for x-axis */
-const selected = ref(props.weatherOptions[0]);
+const weatherTypeKey = ref('cloudcover');
 
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
@@ -45,14 +51,22 @@ onMounted(async () => {
     reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
 });
 
+const weatherSetting = computed(
+    () =>
+        props.settings.weatherTypes.find(setting => setting.key === weatherTypeKey.value) ||
+        props.settings.weatherTypes[3],
+);
+
 /** data for x-axis based on current selected weather type */
-const dataX = computed(() => ({
-    title: selected.value.name,
-    unitOfMeasure: selected.value.unitOfMeasure,
-    steps: selected.value.steps,
-    /** get weather values and dates from weather data */
-    data: weather.value.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
-}));
+const dataX = computed(() => {
+    return {
+        title: weatherSetting.value.name,
+        unitOfMeasure: weatherSetting.value.unitOfMeasure,
+        steps: weatherSetting.value.steps,
+        /** get weather values and dates from weather data */
+        data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]})),
+    };
+});
 
 const presence = computed(() =>
     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
@@ -67,6 +81,7 @@ const presence = computed(() =>
     }, {}),
 );
 
+/** data for y-axis (static: presence) */
 const dataY = computed(() => ({
     title: 'Aanwezigheid',
     unitOfMeasure: '%',
@@ -77,10 +92,4 @@ const dataY = computed(() => ({
         value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
     })),
 }));
-
-// Temporarily select options (for functional purposes)
-const selectClass =
-    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
-    'bg-no-repeat border border-solid border-gray-300 rounded' +
-    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 </script>

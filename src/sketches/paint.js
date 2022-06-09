@@ -25,4 +25,5 @@ export default c => ({
         c.lineTo(element.pos.x2, element.pos.y2);
         c.stroke();
     },
+    clear: () => c.clearRect(0, 0, c.canvas.width, c.canvas.height),
 });

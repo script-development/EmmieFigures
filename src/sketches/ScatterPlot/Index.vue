@@ -8,11 +8,13 @@
  * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
  */
 
+/** @typedef {import('types/graph').GraphOption} GraphOption */
+/** @typedef {import('@vue/runtime-core').PropType<GraphOption[]>} GraphOptions */
+
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
-import {setGraph, Graph} from './Graph';
-import {setStatsX, setStatsY, Stats} from './Stats';
-import {elements} from './Graph';
+import {createGraph, setGraph, elements} from './Graph';
+import {setStatsX, setStatsY, createStats, changeRegression} from './Stats';
 
 const props = defineProps({
     dataX: {
@@ -25,6 +27,10 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+    options: {
+        type: Object,
+        required: true,
+    },
 });
 
 watch(
@@ -32,6 +38,7 @@ watch(
     dataX => {
         setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
         setStatsX(dataX);
+        changeRegression(props.options.trendLineKey, props.options.trendLineKey);
     },
 );
 watch(
@@ -41,24 +48,21 @@ watch(
         setStatsY(dataY);
     },
 );
+watch(
+    () => props.options.trendLineKey,
+    (newKey, oldKey) => {
+        changeRegression(newKey, oldKey);
+    },
+);
 
 onMounted(() => {
-    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720});
+    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720, clear: true});
     sketch.context.canvas.classList.remove('hidden');
     sketch.context.canvas.classList.add('block');
 
-    const graph = Graph(sketch);
-    const stats = Stats(sketch);
+    createGraph(sketch);
+    createStats(sketch);
 
-    sketch.update(() => {
-        stats.update();
-    });
-
-    sketch.render(() => {
-        sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
-
-        graph.show();
-        stats.show();
-    });
+    sketch.start();
 });
 </script>

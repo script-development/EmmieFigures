@@ -1,11 +1,12 @@
-import Paint from '../paint';
 import {Vec4} from 'sketches/vectors';
+import {setRender} from '../engine';
 
 /** @typedef {import('types/graph').GraphTextElement} TextElement */
 /** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
 /** @typedef {import('types/graph').GraphLineElement} LineElement */
 /** @typedef {import('types/graph').GraphElements} Elements */
 /** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
+/** @typedef {import('types/sketches').Paint} Paint */
 
 /** @type {import('types/sketches').Sketch["grid"]["properties"]} */
 let grid;
@@ -110,51 +111,30 @@ const setPositions = () => {
  * @param {import("types/sketches").Sketch} sketch
  * @returns
  */
-export const Graph = sketch => {
+export const createGraph = sketch => {
     grid = sketch.grid.properties;
-    const paint = Paint(sketch.context);
     setPositions();
     setUnitOffsets();
+    setRender({
+        id: 'graph',
+        show,
+    });
+};
 
+/** @param {Paint} paint */
+const show = paint => {
     // for every element: paint value is type of draw with paint object
-    const show = () => {
-        Object.keys(elements).forEach(key => {
-            const keyChecked1 = checkKey1(key);
-            // Horrible solution to avoid lint error, but it works
-            if (keyChecked1) elements[keyChecked1].units.map(el => paint[el.paint](el));
-            else {
-                const keyChecked2 = checkKey2(key);
-                if (keyChecked2) showElements(keyChecked2, paint);
-                else {
-                    const keyChecked3 = checkKey3(key);
-                    if (keyChecked3) showElements(keyChecked3, paint);
-                }
-            }
-        });
-    };
-    return {show, elements};
-};
-
-/** @param {string} key */
-const checkKey1 = key => {
-    if (key === 'xUnits' || key === 'yUnits') return key;
-    return;
-};
-/** @param {string} key */
-const checkKey2 = key => {
-    if (key === 'x' || key === 'y') return key;
-    return;
-};
-/** @param {string} key */
-const checkKey3 = key => {
-    if (key === 'xTitle' || key === 'yTitle' || key === 'mainTitle') return key;
-    return;
+    Object.keys(elements).forEach(key => {
+        if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
+        // @ts-ignore
+        else showElements(key, paint);
+    });
 };
 
 /**
  *
  * @param {GraphShowElementsNonUnits} key
- * @param {*} paint
+ * @param {Paint} paint
  */
 const showElements = (key, paint) => {
     const element = elements[key];
@@ -170,6 +150,7 @@ const showElements = (key, paint) => {
  * @returns
  */
 const units = (pos, steps, data) => {
+    if (!data) return;
     const max = data.reduce((a, {value}) => Math.max(a, value), 0);
     const min = data.reduce((a, {value}) => Math.min(a, value), max);
     const minRounded = min - (min % steps);

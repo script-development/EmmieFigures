@@ -1,11 +1,11 @@
-import {weatherOptions} from 'serverStore/index';
+import Settings from 'serverStore/settings';
 
 export {onBeforeRender};
 
 async function onBeforeRender() {
     return {
         pageContext: {
-            pageProps: {weatherOptions},
+            pageProps: {settings: Settings},
         },
     };
 }
