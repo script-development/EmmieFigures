@@ -1,6 +1,6 @@
 {
     "recommendations": [
-        "Vue.volar",
+        "vue.volar",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "ryanluker.vscode-coverage-gutters"

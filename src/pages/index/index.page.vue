@@ -42,7 +42,6 @@
 <script setup>
 /** @typedef {import('types/data').ReportData} ReportData */
 /** @typedef {import('types/data').WeatherData} WeatherData */
-
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed} from 'vue';
