@@ -2,6 +2,7 @@ export interface WeatherOptions {
     key: 'precip'|'temp'|'windspeed'|'cloudcover'| 'pressure',
     name: string,
     unitOfMeasure: string,
+    steps: number,
 }
 
 export interface ReportData {
@@ -12,6 +13,11 @@ export interface ReportData {
     afternoon_present: number | null,
     evening_present: number | null,
     date: string,
+}
+
+export interface VisualCrossingData {
+    days: WeatherData[],
+    queryCost: number,
 }
 
 export interface WeatherData {

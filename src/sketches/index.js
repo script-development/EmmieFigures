@@ -1,69 +1,87 @@
-/** @typedef {import("types/sketches").Sketch} SketchAPI */
-/** @typedef {import("types/sketches").Globals} GlobalVariables */
+/** @typedef {import('types/sketches').SketchOptions} SketchOptions */
 
 import engine from './engine';
-import Globals from './Globals';
+import Grid from './grid';
+
+/**
+ * Make a new Sketch API for a canvas element
+ * @param {string} id the id of the canvas element
+ * @param {SketchOptions} [options]
+ * @returns {import('types/sketches').Sketch}
+ */
+export default (id, options) => {
+    const context = getContext(id);
+    if (options) setOptions(options, context.canvas);
+    const grid = Grid(context);
+
+    return {
+        context,
+        grid,
+        update: script => engine.setUpdate(script),
+        render: script => engine.setRender(script),
+    };
+};
 
 /**
  * get canvas element and extract context2D
- * @param {string} id
+ * @param {string} id canvas element id
  * @returns {CanvasRenderingContext2D}
  */
 const getContext = id => {
-    const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById(id));
+    const canvas = document.getElementById(id);
+    if (canvas === null) throw new Error(`HTMLCanvasElement with id ${id} not found`);
+    if (!(canvas instanceof HTMLCanvasElement)) throw new Error(`HTMLElement with id ${id} is not a canvas`);
+
     const context = canvas.getContext('2d');
-    if (!context) throw new Error('Cant get 2d context');
+    if (!context) throw new Error(`CanvasRenderingContext2D not found on HTMLCanvasElement with id ${id}`);
+
     return context;
 };
 
 /**
+ * @param {SketchOptions} options
  * @param {HTMLCanvasElement} canvas
- * @param {GlobalVariables} globals
- * @param {number} width
- * @param {number} height
  */
-const setCanvasSize = (canvas, globals, width, height) => {
-    canvas.width = width;
-    canvas.height = height;
-    globals.width = width;
-    globals.height = height;
-};
-
-/** @param {HTMLCanvasElement} canvas */
-const CenterCanvas = canvas => {
-    canvas.style.position = 'absolute';
-    canvas.style.left = Math.floor((innerWidth - canvas.width) / 2) + 'px';
-    canvas.style.top = Math.floor((innerHeight - canvas.height) / 2) + 'px';
+const setOptions = (options, canvas) => {
+    setXYWH(options, canvas);
+    if (options.size) setSize(options.size, canvas);
+    if (options.pos) setPos(options.pos, canvas);
 };
 
 /**
+ * @param {SketchOptions} options
  * @param {HTMLCanvasElement} canvas
- * @param {GlobalVariables} globals
  */
-const Mouse = (canvas, globals) => {
-    const canvasBoundingClientRect = canvas.getBoundingClientRect();
-    canvas.addEventListener('mousemove', evt => {
-        globals.mouseX = evt.clientX - canvasBoundingClientRect.left;
-        globals.mouseY = evt.clientY - canvasBoundingClientRect.top;
-    });
+const setXYWH = ({x, y, w, h}, canvas) => {
+    if (x) canvas.style.left = x + 'px';
+    if (y) canvas.style.height = y + 'px';
+    if (w) canvas.width = w;
+    if (h) canvas.height = h;
 };
 
 /**
- * @param {string} id the id of the canvas element
- * @returns {SketchAPI}
+ * @param {SketchOptions["size"]} size
+ * @param {HTMLCanvasElement} canvas
  */
-export default id => {
-    const context = getContext(id);
-    const globals = Globals();
-    Mouse(context.canvas, globals);
+const setSize = (size, canvas) => {
+    if (size === 'full') {
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0px';
+        canvas.style.left = '0px';
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+    }
+};
 
-    return {
-        context,
-        globals,
-        update: script => engine.setUpdate(script),
-        render: script => engine.setRender(script),
-        size: (width, height) => setCanvasSize(context.canvas, globals, width, height),
-        centerCanvas: () => CenterCanvas(context.canvas),
-        mouse: () => Mouse(context.canvas, globals),
-    };
+/**
+ * @param {SketchOptions["pos"]} pos
+ * @param {HTMLCanvasElement} canvas
+ */
+const setPos = (pos, canvas) => {
+    if (pos === 'absolute') canvas.style.position = 'absolute';
+    if (pos === 'center') {
+        canvas.style.position = 'absolute';
+        canvas.style.left = (innerWidth - canvas.width) / 2 + 'px';
+        canvas.style.top = (innerHeight - canvas.height) / 2 + 'px';
+    }
 };

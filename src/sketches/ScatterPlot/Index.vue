@@ -1,5 +1,5 @@
 <template>
-    <canvas id="scatter-plot" width="1280" height="720" />
+    <canvas id="scatter-plot" class="hidden" />
 </template>
 
 <script setup>
@@ -10,8 +10,9 @@
 
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
-import Graph from './Graph';
-import Stats from './Stats';
+import {setGraph, Graph} from './Graph';
+import {setStatsX, setStatsY, Stats} from './Stats';
+import {elements} from './Graph';
 
 const props = defineProps({
     dataX: {
@@ -26,36 +27,35 @@ const props = defineProps({
     },
 });
 
-/** @type {import('types/sketches').Sketch} */
-let sketch;
-
-/** @type {import('types/graph').Graph} */
-let graph;
-
-/** @type {import('types/graph').Stats} */
-let stats;
-
 watch(
     () => props.dataX,
-    newDataX => {
-        // data for x-axis has changed, setting new data
-        const xUnits = graph.setX(newDataX);
-        stats.setX(xUnits, graph.yUnits, newDataX);
+    dataX => {
+        setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
+        setStatsX(dataX);
+    },
+);
+watch(
+    () => props.dataY,
+    dataY => {
+        setGraph(dataY, elements.yTitle, elements.y, elements.yUnits);
+        setStatsY(dataY);
     },
 );
 
 onMounted(() => {
-    sketch = Sketch('scatter-plot');
+    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720});
+    sketch.context.canvas.classList.remove('hidden');
+    sketch.context.canvas.classList.add('block');
 
-    graph = Graph(sketch, props.dataX, props.dataY);
-    stats = Stats(sketch, graph, props.dataX, props.dataY);
+    const graph = Graph(sketch);
+    const stats = Stats(sketch);
 
     sketch.update(() => {
         stats.update();
     });
 
     sketch.render(() => {
-        sketch.context.clearRect(0, 0, sketch.globals.width, sketch.globals.height);
+        sketch.context.clearRect(0, 0, sketch.context.canvas.width, sketch.context.canvas.height);
 
         graph.show();
         stats.show();

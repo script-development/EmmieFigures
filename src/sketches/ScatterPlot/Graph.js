@@ -1,189 +1,230 @@
-/** @typedef {import('types/graph').GraphData} GraphData */
-/** @typedef {import('types/graph').Stat} Stat */
+import Paint from '../paint';
+import {Vec4} from 'sketches/vectors';
 
-/** @type {CanvasRenderingContext2D} */
-let ctx;
+/** @typedef {import('types/graph').GraphTextElement} TextElement */
+/** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
+/** @typedef {import('types/graph').GraphLineElement} LineElement */
+/** @typedef {import('types/graph').GraphElements} Elements */
+/** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
 
-/** @type {import("types/sketches").Globals} */
-let globals;
+/** @type {import('types/sketches').Sketch["grid"]["properties"]} */
+let grid;
 
-// origin position of the graph, eg: x1, y1 of axis' & title & units ea
-const origin = {x: 0, y: 0};
+const defaults = {
+    text: {
+        text: '',
+        size: 24,
+        weight: 'normal',
+        color: 'black',
+        font: 'sans-serif',
+        /** @type {CanvasTextAlign} */
+        align: 'center',
+        /** @type {CanvasTextBaseline} */
+        baseline: 'middle',
+        /** @type {'text'} */
+        paint: 'text',
+    },
+    units: {
+        /** @type {TextElement[]} */
+        units: [],
+        max: 0,
+        min: 0,
+        lengthX: 0,
+        lengthY: 0,
+        startX: 0,
+        startY: 0,
+        offset: {x1: 0, y1: 0, x2: 0, y2: 0},
+    },
+};
 
-/** @type {{show: () => void}} */
-let xTitle;
-
-/** @type {import('types/graph').Graph["xUnits"]} */
-let xUnits;
-
-/** @type {{show: () => void}} */
-let title;
+/** @type {Elements} */
+export const elements = {
+    x: {
+        pos: {x1: 0, y1: 0, x2: 0, y2: 0},
+        color: 'black',
+        weight: 4,
+        paint: 'line',
+    },
+    y: {
+        pos: {x1: 0, y1: 0, x2: 0, y2: 0},
+        color: 'black',
+        weight: 4,
+        paint: 'line',
+    },
+    xTitle: {
+        ...defaults.text,
+        pos: {x: 0, y: 0},
+    },
+    yTitle: {
+        ...defaults.text,
+        pos: {x: 0, y: 0},
+        angle: -Math.PI / 2,
+    },
+    mainTitle: {
+        ...defaults.text,
+        text: 'Scatterplot',
+        pos: {x: 0, y: 0},
+        size: 32,
+        weight: 'bold',
+    },
+    xUnits: {
+        ...defaults.units,
+    },
+    yUnits: {
+        ...defaults.units,
+    },
+};
 
 /**
- * Scatter Plot -> TypeX (Precipitation (mm)) / TypeY (Presence (%))
+ * @param {number} x
+ * @param {number} y
+ * @param {string} text
+ */
+const Unit = (x, y, text) => ({
+    ...defaults.text,
+    pos: {x, y},
+    text,
+    size: 16,
+});
+
+const setPositions = () => {
+    elements.x.pos = {
+        x1: grid.unitWidth * 4,
+        y1: grid.unitHeight * 14,
+        x2: grid.unitWidth * 28,
+        y2: grid.unitHeight * 14,
+    };
+    elements.y.pos = {
+        x1: grid.unitWidth * 4,
+        y1: grid.unitHeight * 14,
+        x2: grid.unitWidth * 4,
+        y2: grid.unitHeight * 4,
+    };
+    elements.xTitle.pos = {x: grid.unitWidth * 16, y: grid.unitHeight * 16};
+    elements.yTitle.pos = {x: grid.unitWidth * 2, y: grid.unitHeight * 9};
+    elements.mainTitle.pos = {x: grid.width * 0.5, y: grid.unitHeight * 2};
+};
+
+/**
+ * Scatter Plot -> TypeX (Weather type (unit of Measurement)) / TypeY (Presence (%))
  * @param {import("types/sketches").Sketch} sketch
- * @param {GraphData} typeX
- * @param {GraphData} typeY
  * @returns
  */
-export default (sketch, typeX, typeY) => {
-    ctx = sketch.context;
-    globals = sketch.globals;
-    origin.x = globals.width * 0.2;
-    origin.y = globals.height * 0.8;
-    const x = mainAxis(globals.width * 0.8, origin.y);
-    const y = mainAxis(origin.x, globals.height * 0.2);
-    xTitle = xAxisTitle(`${typeX.title} (${typeX.unitOfMeasure})`);
-    const yTitle = yAxisTitle(`${typeY.title} (${typeY.unitOfMeasure})`);
-    xUnits = xAxisUnits(typeX.data);
-    const yUnits = yAxisUnits(typeY.data);
-    title = graphTitle(`Scatterplot voor ${typeY.title} vs ${typeX.title}`);
+export const Graph = sketch => {
+    grid = sketch.grid.properties;
+    const paint = Paint(sketch.context);
+    setPositions();
+    setUnitOffsets();
 
+    // for every element: paint value is type of draw with paint object
     const show = () => {
-        x.show();
-        y.show();
-        xTitle.show();
-        yTitle.show();
-        xUnits.show();
-        yUnits.show();
-        title.show();
+        Object.keys(elements).forEach(key => {
+            const keyChecked1 = checkKey1(key);
+            // Horrible solution to avoid lint error, but it works
+            if (keyChecked1) elements[keyChecked1].units.map(el => paint[el.paint](el));
+            else {
+                const keyChecked2 = checkKey2(key);
+                if (keyChecked2) showElements(keyChecked2, paint);
+                else {
+                    const keyChecked3 = checkKey3(key);
+                    if (keyChecked3) showElements(keyChecked3, paint);
+                }
+            }
+        });
     };
+    return {show, elements};
+};
 
-    /** @param {GraphData} dataX */
-    const setX = dataX => {
-        xTitle = xAxisTitle(`${dataX.title} (${typeX.unitOfMeasure})`);
-        xUnits = xAxisUnits(dataX.data);
-        title = graphTitle(`Scatterplot voor ${typeY.title} vs ${dataX.title}`);
-        return xUnits;
-    };
-
-    return {setX, show, xUnits, yUnits};
+/** @param {string} key */
+const checkKey1 = key => {
+    if (key === 'xUnits' || key === 'yUnits') return key;
+    return;
+};
+/** @param {string} key */
+const checkKey2 = key => {
+    if (key === 'x' || key === 'y') return key;
+    return;
+};
+/** @param {string} key */
+const checkKey3 = key => {
+    if (key === 'xTitle' || key === 'yTitle' || key === 'mainTitle') return key;
+    return;
 };
 
 /**
- * @param {number} x2
- * @param {number} y2
+ *
+ * @param {GraphShowElementsNonUnits} key
+ * @param {*} paint
  */
-const mainAxis = (x2, y2) => {
-    const pos = {x1: origin.x, y1: origin.y, x2, y2};
-    const show = () => {
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(pos.x1, pos.y1);
-        ctx.lineTo(pos.x2, pos.y2);
-        ctx.stroke();
-    };
-    return {show};
+const showElements = (key, paint) => {
+    const element = elements[key];
+    if (element.paint === 'line') paint[element.paint](element);
+    else if (element.paint === 'text') paint[element.paint](element);
 };
 
-/** @param {string} title */
-const xAxisTitle = title => {
-    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
-    const show = () => {
-        ctx.fillStyle = 'black';
-        ctx.beginPath();
-        ctx.textAlign = 'center';
-        ctx.font = '24px georgia';
-        ctx.fillText(title, pos.x1 + (pos.x2 - pos.x1) / 2, pos.y1 + 60);
+/**
+ * X or Y-axis units
+ * @param {import('types/vectors').Vec4d} pos
+ * @param {number} steps
+ * @param {import('types/graph').GraphData["data"]} data
+ * @returns
+ */
+const units = (pos, steps, data) => {
+    const max = data.reduce((a, {value}) => Math.max(a, value), 0);
+    const min = data.reduce((a, {value}) => Math.min(a, value), max);
+    const minRounded = min - (min % steps);
+    const maxRounded = max - (max % steps) + steps;
+    const range = maxRounded - minRounded;
+    const amount = range / steps;
+
+    const units = [];
+    for (let i = 0; i <= amount; i++) {
+        units.push(
+            Unit(
+                pos.x1 + ((pos.x2 - pos.x1) / amount) * i,
+                pos.y1 + ((pos.y2 - pos.y1) / amount) * i,
+                (minRounded + ((maxRounded - minRounded) / amount) * i).toFixed(0),
+            ),
+        );
+    }
+    return {
+        units,
+        min: minRounded,
+        max: maxRounded,
+        lengthX: pos.x2 - pos.x1,
+        lengthY: pos.y2 - pos.y1,
+        startX: pos.x1,
+        startY: pos.y1,
     };
-    return {show};
 };
 
-/** @param {string} title */
-const yAxisTitle = title => {
-    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
-    const show = () => {
-        ctx.fillStyle = 'black';
-        ctx.font = '24px georgia';
-        ctx.save();
-        ctx.translate(pos.x1 - 100, pos.y1 + (pos.y2 - pos.y1) / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.beginPath();
-        ctx.textAlign = 'center';
-        ctx.font = '24px georgia';
-        ctx.fillText(title, 0, 0);
-        ctx.restore();
+const setUnitOffsets = () => {
+    elements.xUnits.offset = {
+        x1: grid.unitWidth * 0.25,
+        y1: grid.unitHeight * 0.5,
+        x2: -grid.unitWidth * 0.25,
+        y2: grid.unitHeight * 0.5,
     };
-    return {show};
+    elements.yUnits.offset = {
+        x1: -grid.unitWidth * 0.25,
+        y1: -grid.unitHeight * 0.25,
+        x2: -grid.unitWidth * 0.5,
+        y2: grid.unitHeight * 0.25,
+    };
 };
 
-/** @param {GraphData["data"]} dataX */
-const xAxisUnits = dataX => {
-    const pos = {x1: origin.x, y1: origin.y, x2: globals.width * 0.8, y2: origin.y};
-    const maxValue = dataX.reduce((a, {value}) => Math.max(a, value), 0);
-    const minValue = dataX.reduce((a, {value}) => Math.min(a, value), maxValue);
-    const steps = 10;
-    const unitSX = pos.x1 + 10;
-    const unitEX = pos.x2 - 10;
-    const length = unitEX - unitSX;
-    const show = () => {
-        ctx.fillStyle = 'black';
-        for (let i = 0; i <= steps; i++) {
-            let xP = unitSX + (length / steps) * i;
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(xP, pos.y1 - 5);
-            ctx.lineTo(xP, pos.y1 + 5);
-            ctx.stroke();
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = '#ddd';
-            ctx.moveTo(xP, pos.y1);
-            ctx.lineTo(xP, pos.y1 - globals.height * 0.6);
-            ctx.stroke();
-            ctx.textAlign = 'center';
-            ctx.font = '16px georgia';
-            ctx.fillText((minValue + ((maxValue - minValue) / steps) * i).toFixed(1), xP, pos.y1 + 15);
-        }
-    };
-    return {show, length, unitSX, minValue, maxValue};
-};
-
-/** @param {GraphData["data"]} typeY */
-const yAxisUnits = typeY => {
-    const pos = {x1: origin.x, y1: origin.y, x2: origin.x, y2: globals.height * 0.2};
-    const maxValue = typeY.reduce((a, {value}) => Math.max(a, value), 0);
-    const minValue = 0;
-    const steps = 10;
-    const unitSY = pos.y1 - 10;
-    const unitEY = pos.y2 + 10;
-    const length = unitEY - unitSY;
-    const show = () => {
-        ctx.fillStyle = 'black';
-        for (let j = 0; j <= steps; j++) {
-            let yPos = unitSY + (length / steps) * j;
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = 'black';
-            ctx.beginPath();
-            ctx.moveTo(pos.x1 - 5, yPos);
-            ctx.lineTo(pos.x1 + 5, yPos);
-            ctx.stroke();
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = '#ddd';
-            ctx.moveTo(pos.x1, yPos);
-            ctx.lineTo(pos.x1 + globals.width * 0.6, yPos);
-            ctx.stroke();
-            ctx.textBaseline = 'middle';
-            ctx.font = '16px georgia';
-            ctx.fillText((minValue + ((maxValue - minValue) / steps) * j).toFixed(2), pos.x1 - 30, yPos);
-        }
-    };
-    return {show, length, unitSY, minValue, maxValue};
-};
-
-/** @param {string} title */
-const graphTitle = title => {
-    const pos = {x: globals.width / 2, y: globals.height * 0.1};
-    const show = () => {
-        ctx.beginPath();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = '#555';
-        ctx.fillStyle = 'gray';
-        ctx.textAlign = 'center';
-        ctx.font = '32px sans-serif';
-        ctx.fillText(title, pos.x + 1, pos.y + 1);
-        ctx.strokeText(title, pos.x, pos.y);
-    };
-    return {show};
+/**
+ *
+ * @param {import('types/graph').GraphData} data
+ * @param {TextElement} title
+ * @param {LineElement} axis
+ * @param {UnitsElement} unit
+ */
+export const setGraph = (data, title, axis, unit) => {
+    title.text = `${data.title} (${data.unitOfMeasure})`;
+    elements.mainTitle.text = `Scatterplot voor ${elements.yTitle.text
+        .split(' ')[0]
+        .toLowerCase()} vs ${elements.xTitle.text.split(' ')[0].toLowerCase()}`;
+    const units_ = units(Vec4.add(axis.pos, unit.offset), data.steps, data.data);
+    Object.assign(unit, units_);
 };

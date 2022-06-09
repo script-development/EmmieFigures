@@ -3,7 +3,7 @@
         <template #logo>
             <Logo />
         </template>
-        <!-- <template #auth /> -->
+        <template #auth />
     </NavBar>
     <slot />
 </template>

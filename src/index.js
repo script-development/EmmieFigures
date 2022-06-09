@@ -4,9 +4,9 @@ import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
-import {deploy, weatherData} from './services/data.js';
+import {deploy} from './services/data.js';
+import {getData} from './serverStore/index.js';
 
-// TODO:: Make this run once on deployment
 await deploy();
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -28,12 +28,16 @@ const root = path.resolve(path.dirname(''));
 
     const renderPage = createPageRenderer({viteDevServer, isProduction, root});
 
+    app.get('/api/weather-data', async (req, res) => {
+        res.send(getData('weatherData'));
+    });
+    app.get('/api/report-data', async (req, res) => {
+        res.send(getData('reportData'));
+    });
+
     app.get('*', async (req, res, next) => {
         const url = req.originalUrl;
-        const pageContextInit = {
-            url,
-            weatherData,
-        };
+        const pageContextInit = {url};
         const pageContext = await renderPage(pageContextInit);
         const {httpResponse} = pageContext;
         if (!httpResponse) return next();

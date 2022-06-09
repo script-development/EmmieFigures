@@ -17,7 +17,7 @@ async function render(pageContext) {
     const title = (documentProps && documentProps.title) || 'Rapp Presence';
     const desc =
         (documentProps && documentProps.description) ||
-        'Scatter plot correlation precipitation and rapp client presence';
+        'Scatter plot correlation different weather types and rapp client presence';
 
     const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">

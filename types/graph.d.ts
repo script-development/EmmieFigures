@@ -1,21 +1,56 @@
-export interface Graph {
-    // setX: (dataX: GraphData) => this["xUnits"],
-    show: () => void,
-    xUnits: {
-        show: () => void,
-        minValue: number,
-        maxValue: number,
-        unitSX: number,
-        length: number,
-    },
-    yUnits: {
-        show: () => void,
-        minValue: number,
-        maxValue: number,
-        unitSY: number,
-        length: number,
-    },
-    setX: (dataX: GraphData) => this["xUnits"],
+import { Vec4d } from "./vectors"
+
+export interface GraphData {
+    title: string,
+    unitOfMeasure: string,
+    steps: number,
+    data: [
+        {
+            date: string,
+            value: number,
+        }
+    ]
+}
+
+export interface GraphTextElement {
+        text: string,
+        size: number,
+        weight: string,
+        color: string,
+        font: string,
+        align: CanvasTextAlign,
+        baseline: CanvasTextBaseline,
+        paint: 'text',
+        pos: {x: number, y: number},
+        angle?: number
+}
+
+export interface GraphLineElement {
+    pos: {x1: number, y1: number, x2: number, y2: number},
+    color: string,
+    weight: number,
+    paint: 'line'
+}
+
+export interface GraphUnitsElement {
+    units: GraphTextElement[],
+    max: number,
+    min: number,
+    lengthX: number,
+    lengthY: number,
+    startX: number,
+    startY: number,
+    offset: Vec4d,
+}
+
+export interface GraphElements {
+    x: GraphLineElement,
+    y: GraphLineElement,
+    xTitle: GraphTextElement,
+    yTitle: GraphTextElement,
+    mainTitle: GraphTextElement,
+    xUnits: GraphUnitsElement,
+    yUnits: GraphUnitsElement,
 }
 
 export interface Stats {
@@ -29,19 +64,8 @@ export interface Stat {
     valueX: number,
     valueY: number,
     date: string,
+    id: number,
     show: (interpolate?: number) => void,
-    update: (delta?: number) => number,
-    selected: () => void,
+    update: (delta?: number) => void,
 }
 
-export interface GraphData {
-    title: string,
-    unitOfMeasure: string,
-    data: [
-        {
-            date: string,
-            value: number,
-
-        }
-    ]
-}

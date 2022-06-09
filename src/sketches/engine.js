@@ -5,8 +5,8 @@ let update;
 let render;
 
 // mainloop
-const maxFPS = 120;
-const step = 1000 / maxFPS; // higher steps = more framerate and less updates
+let maxFPS = 120;
+let step = 1000 / maxFPS;
 let delta = 0;
 let lastTimeStamp = 0;
 
@@ -50,7 +50,7 @@ const simulate = () => {
     updateCount = 0;
     while (delta >= step) {
         totalUpdates++;
-        update(step);
+        if (update) update(step);
         delta -= step;
         // spiral of death prevention
         if (++updateCount >= 240) {
@@ -75,7 +75,7 @@ const start = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
         requestID = requestAnimationFrame(timeStamp => {
-            render(); // initial render
+            render(0); // initial render
             active = true;
 
             lastTimeStamp = timeStamp;
@@ -112,5 +112,16 @@ export default {
     frameCount: () => totalFrames,
     updateCount: () => totalUpdates,
     returnCount: () => returns,
-    frameRate: () => (actualFPS * 10).toFixed(0),
+    /** @param {number} [fps] */
+    frameRate: fps => frameRate(fps),
+};
+
+/** @param {number} [fps] */
+const frameRate = fps => {
+    if (fps != undefined) {
+        maxFPS = fps;
+        step = 1000 / fps;
+        return;
+    }
+    return (actualFPS * 10).toFixed(0);
 };

@@ -1,16 +1,29 @@
 export interface Sketch {
     context: CanvasRenderingContext2D,
-    globals: Globals,
+    grid: Grid,
     update: (script: (delta: number) => void) => void,
     render: (script: (interpolate: number) => void) => void,
-    size: (width: number, height: number) => void,
-    centerCanvas: () => void,
-    mouse: () => void,
 }
 
-export interface Globals {
-    width: number,
-    height: number,
-    mouseX: number,
-    mouseY: number,
+export interface SketchOptions {
+    size?: "full",
+    x?: number,
+    y?: number,
+    w?: number,
+    h?: number,
+    pos?: "center"|"absolute",
+    rows? : number,
+    cols? : number,
+}
+
+export interface Grid {
+    properties: {
+        width: number,
+        height: number,
+        xUnits: number,
+        yUnits: number,
+        unitWidth: number,
+        unitHeight: number,
+    }
+    show: () => void,
 }

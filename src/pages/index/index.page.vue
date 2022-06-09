@@ -1,9 +1,7 @@
 <template>
-    <div class="flex justify-center align-middle">
-        <ScatterPlot :data-x="dataX" :data-y="dataY" />
-    </div>
-    <div class="flex justify-center">
-        <div class="mb-3 xl:w-96">
+    <ScatterPlot :data-x="dataX" :data-y="dataY" />
+    <div class="absolute bottom-0">
+        <div class="mb-3 xl:w-96 z-1">
             <label for="weather-options">Kies een weertype:</label>
             <select id="weather-options" v-model="selected" :class="selectClass">
                 <option v-for="option in weatherOptions" :key="option.key" :value="option">
@@ -16,21 +14,13 @@
 
 <script setup>
 /** @typedef {import('types/data').ReportData} ReportData */
-
+/** @typedef {import('types/data').WeatherData} WeatherData */
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import {computed, ref} from 'vue';
+import {onMounted, ref, computed} from 'vue';
+import {getFromApi} from 'services/api';
+import {getEnv} from 'services/env';
 
 const props = defineProps({
-    weather: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherData[]>} */
-        type: Array,
-        required: true,
-    },
-    reports: {
-        /** @type {import('@vue/runtime-core').PropType<ReportData[]>} */
-        type: Array,
-        required: true,
-    },
     weatherOptions: {
         /** @type {import('@vue/runtime-core').PropType<import('types/data').WeatherOptions[]>} */
         type: Array,
@@ -38,55 +28,59 @@ const props = defineProps({
     },
 });
 
-const selectClass =
-    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
-    'bg-no-repeat border border-solid border-gray-300 rounded' +
-    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
+/** @type {import('@vue/runtime-core').Ref<WeatherData[]>} */
+const weather = ref([]);
+
+/** @type {import('@vue/runtime-core').Ref<ReportData[]>} */
+const reports = ref([]);
 
 /** selected weather type for x-axis */
 const selected = ref(props.weatherOptions[0]);
+
+/** @type {['morning', 'afternoon', 'evening']} */
+const dayparts = ['morning', 'afternoon', 'evening'];
+
+onMounted(async () => {
+    weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
+    reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
+});
 
 /** data for x-axis based on current selected weather type */
 const dataX = computed(() => ({
     title: selected.value.name,
     unitOfMeasure: selected.value.unitOfMeasure,
+    steps: selected.value.steps,
     /** get weather values and dates from weather data */
-    data: props.weather.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
+    data: weather.value.map(weather => ({date: weather.datetime, value: weather[selected.value.key]})),
 }));
 
-const uniqueDates = [...new Set(props.reports.map(report => report.date))];
+const presence = computed(() =>
+    reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
+        if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
+        for (const daypart of dayparts) {
+            if (report[`${daypart}_schedule_id`]) {
+                acc[report.date].total++;
+                if (report[`${daypart}_present`]) acc[report.date].present++;
+            }
+        }
+        return acc;
+    }, {}),
+);
 
-/** data for y-axis */
 const dataY = computed(() => ({
     title: 'Aanwezigheid',
     unitOfMeasure: '%',
-    /** get presence values and dates for each unique day */
-    data: uniqueDates.map(date => {
-        const filteredReports = props.reports.filter(report => report.date === date);
-        return {
-            date,
-            value: calculatePresencePerDay(filteredReports),
-        };
-    }),
+    steps: 10,
+    /** set presence values and dates for each unique day */
+    data: Object.keys(presence.value).map(date => ({
+        date,
+        value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
+    })),
 }));
 
-/** @type {['morning', 'afternoon', 'evening']} */
-const dayparts = ['morning', 'afternoon', 'evening'];
-
-/** @param {Array<ReportData>} reports */
-const calculatePresencePerDay = reports => {
-    let total = 0; // all scheduled dayparts (morning, afternoon and evening)
-    let present = 0; // all dayparts where client has been present
-
-    reports.forEach(report => {
-        for (const daypart of dayparts) {
-            if (report[`${daypart}_schedule_id`]) {
-                total++;
-                if (report[`${daypart}_present`]) present++;
-            }
-        }
-    });
-
-    return Math.round((present * 100) / total);
-};
+// Temporarily select options (for functional purposes)
+const selectClass =
+    'appearance-none block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding' +
+    'bg-no-repeat border border-solid border-gray-300 rounded' +
+    'transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
 </script>
