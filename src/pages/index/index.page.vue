@@ -15,10 +15,8 @@
 <script setup>
 /** @typedef {import('types/data').ReportData} ReportData */
 /** @typedef {import('types/data').WeatherData} WeatherData */
-
-import {computed} from '@vue/reactivity';
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, computed} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
 
