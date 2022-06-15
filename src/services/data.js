@@ -7,7 +7,7 @@
 import fs from 'fs/promises';
 import {setData} from '../serverStore/index.js';
 import {getFromApi} from './api.js';
-import {dateQueryString, yesterdayQueryString} from './dates.js';
+import {yesterday} from './dates.js';
 import {getEnv} from './env.js';
 
 const BASE_URL = getEnv('WEATHER_API_BASE_URL');
@@ -41,11 +41,11 @@ const weather = async () => {
     } catch {
         // maximum request for free account is 6 months, making 2 requests to get 1 year of data
 
-        const weatherData1 = await getWeatherData([1, 1, 2021], [30, 6, 2021]);
+        const weatherData1 = await getWeatherData('2021-01-01', '2021-06-30');
         if (!weatherData1) throw new Error(weatherApiError);
 
         // 2nd request
-        const weatherData2 = await getWeatherData([1, 7, 2021], [31, 12, 2021]);
+        const weatherData2 = await getWeatherData('2021-07-01', '2021-31-12');
         if (!weatherData2) throw new Error(weatherApiError);
 
         const weatherDays = weatherData1.days.concat(weatherData2.days);
@@ -61,7 +61,7 @@ const weather = async () => {
 
 const reports = async () => {
     const startDate = '2021-01-01';
-    const endDate = yesterdayQueryString();
+    const endDate = yesterday();
     try {
         await fs.access('./data/reports.json'); // catch will fetch data if file is not present
         const reports = await fs.readFile('./data/reports.json', 'utf-8');
@@ -75,22 +75,18 @@ const reports = async () => {
 };
 
 /**
- * @param {Array<number>} start startDate
- * @param {Array<number>} end endDate
+ * @param {string} startDate startDate
+ * @param {string} endDate endDate
  * @returns {Promise<VisualCrossingData>}
  */
-const getWeatherData = (start, end) => {
-    const startDate = dateQueryString(start[0], start[1], start[2]);
-    const endDate = dateQueryString(end[0], end[1], end[2]);
-    const queryString = getQueryString(startDate, endDate);
-    return getFromApi(queryString);
-};
+const getWeatherData = (startDate, endDate) => getFromApi(getQueryString(startDate, endDate));
 
 /**
  * @param {string} startDate
  * @param {string} endDate
  * @returns {string}
  */
+
 const getQueryString = (startDate, endDate) => {
     let qString = BASE_URL + `/${options.location}/${startDate}/${endDate}`;
     qString += `?unitGroup=metric${options.outputSection}&key=${API_KEY}${options.elements}&contentType=json`;

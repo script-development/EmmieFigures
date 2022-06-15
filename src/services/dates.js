@@ -1,38 +1,26 @@
+// Date helper functions with format: 'yyyy-mm-dd'
+
 /**
- * @param {number} day
- * @param {number} month
- * @param {number} year
+ * @param {Date} date
  * @returns {string}
  */
-export const dateQueryString = (day, month, year) =>
-    `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
-
-export const yesterdayQueryString = () => {
-    const date = new Date();
-    date.setDate(date.getDate() - 1);
-    return dateQueryString(date.getDate(), date.getMonth() + 1, date.getFullYear());
+export const dateToString = date => {
+    const [month, day, year] = [date.getMonth() + 1, date.getDate(), date.getFullYear()];
+    return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 };
 
-const DateHelper = {
-    /**
-     * @param {Date} aDate
-     * @param {number} numberOfDays
-     */
-    addDays: (aDate, numberOfDays) => {
-        aDate.setDate(aDate.getDate() + numberOfDays); // Add numberOfDays
-        return aDate; // Return the date
-    },
-    /** @param {Date} date */
-    format: date =>
-        [
-            date.getFullYear(), // Get full year
-            ('0' + (date.getMonth() + 1)).slice(-2), // Get month and pad it with zeroes
-            ('0' + date.getDate()).slice(-2), // Get day and pad it with zeroes
-        ].join('-'), // Glue the pieces together
+export const yesterday = () => {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    return dateToString(date);
 };
 
 /**
  * @param {string} date
- * @param {number} addOrSub
+ * @param {number} amount days to add or subtract
  */
-export const addOrSubtractDays = (date, addOrSub) => DateHelper.format(DateHelper.addDays(new Date(date), addOrSub));
+export const addOrSubtractDays = (date, amount) => {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + amount);
+    return dateToString(newDate);
+};

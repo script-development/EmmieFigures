@@ -2,13 +2,18 @@
     <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
     <VSelect
         v-model="trendLineKey"
-        class="absolute bottom-0 mb-24 xl:w-96 z-1"
+        class="absolute bottom-0 mb-24 xl:w-96"
         :options="settings.trendLines"
         :disabled="!statsActive"
     >
         Regressie Type
     </VSelect>
-    <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes" :disabled="false">
+    <VSelect
+        v-model="weatherTypeKey"
+        class="absolute bottom-0"
+        :options="settings.weatherTypes"
+        :disabled="!statsActive"
+    >
         Weer Type
     </VSelect>
     <div>
@@ -18,12 +23,13 @@
             :value="selectedStartDate"
             type="date"
             name="data-start"
-            :min="minStartDate"
+            min="2021-01-01"
             :max="maxStartDate"
-            :disabled="!dateInputsActive"
-            @change="changeStartDate"
+            :disabled="!statsActive"
+            @change="event => (selectedStartDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
     </div>
+    <!-- const target = /** @type {HTMLInputElement} */ (evt.target); -->
     <div>
         <label for="end" style="display: block">End date:</label>
         <input
@@ -32,9 +38,9 @@
             type="date"
             name="data-end"
             :min="minEndDate"
-            :max="maxEndDate"
-            :disabled="!dateInputsActive"
-            @change="changeEndDate"
+            :max="yesterday()"
+            :disabled="!statsActive"
+            @change="event => (selectedEndDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
     </div>
 </template>
@@ -47,7 +53,7 @@ import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
-import {addOrSubtractDays} from 'services/dates';
+import {addOrSubtractDays, yesterday} from 'services/dates';
 import {statsActive} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
@@ -73,38 +79,14 @@ const weatherTypeKey = ref('cloudcover');
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
 
-const dateInputsActive = ref(false);
-
-const minStartDate = ref('');
-const selectedStartDate = ref(minStartDate.value);
-const maxStartDate = ref('');
-
-const minEndDate = ref('');
-const selectedEndDate = ref(minEndDate.value);
-const maxEndDate = ref('');
-
-/** @param {Event} evt */
-const changeStartDate = evt => {
-    const target = /** @type {HTMLInputElement} */ (evt.target);
-    selectedStartDate.value = target.value;
-    minEndDate.value = addOrSubtractDays(target.value, 1);
-};
-
-/** @param {Event} evt */
-const changeEndDate = evt => {
-    const target = /** @type {HTMLInputElement} */ (evt.target);
-    selectedEndDate.value = target.value;
-    maxStartDate.value = addOrSubtractDays(target.value, -1);
-};
+const selectedStartDate = ref('');
+const selectedEndDate = ref('');
+const minEndDate = computed(() => addOrSubtractDays(selectedStartDate.value, 1));
+const maxStartDate = computed(() => addOrSubtractDays(selectedEndDate.value, -1));
 
 const setDateInputs = () => {
-    selectedStartDate.value = reports.value[0].date;
-    minStartDate.value = reports.value[0].date;
-    maxStartDate.value = addOrSubtractDays(reports.value[reports.value.length - 1].date, -1);
-    selectedEndDate.value = reports.value[reports.value.length - 1].date;
-    minEndDate.value = addOrSubtractDays(reports.value[0].date, 1);
-    maxEndDate.value = reports.value[reports.value.length - 1].date;
-    dateInputsActive.value = true;
+    selectedStartDate.value = '2021-01-01';
+    selectedEndDate.value = yesterday();
 };
 
 onMounted(async () => {
@@ -134,7 +116,6 @@ const presence = computed(() =>
     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
         // Check minimum and maximum date (default = min and max date)
         if (report.date < selectedStartDate.value || report.date > selectedEndDate.value) return acc;
-
         if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
         setTotalAndPresent(report, acc);
         return acc;
