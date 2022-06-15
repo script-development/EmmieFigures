@@ -1,5 +1,5 @@
 <template>
-    <canvas id="scatter-plot" class="hidden" />
+    <canvas id="scatter-plot" class="hidden" style="z-index: -1" />
 </template>
 
 <script setup>
@@ -46,6 +46,7 @@ watch(
     dataY => {
         setGraph(dataY, elements.yTitle, elements.y, elements.yUnits);
         setStatsY(dataY);
+        changeRegression(props.options.trendLineKey, props.options.trendLineKey);
     },
 );
 watch(

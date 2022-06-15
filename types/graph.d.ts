@@ -1,5 +1,3 @@
-import { Vec4d } from "./vectors"
-
 export interface GraphData {
     title: string,
     unitOfMeasure: string,

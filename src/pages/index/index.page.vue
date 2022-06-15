@@ -2,15 +2,46 @@
     <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
     <VSelect
         v-model="trendLineKey"
-        class="absolute bottom-0 mb-24 xl:w-96 z-1"
+        class="absolute bottom-0 mb-24 xl:w-96"
         :options="settings.trendLines"
         :disabled="!statsActive"
     >
         Regressie Type
     </VSelect>
-    <VSelect v-model="weatherTypeKey" class="absolute bottom-0" :options="settings.weatherTypes" :disabled="false">
+    <VSelect
+        v-model="weatherTypeKey"
+        class="absolute bottom-0"
+        :options="settings.weatherTypes"
+        :disabled="!statsActive"
+    >
         Weer Type
     </VSelect>
+    <div>
+        <label for="start" style="display: block">Start date:</label>
+        <input
+            id="start"
+            :value="selectedStartDate"
+            type="date"
+            name="data-start"
+            min="2021-01-01"
+            :max="maxStartDate"
+            :disabled="!statsActive"
+            @change="event => (selectedStartDate = /**@type {HTMLInputElement} */ (event.target).value)"
+        />
+    </div>
+    <div>
+        <label for="end" style="display: block">End date:</label>
+        <input
+            id="end"
+            :value="selectedEndDate"
+            type="date"
+            name="data-end"
+            :min="minEndDate"
+            :max="yesterday()"
+            :disabled="!statsActive"
+            @change="event => (selectedEndDate = /**@type {HTMLInputElement} */ (event.target).value)"
+        />
+    </div>
 </template>
 
 <script setup>
@@ -21,6 +52,7 @@ import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
+import {addOrSubtractDays, yesterday} from 'services/dates';
 import {statsActive} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
@@ -46,15 +78,26 @@ const weatherTypeKey = ref('cloudcover');
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
 
+const selectedStartDate = ref('');
+const selectedEndDate = ref('');
+const minEndDate = computed(() => addOrSubtractDays(selectedStartDate.value, 1));
+const maxStartDate = computed(() => addOrSubtractDays(selectedEndDate.value, -1));
+
+const setDateInputs = () => {
+    selectedStartDate.value = '2021-01-01';
+    selectedEndDate.value = yesterday();
+};
+
 onMounted(async () => {
     weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
     reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
+    setDateInputs();
 });
 
 const weatherSetting = computed(
     () =>
         props.settings.weatherTypes.find(setting => setting.key === weatherTypeKey.value) ||
-        props.settings.weatherTypes[3],
+        props.settings.weatherTypes[3], // || => default
 );
 
 /** data for x-axis based on current selected weather type */
@@ -70,16 +113,27 @@ const dataX = computed(() => {
 
 const presence = computed(() =>
     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
+        // Check minimum and maximum date (default = min and max date)
+        if (report.date < selectedStartDate.value || report.date > selectedEndDate.value) return acc;
         if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
-        for (const daypart of dayparts) {
-            if (report[`${daypart}_schedule_id`]) {
-                acc[report.date].total++;
-                if (report[`${daypart}_present`]) acc[report.date].present++;
-            }
-        }
+        setTotalAndPresent(report, acc);
         return acc;
     }, {}),
 );
+
+/**
+ *
+ * @param {ReportData} report
+ * @param {Object.<string, {total: number, present: number}>} acc
+ */
+const setTotalAndPresent = (report, acc) => {
+    for (const daypart of dayparts) {
+        if (report[`${daypart}_schedule_id`]) {
+            acc[report.date].total++;
+            if (report[`${daypart}_present`]) acc[report.date].present++;
+        }
+    }
+};
 
 /** data for y-axis (static: presence) */
 const dataY = computed(() => ({

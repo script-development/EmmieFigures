@@ -12,6 +12,12 @@ export const setData = (key, data) => {
     else throw new Error('Data must be JSON string or object');
 };
 
+/** @param {string} key */
+export const getData = key => {
+    if (typeof key === 'string') return store[key];
+    else throw new Error('key must be a string');
+};
+
 /** @param {string} subject */
 const isJsonString = subject => {
     try {
@@ -20,10 +26,4 @@ const isJsonString = subject => {
     } catch {
         return false;
     }
-};
-
-/** @param {string} key */
-export const getData = key => {
-    if (typeof key === 'string') return store[key];
-    else throw new Error('key must be a string');
 };
