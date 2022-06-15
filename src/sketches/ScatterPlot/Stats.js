@@ -191,9 +191,9 @@ const setOldStatsPos = () => {
         oldStatsPos.push({
             x: s.pos.x,
             y: s.pos.y,
-            dx: Math.random() * 6 - 3,
-            dy: Math.random() * 6 - 3,
-            max: Math.random() * 5 + 2,
+            dx: 0,
+            dy: 0,
+            max: Math.random() * 6 + 5,
         }),
     );
 };
@@ -207,8 +207,8 @@ const statDef = {
     vel: {x: 0, y: 0},
     acc: {x: 0, y: 0},
     target: {x: 0, y: 0},
-    maxSpeed: 5,
-    maxForce: 0.3,
+    maxSpeed: 10,
+    maxForce: 1,
     seek: true,
     radius: 4,
     color: [0, 100, 0],
@@ -221,7 +221,7 @@ const makeStats = () => {
     if (!dataX || !dataY) return;
     statsActive.value
         ? setOldStatsPos()
-        : (oldStatsPos = Array.from({length: 256}, () => ({x: 1300 / 2, y: 25, dx: 0, dy: 0, max: 5})));
+        : (oldStatsPos = Array.from({length: 256}, () => ({x: ctx.canvas.width / 2, y: -25, dx: 0, dy: 0, max: 10})));
     statsActive.value = false;
     stats.length = 0;
     statDef.id = 1;
@@ -292,32 +292,33 @@ let onSpot = 0;
 
 /** @param {Stat} stat */
 const seek = stat => {
-    const desired = Vec2.sub(stat.target, stat.pos);
-
+    const desired = Vec2.sub(stat.target, stat.pos); // desired velocity
     // Arrive
-    const slowRadius = 200;
+    const slowRadius = 50;
     const distance = Vec2.dist(stat.pos, stat.target);
-    if (distance < 0.5) {
-        onSpot++;
-        stat.seek = false;
-        // stat.color[0] = 100;
-        stat.pos.x = stat.target.x;
-        stat.pos.y = stat.target.y;
-        stat.vel.x = 0;
-        stat.vel.y = 0;
-        stat.acc.x = 0;
-        stat.acc.y = 0;
-        if (onSpot === stats.length) {
-            statsActive.value = true;
-            onSpot = 0;
-        }
-        return;
-    }
     let max = stat.maxSpeed;
-    if (distance < slowRadius) max = map(distance, 0, slowRadius, 0, stat.maxSpeed);
-    Vec2.setMag(desired, max);
-    const steering = Vec2.sub(desired, stat.vel);
-    Vec2.limit(steering, stat.maxForce);
+    if (distance < slowRadius) {
+        if (distance < 0.5) {
+            onSpot++;
+            stat.seek = false;
+            stat.pos.x = stat.target.x;
+            stat.pos.y = stat.target.y;
+            stat.vel.x = 0;
+            stat.vel.y = 0;
+            stat.acc.x = 0;
+            stat.acc.y = 0;
+            // all stats on their spot = set statsActive to true and reset onSpot counter
+            if (onSpot === stats.length) {
+                statsActive.value = true;
+                onSpot = 0;
+            }
+            return;
+        }
+        max = map(distance, 0, slowRadius, 0, stat.maxSpeed); // the closer to target pos, the slower
+    }
+    Vec2.setMag(desired, max); // set maximum desired velocity according to current speed
+    const steering = Vec2.sub(desired, stat.vel); // steering velocity = desired - current velocity
+    Vec2.limit(steering, stat.maxForce); // apply max steering velocity (less force = slower steering and vica versa)
     applyForce(stat, steering);
 };
 
@@ -335,8 +336,8 @@ const applyForce = (stat, force) => {
  * @param {Stat} stat
  */
 const update = stat => {
-    if (stat.seek && engine.frameCount() > stat.id / 3 + 100) seek(stat);
-
+    if (stat.seek && engine.frameCount() > stat.id / 3 + 100) seek(stat); // throttle start of seek
+    // TODO: add deltaTime
     stat.vel.x += stat.acc.x;
     stat.vel.y += stat.acc.y;
     Vec2.limit(stat.vel, stat.maxSpeed);

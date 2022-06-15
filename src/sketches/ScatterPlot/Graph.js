@@ -101,7 +101,7 @@ const setPositions = () => {
         x2: grid.unitWidth * 4,
         y2: grid.unitHeight * 4,
     };
-    elements.xTitle.pos = {x: grid.unitWidth * 16, y: grid.unitHeight * 16};
+    elements.xTitle.pos = {x: grid.unitWidth * 16, y: grid.unitHeight * 15.5};
     elements.yTitle.pos = {x: grid.unitWidth * 2, y: grid.unitHeight * 9};
     elements.mainTitle.pos = {x: grid.width * 0.5, y: grid.unitHeight * 2};
 };

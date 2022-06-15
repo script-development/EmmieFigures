@@ -20,26 +20,27 @@
         <label for="start" style="display: block">Start date:</label>
         <input
             id="start"
-            :value="selectedStartDate"
+            :value="dates.selectedStartDate"
             type="date"
             name="data-start"
-            :min="minStartDate"
+            min="2021-01-01"
             :max="maxStartDate"
-            :disabled="!dateInputsActive"
-            @change="changeStartDate"
+            :disabled="!statsActive"
+            @change="event => (dates.selectedStartDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
     </div>
+    <!-- const target = /** @type {HTMLInputElement} */ (evt.target); -->
     <div>
         <label for="end" style="display: block">End date:</label>
         <input
             id="end"
-            :value="selectedEndDate"
+            :value="dates.selectedEndDate"
             type="date"
             name="data-end"
             :min="minEndDate"
-            :max="maxEndDate"
-            :disabled="!dateInputsActive"
-            @change="changeEndDate"
+            :max="yesterday()"
+            :disabled="!statsActive"
+            @change="event => (dates.selectedEndDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
     </div>
 </template>
@@ -50,10 +51,10 @@
 
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import VSelect from 'components/Select.vue';
-import {onMounted, ref, computed} from 'vue';
+import {onMounted, ref, computed, reactive} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
-import {addOrSubtractDays} from 'services/dates';
+import {addOrSubtractDays, yesterday} from 'services/dates';
 import {statsActive} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
@@ -79,38 +80,19 @@ const weatherTypeKey = ref('cloudcover');
 /** @type {['morning', 'afternoon', 'evening']} */
 const dayparts = ['morning', 'afternoon', 'evening'];
 
-const dateInputsActive = ref(false);
+const dates = reactive({
+    // inputsActive: false,
+    selectedStartDate: '',
+    selectedEndDate: '',
+});
 
-const minStartDate = ref('');
-const selectedStartDate = ref(minStartDate.value);
-const maxStartDate = ref('');
-
-const minEndDate = ref('');
-const selectedEndDate = ref(minEndDate.value);
-const maxEndDate = ref('');
-
-/** @param {Event} evt */
-const changeStartDate = evt => {
-    const target = /** @type {HTMLInputElement} */ (evt.target);
-    selectedStartDate.value = target.value;
-    minEndDate.value = addOrSubtractDays(target.value, 1);
-};
-
-/** @param {Event} evt */
-const changeEndDate = evt => {
-    const target = /** @type {HTMLInputElement} */ (evt.target);
-    selectedEndDate.value = target.value;
-    maxStartDate.value = addOrSubtractDays(target.value, -1);
-};
+const minEndDate = computed(() => addOrSubtractDays(dates.selectedStartDate, 1));
+const maxStartDate = computed(() => addOrSubtractDays(dates.selectedEndDate, -1));
 
 const setDateInputs = () => {
-    selectedStartDate.value = reports.value[0].date;
-    minStartDate.value = reports.value[0].date;
-    maxStartDate.value = addOrSubtractDays(reports.value[reports.value.length - 1].date, -1);
-    selectedEndDate.value = reports.value[reports.value.length - 1].date;
-    minEndDate.value = addOrSubtractDays(reports.value[0].date, 1);
-    maxEndDate.value = reports.value[reports.value.length - 1].date;
-    dateInputsActive.value = true;
+    dates.selectedStartDate = '2021-01-01';
+    dates.selectedEndDate = yesterday();
+    // dates.inputsActive = true;
 };
 
 onMounted(async () => {
@@ -139,7 +121,7 @@ const dataX = computed(() => {
 const presence = computed(() =>
     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
         // Check minimum and maximum date (default = min and max date)
-        if (report.date < selectedStartDate.value || report.date > selectedEndDate.value) return acc;
+        if (report.date < dates.selectedStartDate || report.date > dates.selectedEndDate) return acc;
 
         if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
         setTotalAndPresent(report, acc);

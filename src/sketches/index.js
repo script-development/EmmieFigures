@@ -6,12 +6,23 @@ import Grid from './grid';
 import {setRender} from './engine';
 
 const setOption = {
+    /**
+     * @param {string} value
+     * @param {HTMLCanvasElement} canvas
+     */
     pos: (value, canvas) => setPos(value, canvas),
-    x: (value, canvas) => (canvas.style.left = value + 'px'),
-    y: (value, canvas) => (canvas.style.top = value + 'px'),
-    w: (value, canvas) => (canvas.width = value),
-    h: (value, canvas) => (canvas.height = value),
+    /**
+     * @param {string} value
+     * @param {HTMLCanvasElement} canvas
+     */
+    size: (value, canvas) => setSize(value, canvas),
+    /**
+     * @param {string} value
+     * @param {HTMLCanvasElement} canvas
+     */
     bg: (value, canvas) => (canvas.style.backgroundColor = value),
+    /** @param {boolean} value */
+    clear: value => (value ? setClear() : ''),
 };
 
 /**
@@ -22,9 +33,11 @@ const setOption = {
  */
 export default (id, options) => {
     const context = getContext(id);
-    // @ts-ignore
-    if (options) Object.keys(options).forEach(option => setOption[option](options[option], context.canvas));
-    // setOptions(options, context.canvas);
+    if (options) {
+        setXYWH(options, context.canvas);
+        // @ts-ignore
+        Object.keys(options).forEach(option => setOption[option](options[option], context.canvas));
+    }
     const grid = Grid(context);
     const p = Paint(context);
     // @ts-ignore
@@ -62,42 +75,41 @@ const getContext = id => {
  * @param {SketchOptions} options
  * @param {HTMLCanvasElement} canvas
  */
-// const setOptions = (options, canvas) => {
-//     setXYWH(options, canvas);
-//     if (options.size) setSize(options.size, canvas);
-//     if (options.pos) setPos(options.pos, canvas);
-//     if (options.border) canvas.style.border = '1px solid black';
-//     if (options.clear) setClear();
-//     // if (options.bg) canvas.style.backgroundColor = options.bg;
-// };
+const setXYWH = (options, canvas) => {
+    if (options.x) {
+        canvas.style.left = options.x + 'px';
+        delete options.x;
+    }
+    if (options.y) {
+        canvas.style.top = options.y + 'px';
+        delete options.y;
+    }
+    if (options.w) {
+        canvas.width = options.w;
+        delete options.w;
+    }
+    if (options.h) {
+        canvas.height = options.h;
+        delete options.h;
+    }
+};
 
 /**
- * @param {SketchOptions} options
+ * @param {string} size
  * @param {HTMLCanvasElement} canvas
  */
-// const setXYWH = ({x, y, w, h}, canvas) => {
-//     if (x) canvas.style.left = x + 'px';
-//     if (y) canvas.style.height = y + 'px';
-//     if (w) canvas.width = w;
-//     if (h) canvas.height = h;
-// };
-
-// /**
-//  * @param {SketchOptions["size"]} size
-//  * @param {HTMLCanvasElement} canvas
-//  */
-// const setSize = (size, canvas) => {
-//     if (size === 'full') {
-//         canvas.style.position = 'absolute';
-//         canvas.style.top = '0px';
-//         canvas.style.left = '0px';
-//         canvas.width = innerWidth;
-//         canvas.height = innerHeight;
-//     }
-// };
+const setSize = (size, canvas) => {
+    if (size === 'full') {
+        canvas.style.position = 'absolute';
+        canvas.style.top = '0px';
+        canvas.style.left = '0px';
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+    }
+};
 
 /**
- * @param {SketchOptions["pos"]} pos
+ * @param {string} pos
  * @param {HTMLCanvasElement} canvas
  */
 const setPos = (pos, canvas) => {
@@ -110,9 +122,9 @@ const setPos = (pos, canvas) => {
 };
 
 // This must always be the first render in the engine (sketch has to be made before anything else)
-// const setClear = () => {
-//     setRender({
-//         id: 'clear',
-//         show: () => paint.clear(),
-//     });
-// };
+const setClear = () => {
+    setRender({
+        id: 'clear',
+        show: () => paint.clear(),
+    });
+};
