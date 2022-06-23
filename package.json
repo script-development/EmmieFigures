@@ -34,6 +34,6 @@
         "eslint-plugin-jest": "^26.5.3",
         "eslint-plugin-vue": "^9.1.1",
         "jest": "^28.1.1",
-        "prettier": "2.7.0"
+        "prettier": "2.7.1"
     }
 }
