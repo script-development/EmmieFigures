@@ -31,7 +31,25 @@ export const deploy = async () => {
     setData('weatherData', weatherData);
     const reportData = await reports();
     setData('reportData', reportData);
+    const openWeatherMapOrgData = await openWeatherMapsOrg();
+    setData('openWeatherMapOrgData', openWeatherMapOrgData);
 };
+
+const openWeatherMapsOrg = async () => {
+    try {
+        await fs.access('./data/openWeatherMapsOrg.json'); // catch will fetch data if file is not present
+        const openWeatherMapsOrg = await fs.readFile('./data/openWeatherMapsOrg.json', 'utf-8');
+        return openWeatherMapsOrg;
+    } catch {
+        const openWeatherMapsOrg = await getFromApi(
+            // 'https://api.openweathermap.org/data/2.5/weather?lat=53.21&lon=6.57&appid=703ab5b5ca12563c678b08de6584884e',
+            'https://api.openweathermap.org/data/2.5/weather?lat=53.21&lon=6.57&appid=511c9d2156ef7861f4fdd2b2181a0be4',
+        );
+        await fs.writeFile('./data/openWeatherMapsOrg.json', JSON.stringify(openWeatherMapsOrg));
+        return openWeatherMapsOrg;
+    }
+};
+// https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}
 
 const weather = async () => {
     try {

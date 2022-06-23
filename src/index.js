@@ -35,6 +35,9 @@ const root = path.resolve(path.dirname(''));
         // TODO: Sort date > ascending
         res.send(getData('reportData'));
     });
+    app.get('/api/open-weather-map-org', async (req, res) => {
+        res.send(getData('openWeatherMapsOrg'));
+    });
 
     app.get('*', async (req, res, next) => {
         const url = req.originalUrl;

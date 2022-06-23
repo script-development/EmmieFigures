@@ -21,7 +21,9 @@ const setOption = {
      * @param {HTMLCanvasElement} canvas
      */
     bg: (value, canvas) => (canvas.style.backgroundColor = value),
-    /** @param {boolean} value */
+    /**
+     * @param {boolean} value
+     */
     clear: value => (value ? setClear() : ''),
 };
 
@@ -52,7 +54,6 @@ export default (id, options) => {
 
 export const paint = {
     interpolate: 0,
-    clear: () => {},
 };
 
 /**
@@ -121,10 +122,13 @@ const setPos = (pos, canvas) => {
     }
 };
 
-// This must always be the first render in the engine (sketch has to be made before anything else)
+/**
+ * This must always be the first render in the engine (sketch has to be made before anything else)
+ */
 const setClear = () => {
     setRender({
         id: 'clear',
-        show: () => paint.clear(),
+        /** @param {import('types/sketches').Paint} paint */
+        show: paint => paint.clear(),
     });
 };

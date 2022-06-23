@@ -1,6 +1,7 @@
 import { GraphLineElement, GraphTextElement } from "./graph";
 
 export interface Paint {
+    ctx: CanvasRenderingContext2D,
     clear: () => void,
     interpolate: number,
     text: (element: GraphTextElement) => void,

@@ -11,7 +11,6 @@
 /** @typedef {import('types/graph').GraphOption} GraphOption */
 /** @typedef {import('@vue/runtime-core').PropType<GraphOption[]>} GraphOptions */
 
-// import {setRender, setUpdate} from 'sketches/engine';
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import {createGraph, setGraph, elements} from './Graph';
@@ -58,7 +57,6 @@ watch(
 );
 
 onMounted(() => {
-    // const sketch = Sketch('scatter-plot', {size: 'full', clear: true});
     const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720, clear: true});
     sketch.context.canvas.classList.remove('hidden');
     sketch.context.canvas.classList.add('block');

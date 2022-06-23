@@ -1,5 +1,11 @@
 <template>
     <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
+    <button
+        class="px-6 py-2 border border-gray-800 font-medium text-sm hover:bg-gray-900 hover:text-gray-100 text-black rounded"
+        @click="graphSettings('currentWeather')"
+    >
+        Huidige weertype
+    </button>
     <VSelect
         v-model="trendLineKey"
         class="absolute bottom-0 mb-24 xl:w-96"
@@ -29,7 +35,6 @@
             @change="event => (dates.selectedStartDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
     </div>
-    <!-- const target = /** @type {HTMLInputElement} */ (evt.target); -->
     <div>
         <label for="end" style="display: block">End date:</label>
         <input
@@ -56,6 +61,7 @@ import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
 import {addOrSubtractDays, yesterday} from 'services/dates';
 import {statsActive} from 'sketches/ScatterPlot/Stats';
+import graphSettings from 'sketches/ScatterPlot/graphSettings';
 
 const props = defineProps({
     settings: {
@@ -81,7 +87,6 @@ const weatherTypeKey = ref('cloudcover');
 const dayparts = ['morning', 'afternoon', 'evening'];
 
 const dates = reactive({
-    // inputsActive: false,
     selectedStartDate: '',
     selectedEndDate: '',
 });
@@ -92,7 +97,6 @@ const maxStartDate = computed(() => addOrSubtractDays(dates.selectedEndDate, -1)
 const setDateInputs = () => {
     dates.selectedStartDate = '2021-01-01';
     dates.selectedEndDate = yesterday();
-    // dates.inputsActive = true;
 };
 
 onMounted(async () => {
