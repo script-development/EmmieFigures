@@ -11,7 +11,6 @@
 /** @typedef {import('types/graph').GraphOption} GraphOption */
 /** @typedef {import('@vue/runtime-core').PropType<GraphOption[]>} GraphOptions */
 
-// import {setRender, setUpdate} from 'sketches/engine';
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
 import {createGraph, setGraph, elements} from './Graph';
