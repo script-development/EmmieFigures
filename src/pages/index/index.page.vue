@@ -29,7 +29,6 @@
             @change="event => (dates.selectedStartDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
     </div>
-    <!-- const target = /** @type {HTMLInputElement} */ (evt.target); -->
     <div>
         <label for="end" style="display: block">End date:</label>
         <input
