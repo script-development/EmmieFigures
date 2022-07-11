@@ -1,60 +1,83 @@
 import {reactive} from 'vue';
 
-let bp = 'small';
-/** @type {function} */
-let onChangeScript;
-
-export const breakpoint = reactive({
-    /** @param {(bp: string) => void} script */
-    onChange: script => {
-        onChangeScript = script;
-        initiatie();
+export const view = reactive({
+    /** @param {(br: string) => void} script */
+    onBpChange: script => {
+        view.onBpChangeScript = script;
+        initiateBp();
     },
+    /** @param {(or: string) => void} script */
+    onOrChange: script => {
+        view.onOrChangeScript = script;
+        initiateOr();
+    },
+    /** @type {"landscape"|"portrait"} */
+    orientation: 'landscape',
+    /** @type {"small"|"medium"|"large"} */
+    breakpoint: 'medium',
+    /** @type {function} */
+    onBpChangeScript: () => {},
+    /** @type {function} */
+    onOrChangeScript: () => {},
 });
 
-const initiatie = () => {
-    const orientation = window.matchMedia('(orientation: portrait)');
+const initiateBp = () => {
     const mobile = window.matchMedia('(max-width: 600px)');
     const desktop = window.matchMedia('(min-width: 1200px)');
 
-    function screenTest(o) {
-        if (o.matches) {
-            /* the viewport is 600 pixels wide or less and orientation is portrait */
-            bp = 'portrait';
-            onChangeScript(bp);
-        } else {
-            /* the viewport is more than than 600 pixels wide */
-            bp = 'landscape';
-            onChangeScript(bp);
-        }
-    }
-    function screenTest2(s) {
-        if (s.matches) {
-            /* the viewport is 600 pixels wide or less and orientation is portrait */
-            bp = 'small';
-            onChangeScript(bp);
-        } else {
-            /* the viewport is more than than 600 pixels wide */
-            bp = bp != 'desktop' ? 'medium' : 'desktop';
-            onChangeScript(bp);
-        }
-    }
-    function screenTest3(d) {
-        if (d.matches) {
-            /* the viewport is 600 pixels wide or less and orientation is portrait */
-            bp = 'desktop';
-            onChangeScript(bp);
-        } else {
-            /* the viewport is more than than 600 pixels wide */
-            bp = bp != 'small' ? 'medium' : 'small';
-            onChangeScript(bp);
-        }
-    }
-
-    screenTest(orientation);
     screenTest2(mobile);
     screenTest3(desktop);
-    orientation.addEventListener('change', screenTest);
+
     mobile.addEventListener('change', screenTest2);
     desktop.addEventListener('change', screenTest3);
+};
+
+const initiateOr = () => {
+    const orientation = window.matchMedia('(orientation: portrait)');
+
+    screenTest(orientation);
+
+    orientation.addEventListener('change', screenTest);
+};
+
+/** @param {MediaQueryList|MediaQueryListEvent} orientation */
+const screenTest = orientation => {
+    if (!(orientation instanceof MediaQueryList || orientation instanceof MediaQueryListEvent))
+        throw new Error('error retrieving MediaQueryList');
+    if (orientation instanceof MediaQueryList) return;
+    if (orientation.matches) {
+        view.orientation = 'portrait';
+        view.onOrChangeScript(view.orientation);
+        return;
+    }
+    view.orientation = 'landscape';
+    view.onOrChangeScript(view.orientation);
+};
+
+/** @param {MediaQueryList|MediaQueryListEvent} mobile */
+const screenTest2 = mobile => {
+    // if (mobile instanceof MediaQueryList) return;
+    // console.log(first);
+    if (!(mobile instanceof MediaQueryList || mobile instanceof MediaQueryListEvent))
+        throw new Error('error retrieving MediaQueryList');
+    if (mobile.matches) {
+        view.breakpoint = 'small';
+        view.onBpChangeScript(view.breakpoint);
+        return;
+    }
+    view.breakpoint = view.breakpoint != 'large' ? 'medium' : 'large';
+    view.onBpChangeScript(view.breakpoint);
+};
+
+/** @param {MediaQueryList|MediaQueryListEvent} desktop */
+const screenTest3 = desktop => {
+    if (!(desktop instanceof MediaQueryList || desktop instanceof MediaQueryListEvent))
+        throw new Error('error retrieving MediaQueryList');
+    if (desktop.matches) {
+        view.breakpoint = 'large';
+        view.onBpChangeScript(view.breakpoint);
+        return;
+    }
+    view.breakpoint = view.breakpoint != 'small' ? 'medium' : 'small';
+    view.onBpChangeScript(view.breakpoint);
 };
