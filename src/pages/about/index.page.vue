@@ -1,19 +1,17 @@
 <template>
-    <h1>matchMedia test</h1>
-
-    <p />
+    <div>About</div>
 </template>
 
 <script setup>
 import {onMounted} from 'vue';
-import {view} from './breakpoints';
+import {breakpoint, orientation} from './newBp';
 
 onMounted(() => {
-    view.onBpChange(bp => {
-        console.log(bp);
+    breakpoint.onChange(bP => {
+        console.log('bPChange: ' + bP);
     });
-    view.onOrChange(or => {
-        console.log(or);
+    orientation.onChange(or => {
+        console.log('orChange: ' + or);
     });
 });
 </script>
