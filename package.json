@@ -24,16 +24,16 @@
         "dotenv": "^16.0.1",
         "express": "^4.18.1",
         "node-cache": "^5.1.2",
-        "vite": "2.9.12",
-        "vite-plugin-ssr": "^0.3.64",
-        "vite-plugin-windicss": "^1.8.4",
+        "vite": "2.9.14",
+        "vite-plugin-ssr": "^0.4.5",
+        "vite-plugin-windicss": "^1.8.6",
         "vue": "^3.2.31"
     },
     "devDependencies": {
-        "eslint": "^8.18.0",
+        "eslint": "^8.19.0",
         "eslint-plugin-jest": "^26.5.3",
-        "eslint-plugin-vue": "^9.1.1",
-        "jest": "^28.1.1",
+        "eslint-plugin-vue": "^9.2.0",
+        "jest": "^28.1.2",
         "prettier": "2.7.1"
     }
 }
