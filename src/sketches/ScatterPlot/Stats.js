@@ -212,7 +212,9 @@ const Statistic = (pos, valueX, valueY, date, id, color, radius) => ({
     pos,
     id,
     update: () => update(),
-    show: () => show(color, pos, radius),
+    show: interpolate => {
+        if (interpolate) show(color, pos, radius);
+    },
 });
 
 /**
@@ -239,7 +241,9 @@ const getPosY = (unitsElement, statValue) => {
     return posLength + unitsElement.startY;
 };
 
-const update = () => {};
+const update = () => {
+    //
+};
 
 /**
  * @param {Array<number>} color

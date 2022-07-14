@@ -27,3 +27,15 @@ const isJsonString = subject => {
         return false;
     }
 };
+
+export const getSelectedWeatherData = (weatherType, from, to) => {
+    const allData = getData('weatherData');
+    const filteredData = allData.map(weather => ({date: weather.datetime, value: weather[weatherType]}));
+    return filteredData;
+    // wData.value = weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]}));
+    // weather.value = await getFromApi(
+    //     `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${convert(selectedStartDate.value)}-${convert(
+    //         selectedEndDate.value,
+    //     )}`,
+    // );
+};

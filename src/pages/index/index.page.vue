@@ -9,10 +9,11 @@
         Regressie Type
     </VSelect>
     <VSelect
-        v-model="weatherTypeKey"
+        :model-value="weatherTypeKey"
         class="absolute bottom-0"
         :options="settings.weatherTypes"
         :disabled="!statsActive"
+        @change="changeSelection"
     >
         Weer Type
     </VSelect>
@@ -66,8 +67,8 @@ const props = defineProps({
 /** selected trendLine for plot */
 const trendLineKey = ref('none');
 
-/** @type {import('@vue/runtime-core').Ref<WeatherData[]>} */
-const weather = ref([]);
+// /** @type {import('@vue/runtime-core').Ref<WeatherData[]>} */
+const weather = ref({});
 
 /** @type {import('@vue/runtime-core').Ref<ReportData[]>} */
 const reports = ref([]);
@@ -83,15 +84,20 @@ const selectedEndDate = ref('');
 const minEndDate = computed(() => addOrSubtractDays(selectedStartDate.value, 1));
 const maxStartDate = computed(() => addOrSubtractDays(selectedEndDate.value, -1));
 
-const setDateInputs = () => {
-    selectedStartDate.value = '2021-01-01';
-    selectedEndDate.value = yesterday();
+/** @param {string} date */
+const convert = date => {
+    return date.split('-').join('');
 };
 
 onMounted(async () => {
-    weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
+    selectedStartDate.value = '2021-01-01';
+    selectedEndDate.value = yesterday();
     reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
-    setDateInputs();
+    weather.value = await getFromApi(
+        `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${convert(selectedStartDate.value)}-${convert(
+            selectedEndDate.value,
+        )}`,
+    );
 });
 
 const weatherSetting = computed(
@@ -100,16 +106,26 @@ const weatherSetting = computed(
         props.settings.weatherTypes[3], // || => default
 );
 
+/** @param {Event} evt */
+const changeSelection = evt => {
+    weatherTypeKey.value = evt.target.value;
+
+    weather.value = getFromApi(
+        `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${convert(selectedStartDate.value)}-${convert(
+            selectedEndDate.value,
+        )}`,
+    );
+};
+
 /** data for x-axis based on current selected weather type */
-const dataX = computed(() => {
-    return {
-        title: weatherSetting.value.name,
-        unitOfMeasure: weatherSetting.value.unitOfMeasure,
-        steps: weatherSetting.value.steps,
-        /** get weather values and dates from weather data */
-        data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]})),
-    };
-});
+const dataX = computed(() => ({
+    title: weatherSetting.value.name,
+    unitOfMeasure: weatherSetting.value.unitOfMeasure,
+    steps: weatherSetting.value.steps,
+    /** get weather values and dates from weather data */
+    // data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]})),
+    data: weather.value,
+}));
 
 const presence = computed(() =>
     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {

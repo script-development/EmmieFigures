@@ -1,3 +1,9 @@
+
+export interface GraphOption {
+    id: number,
+    name: string,
+    active: boolean,
+}
 export interface GraphData {
     title: string,
     unitOfMeasure: string,
@@ -6,12 +12,6 @@ export interface GraphData {
             date: string,
             value: number,
         }[],
-}
-
-export interface GraphOption {
-    id: number,
-    name: string,
-    active: boolean,
 }
 
 export interface GraphTextElement {
@@ -58,7 +58,7 @@ export interface GraphElements {
 export interface Stats {
     update: () => void,
     show: () => void,
-    setX: (xUnits: Graph["xUnits"], yUnits: Graph["yUnits"], dataX: GraphData) => void,
+    setX: (xUnits: Graph['xUnits'], yUnits: Graph['yUnits'], dataX: GraphData) => void,
 }
 
 export interface Stat {

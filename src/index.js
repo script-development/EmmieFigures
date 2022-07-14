@@ -5,7 +5,7 @@ import express from 'express';
 import vite from 'vite';
 import path from 'path';
 import {deploy} from './services/data.js';
-import {getData} from './serverStore/index.js';
+import {getData, getSelectedWeatherData} from './serverStore/index.js';
 
 await deploy();
 
@@ -34,6 +34,10 @@ const root = path.resolve(path.dirname(''));
     app.get('/api/report-data', async (req, res) => {
         // TODO: Sort date > ascending
         res.send(getData('reportData'));
+    });
+    app.get('/api/weather/:type/:from-:to', async (req, res) => {
+        const reqP = getSelectedWeatherData(req.params.type, req.params.from, req.params.to);
+        res.send(reqP);
     });
 
     app.get('*', async (req, res, next) => {
