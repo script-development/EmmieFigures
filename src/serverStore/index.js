@@ -28,6 +28,13 @@ const isJsonString = subject => {
     }
 };
 
+/**
+ *
+ * @param {import('types/data').WeatherTypeKeys} weatherType
+ * @param {string} from
+ * @param {string} to
+ * @returns
+ */
 export const getSelectedWeatherData = (weatherType, from, to) => {
     const allData = getData('weatherData');
     const filteredData = allData.map(weather => ({date: weather.datetime, value: weather[weatherType]}));

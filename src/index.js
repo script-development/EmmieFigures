@@ -1,4 +1,5 @@
 /* eslint-env node */
+/** @typedef {import('types/data.js').WeatherTypeKeys} Wkeys*/
 
 import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
@@ -36,7 +37,11 @@ const root = path.resolve(path.dirname(''));
         res.send(getData('reportData'));
     });
     app.get('/api/weather/:type/:from-:to', async (req, res) => {
-        const reqP = getSelectedWeatherData(req.params.type, req.params.from, req.params.to);
+        if (req.params.type instanceof Wkeys)
+            reqP = getSelectedWeatherData(req.params.type, req.params.from, req.params.to);
+        // if (req.params.type === Wkeys)
+        // const type = req.params.type;
+
         res.send(reqP);
     });
 
