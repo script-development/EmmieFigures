@@ -37,8 +37,7 @@ const emit = defineEmits(['update:modelValue']);
 
 /** @param {Event} evt */
 const updateValue = evt => {
-    // if (evt.target instanceof HTMLSelectElement) emit('update:modelValue', evt.target.value);
-    emit('update:modelValue', evt);
+    if (evt.target instanceof HTMLSelectElement) emit('update:modelValue', evt.target.value);
 };
 
 // Temporarily select classes

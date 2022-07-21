@@ -26,20 +26,17 @@ const weatherTypes = {
     },
 };
 
-const trendLines = [
-    {
-        key: 'none',
-        name: 'Geen',
+const trendLines = {
+    none: {
+        title: 'Geen',
     },
-    {
-        key: 'linear-regression',
-        name: 'Lineaire regressie',
+    linearRegression: {
+        title: 'Lineaire regressie',
     },
-    {
-        key: 'loess-regression',
-        name: 'LOESS regressie',
+    loessRegression: {
+        title: 'LOESS regressie',
     },
-];
+};
 
 export default {
     weatherTypes,

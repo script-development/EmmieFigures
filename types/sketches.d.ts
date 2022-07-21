@@ -1,16 +1,10 @@
-// import { GraphLineElement, GraphTextElement } from "./graph";
-
 export interface Paint {
     [key: string],
-    clear: () => void,
-    interpolate: number,
-    // text: (element: GraphTextElement) => void,
-    // line: (element: GraphLineElement) => void,
 }
 
 export interface Sketch {
     context: CanvasRenderingContext2D,
-    grid: Grid,
+    paint: Paint,
     start: () => void,
     stop: () => void,
 }

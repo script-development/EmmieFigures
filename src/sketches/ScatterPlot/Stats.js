@@ -122,12 +122,12 @@ let span;
 let slider;
 
 /**
- * @param {"linear-regression"|"loess-regression"|"none"} newKey
- * @param {"linear-regression"|"loess-regression"|"none"} oldKey
+ * @param {"linearRegression"|"loessRegression"|"none"} newKey
+ * @param {"linearRegression"|"loessRegression"|"none"} oldKey
  */
 export const changeRegression = (newKey, oldKey) => {
     if (oldKey != 'none') {
-        if (oldKey === 'loess-regression') {
+        if (oldKey === 'loessRegression') {
             // remove slider and reset bandwidth
             document.body.removeChild(span);
             document.body.removeChild(slider);
@@ -139,10 +139,10 @@ export const changeRegression = (newKey, oldKey) => {
     if (newKey != 'none') setRegression(newKey);
 };
 
-/** @param {"linear-regression"|"loess-regression"} type */
+/** @param {"linearRegression"|"loessRegression"} type */
 const setRegression = type => {
-    if (type === 'linear-regression') showLinearRegression();
-    if (type === 'loess-regression') {
+    if (type === 'linearRegression') showLinearRegression();
+    if (type === 'loessRegression') {
         showLoessRegression();
 
         // create slider

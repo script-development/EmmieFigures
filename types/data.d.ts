@@ -15,8 +15,11 @@ export interface WeatherTypesProperties {
     data: [],
 }
 
+export type WeatherTypeKeys = 'precip'|'temp'|'windspeed'|'cloudcover'|'pressure';
+
 export interface WeatherTypes {
-    [key: string]: WeatherTypesProperties,   
+    [key: string]: WeatherTypesProperties,
+    WeatherTypeKeys: string,
 }
 
 export interface ReportData {
