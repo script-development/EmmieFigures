@@ -1,35 +1,30 @@
-const weatherTypes = [
-    {
-        key: 'precip',
-        name: 'Neerslag',
+const weatherTypes = {
+    precip: {
+        title: 'Neerslag',
         unitOfMeasure: 'mm',
         steps: 1,
     },
-    {
-        key: 'temp',
-        name: 'Temperatuur',
+    temp: {
+        title: 'Temperatuur',
         unitOfMeasure: '°C',
         steps: 1,
     },
-    {
-        key: 'windspeed',
-        name: 'Windsnelheid',
+    windspeed: {
+        title: 'Windsnelheid',
         unitOfMeasure: 'km/h',
         steps: 2,
     },
-    {
-        key: 'cloudcover',
-        name: 'Bewolking',
+    cloudcover: {
+        title: 'Bewolking',
         unitOfMeasure: '%',
         steps: 10,
     },
-    {
-        key: 'pressure',
-        name: 'Druk',
+    pressure: {
+        title: 'Druk',
         unitOfMeasure: 'bar',
         steps: 4,
     },
-];
+};
 
 const trendLines = [
     {

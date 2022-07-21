@@ -36,7 +36,6 @@ const props = defineProps({
 watch(
     () => props.dataX,
     dataX => {
-        console.log('changeDataX');
         setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
         setStatsX(dataX);
         changeRegression(props.options.trendLineKey, props.options.trendLineKey);

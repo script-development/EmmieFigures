@@ -87,9 +87,9 @@ let bandwidth = 0.3; // [default] smoothing parameter
 
 const showLoessRegression = () => {
     const regressionGenerator = regressionLoess()
-        // @ts-ignore
+        // @ts-ignore no type declaration available for d3-regression package
         .x(d => d.valueX)
-        // @ts-ignore
+        // @ts-ignore no type declaration available for d3-regression package
         .y(d => d.valueY)
         .bandwidth(bandwidth);
     const lines = regressionGenerator(stats);
@@ -212,9 +212,7 @@ const Statistic = (pos, valueX, valueY, date, id, color, radius) => ({
     pos,
     id,
     update: () => update(),
-    show: interpolate => {
-        if (interpolate) show(color, pos, radius);
-    },
+    show: () => show(color, pos, radius),
 });
 
 /**

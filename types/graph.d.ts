@@ -46,6 +46,7 @@ export interface GraphUnitsElement {
 }
 
 export interface GraphElements {
+    [key: string],
     x: GraphLineElement,
     y: GraphLineElement,
     xTitle: GraphTextElement,
@@ -58,7 +59,7 @@ export interface GraphElements {
 export interface Stats {
     update: () => void,
     show: () => void,
-    setX: (xUnits: Graph['xUnits'], yUnits: Graph['yUnits'], dataX: GraphData) => void,
+    // setX: (xUnits: Graph['xUnits'], yUnits: Graph['yUnits'], dataX: GraphData) => void,
 }
 
 export interface Stat {
@@ -67,7 +68,7 @@ export interface Stat {
     valueY: number,
     date: string,
     id: number,
-    show: (interpolate?: number) => void,
-    update: (delta?: number) => void,
+    show: () => void,
+    update: () => void,
 }
 

@@ -126,14 +126,13 @@ const show = paint => {
     // for every element: paint value is type of draw with paint object
     Object.keys(elements).forEach(key => {
         if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
-        // @ts-ignore
         else showElements(key, paint);
     });
 };
 
 /**
  *
- * @param {GraphShowElementsNonUnits} key
+ * @param {string} key
  * @param {Paint} paint
  */
 const showElements = (key, paint) => {
