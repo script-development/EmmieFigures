@@ -53,7 +53,7 @@ import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed, reactive} from 'vue';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
-import {addOrSubtractDays, yesterday} from 'services/dates';
+import {addOrSubtractDays, date2Slug, yesterday} from 'services/dates';
 import {statsActive} from 'sketches/ScatterPlot/Stats';
 
 const props = defineProps({
@@ -87,17 +87,12 @@ const selectedEndDate = ref(yesterday());
 const minEndDate = computed(() => addOrSubtractDays(selectedStartDate.value, 1));
 const maxStartDate = computed(() => addOrSubtractDays(selectedEndDate.value, -1));
 
-/** @param {string} date */
-const convert = date => {
-    return date.split('-').join('');
-};
-
 onMounted(async () => {
     reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
     weather.data = await getFromApi(
-        `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${convert(selectedStartDate.value)}-${convert(
-            selectedEndDate.value,
-        )}`,
+        `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
+            selectedStartDate.value,
+        )}-${date2Slug(selectedEndDate.value)}`,
     );
 });
 
@@ -107,9 +102,9 @@ const changeSelection = async evt => {
     if (evt.target instanceof HTMLInputElement) selectedEndDate.value = evt.target.value;
 
     weather.data = await getFromApi(
-        `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${convert(selectedStartDate.value)}-${convert(
-            selectedEndDate.value,
-        )}`,
+        `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
+            selectedStartDate.value,
+        )}-${date2Slug(selectedEndDate.value)}`,
     );
     weather.title = props.settings.weatherTypes[weatherTypeKey.value].title;
     weather.unitOfMeasure = props.settings.weatherTypes[weatherTypeKey.value].unitOfMeasure;

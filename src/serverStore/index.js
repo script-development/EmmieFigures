@@ -1,3 +1,5 @@
+import {slug2Date} from '../services/dates.js';
+
 /** @type {any} */
 const store = {};
 
@@ -30,19 +32,26 @@ const isJsonString = subject => {
 
 /**
  *
- * @param {import('types/data').WeatherTypeKeys} weatherType
+ * @param {string} weatherType
  * @param {string} from
  * @param {string} to
  * @returns
  */
 export const getSelectedWeatherData = (weatherType, from, to) => {
-    const allData = getData('weatherData');
-    const filteredData = allData.map(weather => ({date: weather.datetime, value: weather[weatherType]}));
-    return filteredData;
-    // wData.value = weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]}));
-    // weather.value = await getFromApi(
-    //     `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${convert(selectedStartDate.value)}-${convert(
-    //         selectedEndDate.value,
-    //     )}`,
-    // );
+    const data = getData('weatherData').reduce(
+        (
+            /** @type {{date: string, value: number}[]} */ acc,
+            /** @type {import('types/data.js').WeatherData} */ weather,
+        ) => {
+            if (weather.datetime < slug2Date(from) || weather.datetime > slug2Date(to)) return acc;
+            acc.push({date: weather.datetime, value: weather[weatherType]});
+            return acc;
+        },
+        [],
+    );
+    return data;
+};
+
+export const getReportData = () => {
+    //
 };

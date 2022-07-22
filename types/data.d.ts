@@ -38,6 +38,7 @@ export interface VisualCrossingData {
 }
 
 export interface WeatherData {
+    [key: string],
     datetime: string,
     datetimeEpoch: number,
     tzoffset: number,
