@@ -1,5 +1,3 @@
-import {slug2Date} from '../services/dates.js';
-
 /** @type {any} */
 const store = {};
 
@@ -28,30 +26,4 @@ const isJsonString = subject => {
     } catch {
         return false;
     }
-};
-
-/**
- *
- * @param {string} weatherType
- * @param {string} from
- * @param {string} to
- * @returns
- */
-export const getSelectedWeatherData = (weatherType, from, to) => {
-    const data = getData('weatherData').reduce(
-        (
-            /** @type {{date: string, value: number}[]} */ acc,
-            /** @type {import('types/data.js').WeatherData} */ weather,
-        ) => {
-            if (weather.datetime < slug2Date(from) || weather.datetime > slug2Date(to)) return acc;
-            acc.push({date: weather.datetime, value: weather[weatherType]});
-            return acc;
-        },
-        [],
-    );
-    return data;
-};
-
-export const getReportData = () => {
-    //
 };

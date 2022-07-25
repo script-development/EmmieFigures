@@ -8,13 +8,6 @@ export interface TrendLines {
     name: string,
 }
 
-export interface WeatherTypesProperties {
-    title: string,
-    unitOfMeasure: string,
-    steps: number,
-    data: [],
-}
-
 export type WeatherTypeKeys = 'precip'|'temp'|'windspeed'|'cloudcover'|'pressure';
 
 export interface WeatherTypes {

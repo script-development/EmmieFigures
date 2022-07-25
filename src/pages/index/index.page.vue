@@ -1,5 +1,5 @@
 <template>
-    <ScatterPlot :data-x="weather" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
+    <ScatterPlot :data-x="xAxis" :data-y="yAxis" :options="{trendLineKey, weatherTypeKey}" />
     <VSelect
         v-model="trendLineKey"
         class="absolute bottom-0 mb-24 xl:w-96"
@@ -46,8 +46,8 @@
 </template>
 
 <script setup>
+/** @typedef {import('types/graph').AxisProperties} AxisProperties */
 /** @typedef {import('types/data').ReportData} ReportData */
-/** @typedef {import('types/data').WeatherData} WeatherData */
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed, reactive} from 'vue';
@@ -68,11 +68,19 @@ const props = defineProps({
 const trendLineKey = ref('none');
 
 /** selected weather type for x-axis */
-const weatherTypeKey = ref('cloudcover');
+const weatherTypeKey = ref('precip');
 
-/** @type {import('types/data').WeatherTypesProperties} */
-const weather = reactive({
+/** @type {AxisProperties} */
+const xAxis = reactive({
     ...props.settings.weatherTypes[weatherTypeKey.value],
+    data: [],
+});
+
+/** @type {AxisProperties} */
+const yAxis = reactive({
+    title: 'Aanwezigheid',
+    unitOfMeasure: '%',
+    steps: 10,
     data: [],
 });
 
@@ -88,8 +96,13 @@ const minEndDate = computed(() => addOrSubtractDays(selectedStartDate.value, 1))
 const maxStartDate = computed(() => addOrSubtractDays(selectedEndDate.value, -1));
 
 onMounted(async () => {
-    reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
-    weather.data = await getFromApi(
+    reports.value = await getFromApi(
+        `${getEnv('VITE_APP_URL')}/api/reports/${date2Slug(selectedStartDate.value)}-${date2Slug(
+            selectedEndDate.value,
+        )}`,
+    );
+    yAxis.data = dataY.value;
+    xAxis.data = await getFromApi(
         `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
             selectedStartDate.value,
         )}-${date2Slug(selectedEndDate.value)}`,
@@ -100,21 +113,26 @@ onMounted(async () => {
 const changeSelection = async evt => {
     if (evt.target instanceof HTMLSelectElement) weatherTypeKey.value = evt.target.value;
     if (evt.target instanceof HTMLInputElement) selectedEndDate.value = evt.target.value;
-
-    weather.data = await getFromApi(
+    xAxis.data = await getFromApi(
         `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
             selectedStartDate.value,
         )}-${date2Slug(selectedEndDate.value)}`,
     );
-    weather.title = props.settings.weatherTypes[weatherTypeKey.value].title;
-    weather.unitOfMeasure = props.settings.weatherTypes[weatherTypeKey.value].unitOfMeasure;
-    weather.steps = props.settings.weatherTypes[weatherTypeKey.value].steps;
+    xAxis.title = props.settings.weatherTypes[weatherTypeKey.value].title;
+    xAxis.unitOfMeasure = props.settings.weatherTypes[weatherTypeKey.value].unitOfMeasure;
+    xAxis.steps = props.settings.weatherTypes[weatherTypeKey.value].steps;
+
+    reports.value = await getFromApi(
+        `${getEnv('VITE_APP_URL')}/api/reports/${date2Slug(selectedStartDate.value)}-${date2Slug(
+            selectedEndDate.value,
+        )}`,
+    );
+    yAxis.data = dataY.value;
 };
 
 const presence = computed(() =>
     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
         // Check minimum and maximum date (default = min and max date)
-        if (report.date < selectedStartDate.value || report.date > selectedEndDate.value) return acc;
         if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
         setTotalAndPresent(report, acc);
         return acc;
@@ -136,14 +154,11 @@ const setTotalAndPresent = (report, acc) => {
 };
 
 /** data for y-axis (static: presence) */
-const dataY = computed(() => ({
-    title: 'Aanwezigheid',
-    unitOfMeasure: '%',
-    steps: 10,
+const dataY = computed(() =>
     /** set presence values and dates for each unique day */
-    data: Object.keys(presence.value).map(date => ({
+    Object.keys(presence.value).map(date => ({
         date,
         value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
     })),
-}));
+);
 </script>

@@ -5,7 +5,8 @@ import express from 'express';
 import vite from 'vite';
 import path from 'path';
 import {deploy} from './services/data.js';
-import {getData, getSelectedWeatherData} from './serverStore/index.js';
+import {getSelectedWeather} from './serverStore/weather.js';
+import {getSelectedReports} from './serverStore/reports.js';
 
 await deploy();
 
@@ -28,15 +29,12 @@ const root = path.resolve(path.dirname(''));
 
     const renderPage = createPageRenderer({viteDevServer, isProduction, root});
 
-    app.get('/api/weather-data', async (req, res) => {
-        res.send(getData('weatherData'));
-    });
-    app.get('/api/report-data', async (req, res) => {
-        // TODO: Sort date > ascending
-        res.send(getData('reportData'));
-    });
     app.get('/api/weather/:type/:from-:to', async (req, res) => {
-        const requestData = getSelectedWeatherData(req.params.type, req.params.from, req.params.to);
+        const requestData = getSelectedWeather(req.params.type, req.params.from, req.params.to);
+        res.send(requestData);
+    });
+    app.get('/api/reports/:from-:to', async (req, res) => {
+        const requestData = getSelectedReports(req.params.from, req.params.to);
         res.send(requestData);
     });
 

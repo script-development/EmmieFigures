@@ -4,6 +4,17 @@ export interface GraphOption {
     name: string,
     active: boolean,
 }
+
+export interface AxisProperties {
+    title: string,
+    unitOfMeasure: string,
+    steps: number,
+    data: {
+            date: string,
+            value: number,
+        }[],
+}
+
 export interface GraphData {
     title: string,
     unitOfMeasure: string,
