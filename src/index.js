@@ -14,7 +14,6 @@ const root = path.resolve(path.dirname(''));
 
 (async function startServer() {
     const app = express();
-    // let viteDevServer;
 
     if (isProduction) {
         app.use(express.static(`${root}/dist/client`));
@@ -28,13 +27,10 @@ const root = path.resolve(path.dirname(''));
         app.use(viteDevMiddleware);
     }
 
-    // const renderPage = createPageRenderer({viteDevServer, isProduction, root});
-
     app.get('/api/weather-data', async (req, res) => {
         res.send(getData('weatherData'));
     });
     app.get('/api/report-data', async (req, res) => {
-        // TODO: Sort date > ascending
         res.send(getData('reportData'));
     });
 
