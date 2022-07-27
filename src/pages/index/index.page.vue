@@ -76,14 +76,6 @@ const xAxis = reactive({
     data: [],
 });
 
-/** @type {AxisProperties} */
-const yAxis = reactive({
-    title: 'Aanwezigheid',
-    unitOfMeasure: '%',
-    steps: 10,
-    data: [],
-});
-
 /** @type {import('@vue/runtime-core').Ref<ReportData[]>} */
 const reports = ref([]);
 
@@ -101,7 +93,6 @@ onMounted(async () => {
             selectedEndDate.value,
         )}`,
     );
-    yAxis.data = dataY.value;
     xAxis.data = await getFromApi(
         `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
             selectedStartDate.value,
@@ -127,7 +118,6 @@ const changeSelection = async evt => {
             selectedEndDate.value,
         )}`,
     );
-    yAxis.data = dataY.value;
 };
 
 const presence = computed(() =>
@@ -153,12 +143,15 @@ const setTotalAndPresent = (report, acc) => {
     }
 };
 
-/** data for y-axis (static: presence) */
-const dataY = computed(() =>
+/** data and setting values for y-axis (static: presence) */
+const yAxis = computed(() => ({
     /** set presence values and dates for each unique day */
-    Object.keys(presence.value).map(date => ({
+    data: Object.keys(presence.value).map(date => ({
         date,
         value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
     })),
-);
+    title: 'Aanwezigheid',
+    unitOfMeasure: '%',
+    steps: 10,
+}));
 </script>

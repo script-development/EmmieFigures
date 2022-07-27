@@ -38,11 +38,9 @@ const showCanvas = ref(false);
 watch(
     () => props.dataX,
     dataX => {
-        console.time('graphX');
         setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
         setStatsX(dataX);
         changeRegression(props.options.trendLineKey, props.options.trendLineKey);
-        console.timeEnd('graphX');
     },
     {deep: true},
 );

@@ -24,12 +24,16 @@ let dataX;
 /** @type {GraphData} */
 let dataY;
 
+/** @type {import('types/sketches').Paint} */
+let paint;
+
 /**
  * Create Statistic objects from x & y-axis data
  * @param {SketchAPI} sketch
  */
 export const createStats = sketch => {
     ctx = sketch.context;
+    paint = sketch.paint;
     setRender({
         id: 'stats',
         show: () => {
@@ -79,7 +83,7 @@ const showLinearRegression = () => {
     regressionElement.pos.y2 = getPosY(elements.yUnits, yValue2);
     setRender({
         id: 'linear-regression',
-        show: showRegression,
+        show: () => showRegression(paint),
     });
 };
 
@@ -110,8 +114,7 @@ const showLoessRegression = () => {
     }
     setRender({
         id: 'loess-regression',
-        /** @param {import('types/sketches').Paint} paint */
-        show: paint => linesConverted.forEach(el => paint.line(el)),
+        show: () => linesConverted.forEach(el => paint.line(el)),
     });
 };
 

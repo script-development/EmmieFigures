@@ -4,9 +4,8 @@ import {createPageRenderer} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
-import {deploy} from './services/data.js';
-import {getSelectedWeather} from './serverStore/weather.js';
-import {getSelectedReports} from './serverStore/reports.js';
+import {deploy} from './services/serverData.js';
+import {getSelectedWeather, getSelectedReports} from './services/clientData.js';
 
 await deploy();
 
