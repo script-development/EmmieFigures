@@ -159,7 +159,7 @@ const showElements = (key, paint) => {
  * X or Y-axis units
  * @param {import('types/vectors').Vec4d} pos
  * @param {number} steps
- * @param {import('types/graph').GraphData["data"]} data
+ * @param {import('types/graph').AxisProperties["data"]} data
  * @returns
  */
 const units = (pos, steps, data) => {
@@ -209,7 +209,7 @@ const setUnitOffsets = () => {
 
 /**
  *
- * @param {import('types/graph').GraphData} data
+ * @param {import('types/graph').AxisProperties} data
  * @param {TextElement} title
  * @param {LineElement} axis
  * @param {UnitsElement} unit

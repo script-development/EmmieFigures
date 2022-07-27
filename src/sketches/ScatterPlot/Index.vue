@@ -4,12 +4,9 @@
 
 <script setup>
 /**
- * @typedef {import('types/graph').GraphData} GraphData
- * @typedef {import('@vue/runtime-core').PropType<GraphData>} GraphProp
+ * @typedef {import('types/graph').AxisProperties} AxisProperties
+ * @typedef {import('@vue/runtime-core').PropType<AxisProperties>} GraphProp
  */
-
-/** @typedef {import('types/graph').GraphOption} GraphOption */
-/** @typedef {import('@vue/runtime-core').PropType<GraphOption[]>} GraphOptions */
 
 import {onMounted, ref, watch} from 'vue';
 import Sketch from '..';
@@ -38,6 +35,7 @@ const showCanvas = ref(false);
 watch(
     () => props.dataX,
     dataX => {
+        console.log('triggerX');
         setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
         setStatsX(dataX);
         changeRegression(props.options.trendLineKey, props.options.trendLineKey);

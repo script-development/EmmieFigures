@@ -1,20 +1,3 @@
-export interface Settings {
-    weatherTypes: WeatherTypes,
-    trendLines: Trendlines[],
-}
-
-export interface TrendLines {
-    key: string,
-    name: string,
-}
-
-export type WeatherTypeKeys = 'precip'|'temp'|'windspeed'|'cloudcover'|'pressure';
-
-export interface WeatherTypes {
-    [key: string]: WeatherTypesProperties,
-    WeatherTypeKeys: string,
-}
-
 export interface ReportData {
     morning_schedule_id: number | null,
     afternoon_schedule_id: number | null,

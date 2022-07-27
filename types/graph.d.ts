@@ -1,21 +1,22 @@
+export interface Options {
+    trendLines: Trendlines,
+    weatherTypes: WeatherTypes,
+}
 
-export interface GraphOption {
-    id: number,
+// export type TrendlineKeys = 'none'|'linear-regression'|'loess-regression';
+export type TrendlineKeys = 'none'|'linear-regression'|'loess-regression';
+
+export interface TrendLines {
+    [key: TrendLineKeys],
     name: string,
-    active: boolean,
+}
+
+export type WeatherTypeKeys = 'precip'|'temp'|'windspeed'|'cloudcover'|'pressure';
+export interface WeatherTypes {
+    [key: WeatherTypeKeys],
 }
 
 export interface AxisProperties {
-    title: string,
-    unitOfMeasure: string,
-    steps: number,
-    data: {
-            date: string,
-            value: number,
-        }[],
-}
-
-export interface GraphData {
     title: string,
     unitOfMeasure: string,
     steps: number,

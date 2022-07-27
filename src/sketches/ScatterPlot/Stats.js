@@ -1,6 +1,6 @@
 /**
  * @typedef {import("types/graph").Stat} Stat
- * @typedef {import('types/graph').GraphData} GraphData
+ * @typedef {import('types/graph').AxisProperties} AxisProperties
  * @typedef {import('types/sketches').Sketch} SketchAPI
  */
 import {setRender, unsetRender} from 'sketches/engine';
@@ -18,10 +18,10 @@ const stats = [];
 /** @type {import('@vue/runtime-core').Ref<boolean>} */
 export const statsActive = ref(false);
 
-/** @type {GraphData} */
+/** @type {AxisProperties} */
 let dataX;
 
-/** @type {GraphData} */
+/** @type {AxisProperties} */
 let dataY;
 
 /** @type {import('types/sketches').Paint} */
@@ -42,13 +42,13 @@ export const createStats = sketch => {
     });
 };
 
-/** @param {GraphData} data */
+/** @param {AxisProperties} data */
 export const setStatsX = data => {
     dataX = data;
     makeStats();
 };
 
-/** @param {GraphData} data */
+/** @param {AxisProperties} data */
 export const setStatsY = data => {
     dataY = data;
     makeStats();

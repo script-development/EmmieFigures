@@ -1,17 +1,18 @@
 <template>
-    <ScatterPlot :data-x="xAxis" :data-y="yAxis" :options="{trendLineKey, weatherTypeKey}" />
-    <VSelect
-        v-model="trendLineKey"
+    <ScatterPlot :data-x="xAxis" :data-y="yAxis" :options="{trendlineKey, weatherTypeKey}" />
+
+    <!-- <VSelect
+        v-model="trendlineKey"
         class="absolute bottom-0 mb-24 xl:w-96"
-        :options="settings.trendLines"
+        :options="options.trendLines"
         :disabled="!statsActive"
     >
         Regressie Type
-    </VSelect>
+    </VSelect> -->
     <VSelect
         :model-value="weatherTypeKey"
         class="absolute bottom-0"
-        :options="settings.weatherTypes"
+        :options="options.weatherTypes"
         :disabled="!statsActive"
         @change="changeSelection"
     >
@@ -46,9 +47,11 @@
 </template>
 
 <script setup>
-/** @typedef {import('types/graph').AxisProperties} AxisProperties */
 /** @typedef {import('types/data').ReportData} ReportData */
+/** @typedef {import('types/graph').WeatherTypeKeys} WeatherTypeKeys */
+
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+import options from 'sketches/ScatterPlot/options';
 import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed, reactive} from 'vue';
 import {getFromApi} from 'services/api';
@@ -56,23 +59,24 @@ import {getEnv} from 'services/env';
 import {addOrSubtractDays, date2Slug, yesterday} from 'services/dates';
 import {statsActive} from 'sketches/ScatterPlot/Stats';
 
-const props = defineProps({
-    settings: {
-        /** @type {import('@vue/runtime-core').PropType<import('types/data').Settings>} */
-        type: Object,
-        required: true,
-    },
-});
+/** This constant is needed for 1st @type to work properly */
+const filler = 'nottin';
 
-/** selected trendLine for plot */
-const trendLineKey = ref('none');
-
-/** selected weather type for x-axis */
+/**
+ * selected weather type for x-axis
+ * @type {import('@vue/runtime-core').Ref<WeatherTypeKeys>}
+ */
 const weatherTypeKey = ref('precip');
 
-/** @type {AxisProperties} */
+/**
+ * selected trendline for plot
+ * @type {import('@vue/runtime-core').Ref<import('types/graph').TrendlineKeys>}
+ */
+const trendlineKey = ref('none');
+
+/** @type {import('types/graph').AxisProperties} */
 const xAxis = reactive({
-    ...props.settings.weatherTypes[weatherTypeKey.value],
+    ...options.weatherTypes[weatherTypeKey.value],
     data: [],
 });
 
@@ -88,30 +92,33 @@ const minEndDate = computed(() => addOrSubtractDays(selectedStartDate.value, 1))
 const maxStartDate = computed(() => addOrSubtractDays(selectedEndDate.value, -1));
 
 onMounted(async () => {
-    reports.value = await getFromApi(
-        `${getEnv('VITE_APP_URL')}/api/reports/${date2Slug(selectedStartDate.value)}-${date2Slug(
-            selectedEndDate.value,
-        )}`,
-    );
-    xAxis.data = await getFromApi(
-        `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
-            selectedStartDate.value,
-        )}-${date2Slug(selectedEndDate.value)}`,
-    );
+    if (filler === 'nottin') {
+        reports.value = await getFromApi(
+            `${getEnv('VITE_APP_URL')}/api/reports/${date2Slug(selectedStartDate.value)}-${date2Slug(
+                selectedEndDate.value,
+            )}`,
+        );
+        xAxis.data = await getFromApi(
+            `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
+                selectedStartDate.value,
+            )}-${date2Slug(selectedEndDate.value)}`,
+        );
+    }
 });
 
 /** @param {Event} evt */
 const changeSelection = async evt => {
-    if (evt.target instanceof HTMLSelectElement) weatherTypeKey.value = evt.target.value;
+    if (evt.target instanceof HTMLSelectElement)
+        weatherTypeKey.value = /** @type {WeatherTypeKeys} */ (evt.target.value);
     if (evt.target instanceof HTMLInputElement) selectedEndDate.value = evt.target.value;
     xAxis.data = await getFromApi(
         `${getEnv('VITE_APP_URL')}/api/weather/${weatherTypeKey.value}/${date2Slug(
             selectedStartDate.value,
         )}-${date2Slug(selectedEndDate.value)}`,
     );
-    xAxis.title = props.settings.weatherTypes[weatherTypeKey.value].title;
-    xAxis.unitOfMeasure = props.settings.weatherTypes[weatherTypeKey.value].unitOfMeasure;
-    xAxis.steps = props.settings.weatherTypes[weatherTypeKey.value].steps;
+    xAxis.title = options.weatherTypes[weatherTypeKey.value].title;
+    xAxis.unitOfMeasure = options.weatherTypes[weatherTypeKey.value].unitOfMeasure;
+    xAxis.steps = options.weatherTypes[weatherTypeKey.value].steps;
 
     reports.value = await getFromApi(
         `${getEnv('VITE_APP_URL')}/api/reports/${date2Slug(selectedStartDate.value)}-${date2Slug(
@@ -132,7 +139,7 @@ const presence = computed(() =>
 /**
  *
  * @param {ReportData} report
- * @param {Object.<string, {total: number, present: number}>} acc
+ * @param {{[key: string]: {total: number, present: number}}} acc
  */
 const setTotalAndPresent = (report, acc) => {
     for (const daypart of dayparts) {
