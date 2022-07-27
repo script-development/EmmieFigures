@@ -1,6 +1,6 @@
 /* eslint-env node */
 
-import {createPageRenderer} from 'vite-plugin-ssr';
+import {renderPage} from 'vite-plugin-ssr';
 import express from 'express';
 import vite from 'vite';
 import path from 'path';
@@ -14,19 +14,21 @@ const root = path.resolve(path.dirname(''));
 
 (async function startServer() {
     const app = express();
-    let viteDevServer;
+    // let viteDevServer;
 
     if (isProduction) {
         app.use(express.static(`${root}/dist/client`));
     } else {
-        viteDevServer = await vite.createServer({
-            root,
-            server: {middlewareMode: true},
-        });
-        app.use(viteDevServer.middlewares);
+        const viteDevMiddleware = (
+            await vite.createServer({
+                root,
+                server: {middlewareMode: 'ssr'},
+            })
+        ).middlewares;
+        app.use(viteDevMiddleware);
     }
 
-    const renderPage = createPageRenderer({viteDevServer, isProduction, root});
+    // const renderPage = createPageRenderer({viteDevServer, isProduction, root});
 
     app.get('/api/weather-data', async (req, res) => {
         res.send(getData('weatherData'));
