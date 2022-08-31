@@ -1,8 +1,10 @@
+/** @typedef {import("types/paint").Paint} Paint */
+
 /**
  * @param {CanvasRenderingContext2D} c
  */
 export default c => ({
-    /** @param {import("types/graph").GraphTextElement} element */
+    /** @param {Paint["Text"]} obj */
     text: ({color, align, baseline, weight, size, font, text, pos, angle}) => {
         c.fillStyle = color;
         c.textAlign = align;
@@ -16,13 +18,13 @@ export default c => ({
             c.restore();
         } else c.fillText(text, pos.x, pos.y);
     },
-    /** @param {import("./ScatterPlot/Graph").LineElement} element */
-    line: element => {
-        c.strokeStyle = element.color;
-        c.lineWidth = element.weight;
+    /** @param {Paint["Line"]} obj */
+    line: ({color, weight, pos}) => {
+        c.strokeStyle = color;
+        c.lineWidth = weight;
         c.beginPath();
-        c.moveTo(element.pos.x1, element.pos.y1);
-        c.lineTo(element.pos.x2, element.pos.y2);
+        c.moveTo(pos.x1, pos.y1);
+        c.lineTo(pos.x2, pos.y2);
         c.stroke();
     },
     clear: () => c.clearRect(0, 0, c.canvas.width, c.canvas.height),

@@ -1,9 +1,9 @@
 import {Vec4} from 'sketches/vectors';
 import {setRender} from '../engine';
 
-/** @typedef {import('types/graph').GraphTextElement} TextElement */
-/** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
-/** @typedef {import('types/graph').GraphLineElement} LineElement */
+// /** @typedef {import('types/graph').GraphTextElement} TextElement */
+// /** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
+// /** @typedef {import('types/graph').GraphLineElement} LineElement */
 /** @typedef {import('types/graph').GraphElements} Elements */
 /** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
 /** @typedef {import('types/sketches').Paint} Paint */
@@ -40,7 +40,7 @@ const defaults = {
         paint: 'text',
     },
     units: {
-        /** @type {TextElement[]} */
+        // /** @type {TextElement[]} */
         units: [],
         max: 0,
         min: 0,
