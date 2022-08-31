@@ -2,7 +2,7 @@
 
 import {renderPage} from 'vite-plugin-ssr';
 import express from 'express';
-import vite from 'vite';
+// import vite from 'vite';
 import path from 'path';
 import {deploy} from './services/serverData.js';
 import {getSelectedWeather, getSelectedReports} from './services/clientData.js';
@@ -19,9 +19,17 @@ const root = path.resolve(path.dirname(''));
         app.use(express.static(`${root}/dist/client`));
     } else {
         const viteDevMiddleware = (
-            await vite.createServer({
+            await (
+                await import('vite')
+            ).createServer({
                 root,
-                server: {middlewareMode: 'ssr'},
+                server: {
+                    middlewareMode: true,
+                    watch: {
+                        usePolling: true,
+                        interval: 100,
+                    },
+                },
             })
         ).middlewares;
         app.use(viteDevMiddleware);
@@ -37,8 +45,8 @@ const root = path.resolve(path.dirname(''));
     });
 
     app.get('*', async (req, res, next) => {
-        const url = req.originalUrl;
-        const pageContextInit = {url};
+        const urlOriginal = req.originalUrl;
+        const pageContextInit = {urlOriginal};
         const pageContext = await renderPage(pageContextInit);
         const {httpResponse} = pageContext;
         if (!httpResponse) return next();

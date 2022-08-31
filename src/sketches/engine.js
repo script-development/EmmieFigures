@@ -93,14 +93,18 @@ const stop = () => {
 
 /**
  * @param {{id: string, show: (interpolate: number) => void}} obj
- * @returns {number} the length of the render array
+ * @returns {number} the new length of the render array
  */
 export const setRender = obj => render.push(obj);
 
-/** @param {string} id */
+/**
+ * @param {string} id
+ * @returns {number} the new length of the render array
+ */
 export const unsetRender = id => {
     const index = render.findIndex(obj => obj.id === id);
     if (index != -1) render.splice(index, 1);
+    return render.length;
 };
 
 /** @param {{id: string, update: (interpolate: number) => void}} obj */
