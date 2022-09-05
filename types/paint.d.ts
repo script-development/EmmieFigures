@@ -19,6 +19,7 @@ paint: 'line'
 }
 
 export interface Paint {
-    Text,
-    Line,
+    text: (param: Text) => void,
+    line: (param: Line) => void,
+    clear: () => void,
 }

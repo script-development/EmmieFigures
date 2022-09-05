@@ -1,7 +1,3 @@
-export interface Paint {
-    [key: string],
-}
-
 export interface Sketch {
     context: CanvasRenderingContext2D,
     paint: Paint,

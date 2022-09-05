@@ -24,7 +24,7 @@ let dataX;
 /** @type {GraphData} */
 let dataY;
 
-/** @type {import('types/sketches').Paint} */
+/** @type {import('types/paint').Paint} */
 let paint;
 
 /**
@@ -61,10 +61,10 @@ const getLinearRegressionData = () => {
     return data;
 };
 
-/** @param {import('types/sketches').Paint} paint */
+/** @param {import('types/paint').Paint} paint */
 const showRegression = paint => paint.line(regressionElement);
 
-/** @type {import('types/graph').GraphLineElement} */
+/** @type {import('types/paint').Line} */
 const regressionElement = {
     pos: {x1: 0, y1: 0, x2: 0, y2: 0},
     color: 'red',
@@ -97,7 +97,7 @@ const showLoessRegression = () => {
         .y(d => d.valueY)
         .bandwidth(bandwidth);
     const lines = regressionGenerator(stats);
-    /** @type {import('types/graph').GraphLineElement[]} */
+    /** @type {import('types/paint').Line[]} */
     const linesConverted = [];
     for (let i = 0; i < lines.length - 1; i++) {
         linesConverted.push({

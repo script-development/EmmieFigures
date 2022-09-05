@@ -1,12 +1,11 @@
 import {Vec4} from 'sketches/vectors';
 import {setRender} from '../engine';
 
-// /** @typedef {import('types/graph').GraphTextElement} TextElement */
-// /** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
-// /** @typedef {import('types/graph').GraphLineElement} LineElement */
 /** @typedef {import('types/graph').GraphElements} Elements */
 /** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
-/** @typedef {import('types/sketches').Paint} Paint */
+/** @typedef {import('types/paint').Paint} Paint */
+/** @typedef {import('types/paint').Line} Line */
+/** @typedef {import('types/paint').Text} Text */
 
 const grid = {
     width: 300,
@@ -40,7 +39,6 @@ const defaults = {
         paint: 'text',
     },
     units: {
-        // /** @type {TextElement[]} */
         units: [],
         max: 0,
         min: 0,
@@ -135,24 +133,24 @@ export const createGraph = sketch => {
     });
 };
 
-/** @param {Paint} paint */
+/** @param {import('types/paint').Paint} paint */
 const show = paint => {
     // for every element: paint value is type of draw with paint object
-    Object.keys(elements).forEach(key => {
-        if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
-        else showElements(key, paint);
-    });
+    Object.keys(elements).forEach(
+        /** @type {...Elements} */ key => {
+            if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
+            else if (key === 'line' || key === 'text') showElements(key, paint);
+        },
+    );
 };
 
 /**
  *
- * @param {string} key
+ * @param {"line"|"text"} key
  * @param {Paint} paint
  */
 const showElements = (key, paint) => {
-    const element = elements[key];
-    if (element.paint === 'line') paint[element.paint](element);
-    else if (element.paint === 'text') paint[element.paint](element);
+    paint[key](elements[key]);
 };
 
 /**
@@ -210,9 +208,9 @@ const setUnitOffsets = () => {
 /**
  *
  * @param {import('types/graph').GraphData} data
- * @param {TextElement} title
- * @param {LineElement} axis
- * @param {UnitsElement} unit
+ * @param {Text} title
+ * @param {import('types/paint').Line} axis
+ * @param {import('types/graph').GraphUnitsElement} unit
  */
 export const setGraph = (data, title, axis, unit) => {
     title.text = `${data.title} (${data.unitOfMeasure})`;

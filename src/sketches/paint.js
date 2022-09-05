@@ -1,10 +1,11 @@
-/** @typedef {import("types/paint").Paint} Paint */
+/** @typedef {import("types/paint").Line} Line */
+/** @typedef {import("types/paint").Text} Text */
 
 /**
  * @param {CanvasRenderingContext2D} c
  */
 export default c => ({
-    /** @param {Paint["Text"]} obj */
+    /** @param {Text} obj */
     text: ({color, align, baseline, weight, size, font, text, pos, angle}) => {
         c.fillStyle = color;
         c.textAlign = align;
@@ -18,7 +19,7 @@ export default c => ({
             c.restore();
         } else c.fillText(text, pos.x, pos.y);
     },
-    /** @param {Paint["Line"]} obj */
+    /** @param {Line} obj */
     line: ({color, weight, pos}) => {
         c.strokeStyle = color;
         c.lineWidth = weight;

@@ -1,5 +1,5 @@
 /** @typedef {import('types/sketches').SketchOptions} SketchOptions */
-/** @typedef {import('types/sketches').Paint} Paint */
+/** @typedef {import('types/paint').Paint} Paint */
 
 import Paint from './paint';
 import engine from './engine';
@@ -92,7 +92,7 @@ const setPos = (pos, canvas) => {
 
 /**
  * This must always be the first render in the engine (sketch has to be made before anything else)
- * @param {import('types/sketches').Paint} paint
+ * @param {import('types/paint').Paint} paint
  */
 const setClear = paint => {
     setRender({

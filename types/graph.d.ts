@@ -1,3 +1,4 @@
+import { Line, Text } from "./paint";
 
 export interface GraphOption {
     id: number,
@@ -26,7 +27,7 @@ export interface GraphData {
 }
 
 export interface GraphUnitsElement {
-    units: GraphTextElement[],
+    units: Text[],
     max: number,
     min: number,
     lengthX: number,
@@ -38,11 +39,11 @@ export interface GraphUnitsElement {
 
 export interface GraphElements {
     [key: string],
-    x: GraphLineElement,
-    y: GraphLineElement,
-    xTitle: GraphTextElement,
-    yTitle: GraphTextElement,
-    mainTitle: GraphTextElement,
+    x: Line,
+    y: Line,
+    xTitle: Text,
+    yTitle: Text,
+    mainTitle: Text,
     xUnits: GraphUnitsElement,
     yUnits: GraphUnitsElement,
 }
