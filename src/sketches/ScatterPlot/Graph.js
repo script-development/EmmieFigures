@@ -136,21 +136,12 @@ export const createGraph = sketch => {
 /** @param {import('types/paint').Paint} paint */
 const show = paint => {
     // for every element: paint value is type of draw with paint object
-    Object.keys(elements).forEach(
-        /** @type {...Elements} */ key => {
-            if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
-            else if (key === 'line' || key === 'text') showElements(key, paint);
-        },
-    );
-};
-
-/**
- *
- * @param {"line"|"text"} key
- * @param {Paint} paint
- */
-const showElements = (key, paint) => {
-    paint[key](elements[key]);
+    Object.keys(elements).forEach(key => {
+        /** @type {"line"|"text"} */
+        const type = elements[key].paint;
+        if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
+        else if (type === 'line' || type === 'text') paint[type](elements[key]);
+    });
 };
 
 /**
