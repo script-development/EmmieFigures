@@ -14,6 +14,11 @@ export interface GraphOption {
     active: boolean,
 }
 
+export interface Props {
+    [key: string],
+    idCount: number,
+}
+
 export interface GraphTextElement {
         text: string,
         size: number,

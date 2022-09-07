@@ -1,3 +1,4 @@
+import {fadeIn, grow} from 'sketches/animate';
 import {Vec4} from 'sketches/vectors';
 import {setRender} from '../engine';
 
@@ -10,6 +11,22 @@ import {setRender} from '../engine';
 
 /** @type {import('types/sketches').Sketch["grid"]["properties"]} */
 let grid;
+
+export const switches = {
+    xTitle: false,
+    yTitle: false,
+};
+
+export const fadeInTitles = () => {
+    fadeIn(elements.mainTitle, 2000, 500);
+    fadeIn(elements.yTitle, 2000, 1000);
+    fadeIn(elements.xTitle, 2000, 1500);
+    grow(elements.x, 2000, 1500);
+    setRender({
+        id: 'graph',
+        show,
+    });
+};
 
 const defaults = {
     text: {
@@ -115,10 +132,6 @@ export const createGraph = sketch => {
     grid = sketch.grid.properties;
     setPositions();
     setUnitOffsets();
-    setRender({
-        id: 'graph',
-        show,
-    });
 };
 
 /** @param {Paint} paint */
