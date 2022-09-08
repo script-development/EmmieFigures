@@ -30,12 +30,12 @@ let dataY;
  */
 export const createStats = sketch => {
     ctx = sketch.context;
-    // setRender({
-    //     id: 'stats',
-    //     show: () => {
-    //         for (const stat of stats) stat.show();
-    //     },
-    // });
+    setRender({
+        id: 'stats',
+        show: () => {
+            for (const stat of stats) stat.show();
+        },
+    });
 };
 
 /** @param {GraphData} data */

@@ -1,6 +1,6 @@
 import {paint} from 'sketches/index.js';
 
-/** @type {{id: string, update: function}[]} */
+/** @type {{update: function}[]} */
 let updates = [];
 
 /** @type {{id: string, show: function}[]} */
@@ -108,18 +108,8 @@ export const unsetRender = id => {
     return render.length;
 };
 
-/** @param {{id: string, update: function}} obj */
+/** @param {{update: function}} obj */
 export const setUpdate = obj => updates.push(obj);
-
-/**
- * @param {string} id
- * @returns {number} the new length of the updates array
- */
-export const unsetUpdate = id => {
-    const index = updates.findIndex(obj => obj.id === id);
-    if (index != -1) updates.splice(index, 1);
-    return updates.length;
-};
 
 export default {
     start: () => start(),

@@ -13,7 +13,7 @@
 
 import {onMounted, watch} from 'vue';
 import Sketch from '..';
-import {createGraph, setGraph, elements, switches, fadeInTitles} from './Graph';
+import {createGraph, setGraph, elements} from './Graph';
 import {setStatsX, setStatsY, createStats, changeRegression} from './Stats';
 
 const props = defineProps({
@@ -37,8 +37,6 @@ watch(
     () => props.dataX,
     dataX => {
         setGraph(dataX, elements.xTitle, elements.x, elements.xUnits);
-        switches.xTitle = true;
-        if (switches.yTitle && switches.xTitle) fadeInTitles();
         setStatsX(dataX);
         changeRegression(props.options.trendLineKey, props.options.trendLineKey);
     },
@@ -47,8 +45,6 @@ watch(
     () => props.dataY,
     dataY => {
         setGraph(dataY, elements.yTitle, elements.y, elements.yUnits);
-        switches.yTitle = true;
-        if (switches.yTitle && switches.xTitle) fadeInTitles();
         setStatsY(dataY);
         changeRegression(props.options.trendLineKey, props.options.trendLineKey);
     },
