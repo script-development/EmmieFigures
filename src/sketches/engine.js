@@ -1,4 +1,4 @@
-/** @type {{id: string, update: (deltaTime: number) => void}[]} */
+/** @type {{id: string, update: (deltaTime: DOMHighResTimeStamp) => void}[]} */
 export const updates = [];
 
 /** @type {{id: string, show: (interpolate: number) => void}[]} */
@@ -98,7 +98,7 @@ const stop = () => {
 export const setRender = obj => render.push(obj);
 
 /**
- * @param {string} id
+ * @param {string} id the id of the render function to remove
  * @returns {number} the new length of the render array
  */
 export const unsetRender = id => {
@@ -107,8 +107,21 @@ export const unsetRender = id => {
     return render.length;
 };
 
-/** @param {{id: string, update: (interpolate: number) => void}} obj */
+/**
+ * @param {{id: string, update: (interpolate: number) => void}} obj
+ * @returns {number} the new length of the update array
+ */
 export const setUpdate = obj => updates.push(obj);
+
+/**
+ * @param {string} id the id of the update function to remove
+ * @returns {number} the new length of the update array
+ */
+export const unsetUpdate = id => {
+    const index = updates.findIndex(obj => obj.id === id);
+    if (index != -1) updates.splice(index, 1);
+    return updates.length;
+};
 
 export default {
     start: () => start(),

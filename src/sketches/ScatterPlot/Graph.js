@@ -1,3 +1,4 @@
+import {fadeIn, grow} from 'sketches/animate';
 import {Vec4} from 'sketches/vectors';
 import {setRender} from '../engine';
 
@@ -14,6 +15,18 @@ const grid = {
     yUnits: 18,
     unitWidth: 300 / 32,
     unitHeight: 150 / 18,
+};
+
+export const switches = {
+    xTitle: false,
+    yTitle: false,
+};
+
+export const fadeInTitles = () => {
+    fadeIn(elements.mainTitle, 2000, 500);
+    fadeIn(elements.yTitle, 2000, 1000);
+    fadeIn(elements.xTitle, 2000, 1500);
+    grow(elements.x, 2000, 1500);
 };
 
 /** @param {HTMLCanvasElement} canvas */
@@ -127,10 +140,6 @@ export const createGraph = sketch => {
     setGrid(sketch.context.canvas);
     setPositions();
     setUnitOffsets();
-    setRender({
-        id: 'graph',
-        show: () => show(sketch.paint),
-    });
 };
 
 /** @param {import('types/paint').Paint} paint */
