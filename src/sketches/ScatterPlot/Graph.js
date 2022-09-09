@@ -2,7 +2,7 @@ import {Vec4} from 'sketches/vectors';
 import {setRender} from '../engine';
 
 /** @typedef {import('types/graph').GraphElements} Elements */
-/** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
+/** @typedef {import('types/graph').GraphData} Data */
 /** @typedef {import('types/paint').Paint} Paint */
 /** @typedef {import('types/paint').Line} Line */
 /** @typedef {import('types/paint').Text} Text */
@@ -133,7 +133,7 @@ export const createGraph = sketch => {
     });
 };
 
-/** @param {import('types/paint').Paint} paint */
+/** @param {Paint} paint */
 const show = paint => {
     // for every element: paint value is type of draw with paint object
     Object.keys(elements).forEach(key => {
@@ -198,9 +198,9 @@ const setUnitOffsets = () => {
 
 /**
  *
- * @param {import('types/graph').GraphData} data
+ * @param {Data} data
  * @param {Text} title
- * @param {import('types/paint').Line} axis
+ * @param {Line} axis
  * @param {import('types/graph').GraphUnitsElement} unit
  */
 export const setGraph = (data, title, axis, unit) => {

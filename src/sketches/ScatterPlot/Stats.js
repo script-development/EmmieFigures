@@ -1,6 +1,7 @@
 /**
  * @typedef {import("types/graph").Stat} Stat
  * @typedef {import('types/graph').GraphData} GraphData
+ * @typedef {import('types/graph').GraphUnitsElement} UnitsElement
  * @typedef {import('types/sketches').Sketch} SketchAPI
  */
 import {setRender, unsetRender} from 'sketches/engine';
@@ -214,12 +215,11 @@ const Statistic = (pos, valueX, valueY, date, id, color, radius) => ({
     date,
     pos,
     id,
-    update: () => update(),
     show: () => show(color, pos, radius),
 });
 
 /**
- * @param {import('types/graph').GraphUnitsElement} unitsElement
+ * @param {UnitsElement} unitsElement
  * @param {number} statValue
  */
 const getPosX = (unitsElement, statValue) => {
@@ -231,7 +231,7 @@ const getPosX = (unitsElement, statValue) => {
 };
 
 /**
- * @param {import('types/graph').GraphUnitsElement} unitsElement
+ * @param {UnitsElement} unitsElement
  * @param {number} statValue
  */
 const getPosY = (unitsElement, statValue) => {
@@ -240,10 +240,6 @@ const getPosY = (unitsElement, statValue) => {
     const posPercentage = leftOver / range;
     const posLength = posPercentage * unitsElement.lengthY;
     return posLength + unitsElement.startY;
-};
-
-const update = () => {
-    //
 };
 
 /**

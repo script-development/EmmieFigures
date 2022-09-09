@@ -61,6 +61,5 @@ export interface Stat {
     date: string,
     id: number,
     show: () => void,
-    update: () => void,
 }
 
