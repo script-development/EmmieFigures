@@ -1,3 +1,21 @@
+import { Line, Text } from "./paint";
+
+export interface GraphOption {
+    id: number,
+    name: string,
+    active: boolean,
+}
+
+export interface AxisProperties {
+    title: string,
+    unitOfMeasure: string,
+    steps: number,
+    data: {
+            date: string,
+            value: number,
+        }[],
+}
+
 export interface GraphData {
     title: string,
     unitOfMeasure: string,
@@ -8,34 +26,8 @@ export interface GraphData {
         }[],
 }
 
-export interface GraphOption {
-    id: number,
-    name: string,
-    active: boolean,
-}
-
-export interface GraphTextElement {
-        text: string,
-        size: number,
-        weight: string,
-        color: string,
-        font: string,
-        align: CanvasTextAlign,
-        baseline: CanvasTextBaseline,
-        paint: 'text',
-        pos: {x: number, y: number},
-        angle?: number
-}
-
-export interface GraphLineElement {
-    pos: {x1: number, y1: number, x2: number, y2: number},
-    color: string,
-    weight: number,
-    paint: 'line'
-}
-
 export interface GraphUnitsElement {
-    units: GraphTextElement[],
+    units: Text[],
     max: number,
     min: number,
     lengthX: number,
@@ -46,11 +38,12 @@ export interface GraphUnitsElement {
 }
 
 export interface GraphElements {
-    x: GraphLineElement,
-    y: GraphLineElement,
-    xTitle: GraphTextElement,
-    yTitle: GraphTextElement,
-    mainTitle: GraphTextElement,
+    [key: string],
+    x: Line,
+    y: Line,
+    xTitle: Text,
+    yTitle: Text,
+    mainTitle: Text,
     xUnits: GraphUnitsElement,
     yUnits: GraphUnitsElement,
 }
@@ -58,7 +51,7 @@ export interface GraphElements {
 export interface Stats {
     update: () => void,
     show: () => void,
-    setX: (xUnits: Graph["xUnits"], yUnits: Graph["yUnits"], dataX: GraphData) => void,
+    // setX: (xUnits: Graph['xUnits'], yUnits: Graph['yUnits'], dataX: GraphData) => void,
 }
 
 export interface Stat {
@@ -67,7 +60,6 @@ export interface Stat {
     valueY: number,
     date: string,
     id: number,
-    show: (interpolate?: number) => void,
-    update: (delta?: number) => void,
+    show: () => void,
 }
 

@@ -1,6 +1,7 @@
 /**
  * @typedef {import("types/graph").Stat} Stat
  * @typedef {import('types/graph').GraphData} GraphData
+ * @typedef {import('types/graph').GraphUnitsElement} UnitsElement
  * @typedef {import('types/sketches').Sketch} SketchAPI
  */
 import {setRender, unsetRender} from 'sketches/engine';
@@ -24,12 +25,16 @@ let dataX;
 /** @type {GraphData} */
 let dataY;
 
+/** @type {import('types/paint').Paint} */
+let paint;
+
 /**
  * Create Statistic objects from x & y-axis data
  * @param {SketchAPI} sketch
  */
 export const createStats = sketch => {
     ctx = sketch.context;
+    paint = sketch.paint;
     setRender({
         id: 'stats',
         show: () => {
@@ -57,10 +62,10 @@ const getLinearRegressionData = () => {
     return data;
 };
 
-/** @param {import('types/sketches').Paint} paint */
+/** @param {import('types/paint').Paint} paint */
 const showRegression = paint => paint.line(regressionElement);
 
-/** @type {import('types/graph').GraphLineElement} */
+/** @type {import('types/paint').Line} */
 const regressionElement = {
     pos: {x1: 0, y1: 0, x2: 0, y2: 0},
     color: 'red',
@@ -79,7 +84,7 @@ const showLinearRegression = () => {
     regressionElement.pos.y2 = getPosY(elements.yUnits, yValue2);
     setRender({
         id: 'linear-regression',
-        show: showRegression,
+        show: () => showRegression(paint),
     });
 };
 
@@ -87,13 +92,13 @@ let bandwidth = 0.3; // [default] smoothing parameter
 
 const showLoessRegression = () => {
     const regressionGenerator = regressionLoess()
-        // @ts-ignore
+        // @ts-ignore no type declaration available for d3-regression package
         .x(d => d.valueX)
-        // @ts-ignore
+        // @ts-ignore no type declaration available for d3-regression package
         .y(d => d.valueY)
         .bandwidth(bandwidth);
     const lines = regressionGenerator(stats);
-    /** @type {import('types/graph').GraphLineElement[]} */
+    /** @type {import('types/paint').Line[]} */
     const linesConverted = [];
     for (let i = 0; i < lines.length - 1; i++) {
         linesConverted.push({
@@ -110,8 +115,7 @@ const showLoessRegression = () => {
     }
     setRender({
         id: 'loess-regression',
-        /** @param {import('types/sketches').Paint} paint */
-        show: paint => linesConverted.forEach(el => paint.line(el)),
+        show: () => linesConverted.forEach(el => paint.line(el)),
     });
 };
 
@@ -122,12 +126,12 @@ let span;
 let slider;
 
 /**
- * @param {"linear-regression"|"loess-regression"|"none"} newKey
- * @param {"linear-regression"|"loess-regression"|"none"} oldKey
+ * @param {"linearRegression"|"loessRegression"|"none"} newKey
+ * @param {"linearRegression"|"loessRegression"|"none"} oldKey
  */
 export const changeRegression = (newKey, oldKey) => {
     if (oldKey != 'none') {
-        if (oldKey === 'loess-regression') {
+        if (oldKey === 'loessRegression') {
             // remove slider and reset bandwidth
             document.body.removeChild(span);
             document.body.removeChild(slider);
@@ -139,10 +143,10 @@ export const changeRegression = (newKey, oldKey) => {
     if (newKey != 'none') setRegression(newKey);
 };
 
-/** @param {"linear-regression"|"loess-regression"} type */
+/** @param {"linearRegression"|"loessRegression"} type */
 const setRegression = type => {
-    if (type === 'linear-regression') showLinearRegression();
-    if (type === 'loess-regression') {
+    if (type === 'linearRegression') showLinearRegression();
+    if (type === 'loessRegression') {
         showLoessRegression();
 
         // create slider
@@ -211,12 +215,11 @@ const Statistic = (pos, valueX, valueY, date, id, color, radius) => ({
     date,
     pos,
     id,
-    update: () => update(),
     show: () => show(color, pos, radius),
 });
 
 /**
- * @param {import('types/graph').GraphUnitsElement} unitsElement
+ * @param {UnitsElement} unitsElement
  * @param {number} statValue
  */
 const getPosX = (unitsElement, statValue) => {
@@ -228,7 +231,7 @@ const getPosX = (unitsElement, statValue) => {
 };
 
 /**
- * @param {import('types/graph').GraphUnitsElement} unitsElement
+ * @param {UnitsElement} unitsElement
  * @param {number} statValue
  */
 const getPosY = (unitsElement, statValue) => {
@@ -238,8 +241,6 @@ const getPosY = (unitsElement, statValue) => {
     const posLength = posPercentage * unitsElement.lengthY;
     return posLength + unitsElement.startY;
 };
-
-const update = () => {};
 
 /**
  * @param {Array<number>} color

@@ -1,15 +1,28 @@
 import {Vec4} from 'sketches/vectors';
 import {setRender} from '../engine';
 
-/** @typedef {import('types/graph').GraphTextElement} TextElement */
-/** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
-/** @typedef {import('types/graph').GraphLineElement} LineElement */
 /** @typedef {import('types/graph').GraphElements} Elements */
-/** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
-/** @typedef {import('types/sketches').Paint} Paint */
+/** @typedef {import('types/graph').GraphData} Data */
+/** @typedef {import('types/paint').Paint} Paint */
+/** @typedef {import('types/paint').Line} Line */
+/** @typedef {import('types/paint').Text} Text */
 
-/** @type {import('types/sketches').Sketch["grid"]["properties"]} */
-let grid;
+const grid = {
+    width: 300,
+    height: 150,
+    xUnits: 32,
+    yUnits: 18,
+    unitWidth: 300 / 32,
+    unitHeight: 150 / 18,
+};
+
+/** @param {HTMLCanvasElement} canvas */
+const setGrid = canvas => {
+    grid.width = canvas.width;
+    grid.height = canvas.height;
+    grid.unitWidth = canvas.width / 32;
+    grid.unitHeight = canvas.height / 18;
+};
 
 const defaults = {
     text: {
@@ -26,7 +39,6 @@ const defaults = {
         paint: 'text',
     },
     units: {
-        /** @type {TextElement[]} */
         units: [],
         max: 0,
         min: 0,
@@ -108,16 +120,16 @@ const setPositions = () => {
 
 /**
  * Scatter Plot -> TypeX (Weather type (unit of Measurement)) / TypeY (Presence (%))
- * @param {import("types/sketches").Sketch} sketch
+ * @param {import('types/sketches').Sketch} sketch
  * @returns
  */
 export const createGraph = sketch => {
-    grid = sketch.grid.properties;
+    setGrid(sketch.context.canvas);
     setPositions();
     setUnitOffsets();
     setRender({
         id: 'graph',
-        show,
+        show: () => show(sketch.paint),
     });
 };
 
@@ -125,21 +137,11 @@ export const createGraph = sketch => {
 const show = paint => {
     // for every element: paint value is type of draw with paint object
     Object.keys(elements).forEach(key => {
+        /** @type {"line"|"text"} */
+        const type = elements[key].paint;
         if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
-        // @ts-ignore
-        else showElements(key, paint);
+        else if (type === 'line' || type === 'text') paint[type](elements[key]);
     });
-};
-
-/**
- *
- * @param {GraphShowElementsNonUnits} key
- * @param {Paint} paint
- */
-const showElements = (key, paint) => {
-    const element = elements[key];
-    if (element.paint === 'line') paint[element.paint](element);
-    else if (element.paint === 'text') paint[element.paint](element);
 };
 
 /**
@@ -196,10 +198,10 @@ const setUnitOffsets = () => {
 
 /**
  *
- * @param {import('types/graph').GraphData} data
- * @param {TextElement} title
- * @param {LineElement} axis
- * @param {UnitsElement} unit
+ * @param {Data} data
+ * @param {Text} title
+ * @param {Line} axis
+ * @param {import('types/graph').GraphUnitsElement} unit
  */
 export const setGraph = (data, title, axis, unit) => {
     title.text = `${data.title} (${data.unitOfMeasure})`;
