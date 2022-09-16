@@ -5,7 +5,7 @@
         </template>
         <template #auth />
     </NavBar>
-    <slot />
+    <!-- <slot /> -->
 </template>
 
 <script setup>
