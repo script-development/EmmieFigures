@@ -1,6 +1,7 @@
 /** @typedef {import('express').Express} Express */
 
 import {renderPage} from 'vite-plugin-ssr';
+import {getData} from './serverStore/index.js';
 
 /** @type {Express} */
 let app;
@@ -13,7 +14,12 @@ export default expressApp => {
 };
 
 const apiHandler = () => {
-    //
+    app.get('/api/weather-data', async (req, res) => {
+        res.send(getData('weatherData'));
+    });
+    app.get('/api/report-data', async (req, res) => {
+        res.send(getData('reportData'));
+    });
 };
 
 const ssrHandler = () => {
