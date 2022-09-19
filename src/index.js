@@ -1,57 +1,38 @@
 /* eslint-env node */
 
-import {renderPage} from 'vite-plugin-ssr';
-import express from 'express';
-// import vite from 'vite';
-import path from 'path';
+import expressRouting from './expressRouting.js';
 import {deploy} from './services/data.js';
-import {getData} from './serverStore/index.js';
-
-await deploy();
+import compression from 'compression';
+import {createServer} from 'vite';
+import express from 'express';
+import path from 'path';
+import sirv from 'sirv';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const root = path.resolve(path.dirname(''));
+const port = process.env.PORT || 3000;
+const app = express();
+app.use(compression());
+
+// 1st time data fetch from visualcrossing weather APIs
+await deploy();
+
+const productionServer = () => app.use(sirv(`${root}/dist/client`));
+
+const developmentServer = async () => {
+    const viteDevMiddleware = (
+        await createServer({
+            root,
+            server: {middlewareMode: true},
+        })
+    ).middlewares;
+    app.use(viteDevMiddleware);
+};
 
 (async function startServer() {
-    const app = express();
+    isProduction ? productionServer() : await developmentServer();
 
-    if (isProduction) {
-        app.use(express.static(`${root}/dist/client`));
-    } else {
-        const viteDevMiddleware = (
-            await (
-                await import('vite')
-            ).createServer({
-                root,
-                server: {
-                    middlewareMode: true,
-                    watch: {
-                        usePolling: true,
-                        interval: 100,
-                    },
-                },
-            })
-        ).middlewares;
-        app.use(viteDevMiddleware);
-    }
+    expressRouting(app);
 
-    app.get('/api/weather-data', async (req, res) => {
-        res.send(getData('weatherData'));
-    });
-    app.get('/api/report-data', async (req, res) => {
-        res.send(getData('reportData'));
-    });
-
-    app.get('*', async (req, res, next) => {
-        const urlOriginal = req.originalUrl;
-        const pageContextInit = {urlOriginal};
-        const pageContext = await renderPage(pageContextInit);
-        const {httpResponse} = pageContext;
-        if (!httpResponse) return next();
-        const {body, statusCode, contentType} = httpResponse;
-        res.status(statusCode).type(contentType).send(body);
-    });
-
-    const port = process.env.PORT || 3000;
     app.listen(port, () => console.log(`Server running at http://localhost:${port}`)); // eslint-disable-line no-console
 })();
