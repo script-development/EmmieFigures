@@ -4,12 +4,12 @@ const store = {};
 /**
  *
  * @param {string} key
- * @param {Array<{}>|string} data
+ * @param {Array<any>|object|string|number} data
  */
 export const setData = (key, data) => {
-    if (typeof data === 'object') store[key] = data;
+    if (typeof data === 'object' || typeof data === 'number') store[key] = data;
     else if (isJsonString(data)) store[key] = JSON.parse(data);
-    else throw new Error('Data must be JSON string or object');
+    else throw new Error('Wrong data type');
 };
 
 /** @param {string} key */

@@ -1,4 +1,4 @@
-import Settings from 'serverStore/settings';
+import Settings from '../../settings.js';
 
 export {onBeforeRender};
 

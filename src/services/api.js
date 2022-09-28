@@ -36,13 +36,15 @@ export const doRequest = async (config, retry = false) => {
  */
 const createRequestConfig = (method, url, data) => {
     /** @type {{[key: string]: string}} */
-    const headers = {};
+    const headers = data?.headers;
+    const params = data?.params;
 
     return {
         url,
         method,
         headers,
-        data,
+        params,
+        // data,
     };
 };
 
