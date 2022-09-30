@@ -67,6 +67,7 @@ const props = defineProps({
 });
 
 const dat = ref('');
+const dat2 = ref('');
 
 /** selected trendLine for plot */
 // const trendLineKey = ref('none');
@@ -95,6 +96,7 @@ const selectedEndDate = ref('');
 
 onMounted(async () => {
     dat.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC`);
+    dat2.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC2`);
     // weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
     // reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
     // setDateInputs();

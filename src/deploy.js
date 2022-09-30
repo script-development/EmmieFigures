@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+// import fs from 'fs/promises';
 
 import {fileExists} from './services/filesystem.js';
 import VC from './services/visualcrossing.js';
@@ -8,12 +8,13 @@ import VC from './services/visualcrossing.js';
  * If no data is present, get weather data from Visual Crossing Weather API.
  */
 export default async () => {
-    (await fileExists('./data/test.json')) ? await appendWeatherData() : await setWeatherData();
+    (await fileExists('./data/VC.json')) ? await appendWeatherData() : await setWeatherData();
 };
 
 const setWeatherData = async () => {
     console.log('set');
     await VC.createSession();
+    await VC.setHistory();
 
     // setData('VCWqueryCost', 0);
     // let queryCost = 0;

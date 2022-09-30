@@ -10,18 +10,6 @@ import {getFromApi} from './api.js';
 import {yesterday} from './dates.js';
 import {getEnv} from './env.js';
 
-const BASE_URL = getEnv('WEATHER_API_BASE_URL');
-const API_KEY = getEnv('WEATHER_API_KEY');
-
-const options = {
-    location: 'groningen', // || longitude & latitude
-    outputSection: '&include=days', // other options: current, hours, events, alerts (seperate with '%2C')
-    elements: '', // options: precip, datetime, description, empty string = all
-};
-
-// Error messages
-const weatherApiError = 'something went wrong while fetching weatherData from Visual Crossing';
-
 /**
  * Check for weather and report data on the server.
  * If no data is present, fetches from Visual Crossing Weather and Rapp.
@@ -72,23 +60,4 @@ const reports = async () => {
         await fs.writeFile('./data/reports.json', JSON.stringify(reports.reportsForMonth));
         return reports.reportsForMonth;
     }
-};
-
-/**
- * @param {string} startDate startDate
- * @param {string} endDate endDate
- * @returns {Promise<VisualCrossingData>}
- */
-const getWeatherData = (startDate, endDate) => getFromApi(getQueryString(startDate, endDate));
-
-/**
- * @param {string} startDate
- * @param {string} endDate
- * @returns {string}
- */
-
-const getQueryString = (startDate, endDate) => {
-    let qString = BASE_URL + `/${options.location}/${startDate}/${endDate}`;
-    qString += `?unitGroup=metric${options.outputSection}&key=${API_KEY}${options.elements}&contentType=json`;
-    return qString;
 };

@@ -36,9 +36,12 @@ const root = path.resolve(path.dirname(''));
     }
 
     app.get('/api/qC', (req, res) => {
-        const q = getData('qC');
-        // console.log(typeof q);
-        res.send({cost: q});
+        const q = getData('VC_Session');
+        res.send(q);
+    });
+    app.get('/api/qC2', (req, res) => {
+        const r = getData('weatherData');
+        res.send(r);
     });
     // app.get('/api/weather-data', async (req, res) => {
     //     res.send(getData('weatherData'));
