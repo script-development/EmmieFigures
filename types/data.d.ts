@@ -25,11 +25,6 @@ export interface ReportData {
     date: string,
 }
 
-export interface VisualCrossingData {
-    days: WeatherData[],
-    queryCost: number,
-}
-
 export interface WeatherData {
     datetime: string,
     datetimeEpoch: number,
@@ -67,4 +62,16 @@ export interface WeatherData {
     icon: string,
     stations: Array<string>,
     source: string,
+}
+
+export interface VisualCrossingData {
+    days: WeatherData[],
+    queryCost: number,
+    latitude: number,
+    longitude: number,
+    resolvedAddress: string,
+    address: string,
+    timezone: string,
+    tzoffset: number,
+    stations: {},
 }

@@ -13,7 +13,6 @@ export default async () => {
 
 const setWeatherData = async () => {
     console.log('set');
-    await VC.createSession();
     await VC.setHistory();
 
     // setData('VCWqueryCost', 0);
@@ -28,7 +27,7 @@ const setWeatherData = async () => {
 
 const appendWeatherData = async () => {
     console.log('append');
-    // setCost();
+    await VC.appendHistory();
 };
 
 // var data = {
