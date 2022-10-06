@@ -36,16 +36,37 @@ export const doRequest = async (config, retry = false) => {
  */
 const createRequestConfig = (method, url, data) => {
     /** @type {{[key: string]: string}} */
-    const headers = data?.headers;
-    const params = data?.params;
+    const headers = {};
+    /** @type {{[key: string]: string}} */
+    const params = {};
+
+    url = createParams(url, params);
 
     return {
         url,
         method,
         headers,
         params,
-        // data,
+        data,
     };
+};
+
+/**
+ * create params object from request-parameters url
+ * @param {string} url the url to request
+ * @param {{[key: string]: string}} params object to place parameters in
+ */
+const createParams = (url, params) => {
+    if (url.split('?').length > 1) {
+        url.split('?')[1]
+            .split('&')
+            .forEach(param => {
+                const prop = param.split('=');
+                params[prop[0]] = prop[1];
+            });
+        url = url.split('?')[0];
+    }
+    return url;
 };
 
 /**
