@@ -8,7 +8,7 @@ import {setRender} from '../engine';
 /** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
 /** @typedef {import('types/sketches').Paint} Paint */
 
-/** @type {import('types/sketches').Sketch["grid"]} */
+/** @type {import('types/sketches').Sketch["grid"]["properties"]} */
 let grid;
 
 const defaults = {
@@ -112,16 +112,12 @@ const setPositions = () => {
  * @returns
  */
 export const createGraph = sketch => {
-    // grid = sketch.grid.properties;
-    // setPositions();
-    // setUnitOffsets();
-    // setRender({
-    //     id: 'graph',
-    //     show,
-    // });
+    grid = sketch.grid.properties;
+    setPositions();
+    setUnitOffsets();
     setRender({
-        id: 'grid',
-        show: () => sketch.grid.show(),
+        id: 'graph',
+        show,
     });
 };
 

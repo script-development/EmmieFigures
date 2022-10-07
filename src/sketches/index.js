@@ -14,21 +14,18 @@ import {setRender} from './engine';
 export default (id, options) => {
     const context = getContext(id);
     if (options) setOptions(options, context.canvas);
-    const grid = Grid(context);
-    const p = Paint(context);
+    const paint = Paint(context);
+    const grid = Grid(context, paint);
+    /** @type {import('types/sketches').Paint} */
+    if (options?.clear) setClear(paint);
     // @ts-ignore
-    Object.keys(p).forEach(key => (paint[key] = p[key]));
+    // Object.keys(p).forEach(key => (paint[key] = p[key]));
     return {
         context,
         grid,
         start: () => engine.start(),
         stop: () => engine.stop(),
     };
-};
-
-export const paint = {
-    interpolate: 0,
-    clear: () => {},
 };
 
 /**
@@ -56,7 +53,6 @@ const setOptions = (options, canvas) => {
     if (options.size) setSize(options.size, canvas);
     if (options.pos) setPos(options.pos, canvas);
     if (options.border) canvas.style.border = '1px solid black';
-    if (options.clear) setClear();
 };
 
 /**
@@ -97,8 +93,11 @@ const setPos = (pos, canvas) => {
     }
 };
 
-// This must always be the first render in the engine (sketch has to be made before anything else)
-const setClear = () => {
+/**
+ * This must always be the first render in the engine (sketch has to be made before anything else)
+ * @param {import('types/sketches').Paint} paint
+ */
+const setClear = paint => {
     setRender({
         id: 'clear',
         show: () => paint.clear(),

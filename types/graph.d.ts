@@ -22,7 +22,7 @@ export interface GraphTextElement {
         font: string,
         align: CanvasTextAlign,
         baseline: CanvasTextBaseline,
-        paint: 'text',
+        paint?: 'text',
         pos: {x: number, y: number},
         angle?: number
 }
@@ -31,7 +31,7 @@ export interface GraphLineElement {
     pos: {x1: number, y1: number, x2: number, y2: number},
     color: string,
     weight: number,
-    paint: 'line'
+    paint?: 'line'
 }
 
 export interface GraphUnitsElement {

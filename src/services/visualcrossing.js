@@ -2,9 +2,10 @@ import fs from 'fs/promises';
 import {getFromApi} from './api.js';
 import {yesterday} from './dates.js';
 import {getEnv} from './env.js';
+import {getFile} from './filesystem.js';
 
 const BASE_URL = getEnv('VC_BASE_URL');
-const API_KEY = getEnv('VC_API_KEY');
+const API_KEY = getEnv('VC_API_KEY'); //
 
 const options = {
     location: 'groningen', // || longitude & latitude
@@ -15,14 +16,8 @@ const options = {
 
 export default {
     appendHistory: async () => {
-        // get latest date from history data on server
-        /** @type {import('types/data.js').WeatherData[]} */
-        const history = JSON.parse(await fs.readFile('./data/VC_Data.json', 'utf-8'));
-        const lastDate = history.reduce(
-            (prev, curr) => (curr.datetime > prev ? (prev = curr.datetime) : prev),
-            options.startDate,
-        );
-
+        const history = await getFile('./data/VC_Data.json');
+        const lastDate = getLastDate(history);
         if (lastDate < yesterday()) {
             const weatherData = await getWeatherData(lastDate, yesterday());
             if (!weatherData)
@@ -52,6 +47,13 @@ export default {
         writeWeatherData(data);
     },
 };
+
+/**
+ * get latest date from history data on server
+ * @param {import('types/data.js').WeatherData[]} history
+ */
+export const getLastDate = history =>
+    history.reduce((prev, curr) => (curr.datetime > prev ? (prev = curr.datetime) : prev), options.startDate);
 
 /**
  * @param {import('types/data.js').VisualCrossingData[]} newData

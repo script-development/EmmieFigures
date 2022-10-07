@@ -2,7 +2,6 @@ import { GraphLineElement, GraphTextElement } from "./graph";
 
 export interface Paint {
     clear: () => void,
-    interpolate: number,
     text: (element: GraphTextElement) => void,
     line: (element: GraphLineElement) => void,
 };
@@ -28,13 +27,11 @@ export interface SketchOptions {
 };
 
 export interface Grid {
-    properties: {
-        width: number,
-        height: number,
-        xUnits: number,
-        yUnits: number,
-        unitWidth: number,
-        unitHeight: number,
-    },
+    width: number,
+    height: number,
+    xUnits: number,
+    yUnits: number,
+    unitWidth: number,
+    unitHeight: number,
     show: () => void,
 };

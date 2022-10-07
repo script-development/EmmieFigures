@@ -27,3 +27,26 @@ export default c => ({
     },
     clear: () => c.clearRect(0, 0, c.canvas.width, c.canvas.height),
 });
+
+const defaultOptions = {
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: 0,
+    color: 'black',
+    weight: 1,
+};
+
+export const Line = (options = {}) => {
+    const actualOptions = {...defaultOptions, ...options};
+    return {
+        pos: {
+            x1: actualOptions.x1,
+            y1: actualOptions.y1,
+            x2: actualOptions.x2,
+            y2: actualOptions.y2,
+        },
+        color: actualOptions.color,
+        weight: actualOptions.weight,
+    };
+};

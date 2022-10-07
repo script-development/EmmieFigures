@@ -5,6 +5,8 @@ import express from 'express';
 import path from 'path';
 import deploy from './deploy.js';
 import {getData} from './services/store.js';
+import {getLastDate} from './services/visualcrossing.js';
+import {getFile} from 'services/filesystem.js';
 
 // VisualCrossingWeather data fetch
 await deploy();
@@ -35,9 +37,10 @@ const root = path.resolve(path.dirname(''));
         app.use(viteDevMiddleware);
     }
 
-    app.get('/api/qC', (req, res) => {
-        const q = getData('VC_Session');
-        res.send(q);
+    app.get('/api/qC', async (req, res) => {
+        const history = await getFile('./data/VC_Data.json');
+        const lastDate = getLastDate(history);
+        res.send(lastDate);
     });
     app.get('/api/qC2', (req, res) => {
         const r = getData('weatherData');

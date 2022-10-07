@@ -12,3 +12,6 @@ export const fileExists = async path => {
     }
     return true;
 };
+
+/** @param {string} path */
+export const getFile = async path => JSON.parse(await fs.readFile(path, 'utf-8'));

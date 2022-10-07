@@ -1,4 +1,5 @@
 <template>
+    <ScatterPlot />
     <!-- <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
     <VSelect
         v-model="trendLineKey"
@@ -42,13 +43,12 @@
             @change="event => (selectedEndDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
     </div> -->
-    <div>Index</div>
 </template>
 
 <script setup>
 /** @typedef {import('types/data').ReportData} ReportData */
 /** @typedef {import('types/data').WeatherData} WeatherData */
-// import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
+import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 // import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed} from 'vue';
 // import {getFromApi} from 'services/api';
@@ -95,8 +95,8 @@ const selectedEndDate = ref('');
 // };
 
 onMounted(async () => {
-    dat.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC`);
-    dat2.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC2`);
+    // dat.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC`);
+    // dat2.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC2`);
     // weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
     // reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
     // setDateInputs();

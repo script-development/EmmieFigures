@@ -1,7 +1,5 @@
-import {paint} from 'sketches/index.js';
-
 /** @type {{update: function}[]} */
-let updates = [];
+export const updates = [];
 
 /** @type {{id: string, show: function}[]} */
 export const render = [];
@@ -42,8 +40,7 @@ const mainLoop = timeStamp => {
     calculateFPS(timeStamp);
     simulate();
 
-    paint.interpolate = delta / step;
-    for (let i = 0; i < render.length; i++) render[i].show(paint);
+    for (let i = 0; i < render.length; i++) render[i].show(delta / step); // delta/step = interpolate
 };
 
 const simulate = () => {
@@ -75,7 +72,7 @@ const start = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
         requestID = requestAnimationFrame(timeStamp => {
-            for (let i = 0; i < render.length; i++) render[i].show(paint); // initial render
+            for (let i = 0; i < render.length; i++) render[i].show(0); // initial render
             running = true;
             lastTimeStamp = timeStamp;
             lastFPSUpdate = timeStamp;
