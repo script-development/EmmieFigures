@@ -10,7 +10,7 @@ let step = 1000 / maxFPS;
 let delta = 0;
 let lastTimeStamp = 0;
 
-// start/stop
+// start/halt
 let requestID = 0;
 let running = false;
 let started = false;
@@ -29,11 +29,13 @@ let framesThisSecond = 0;
 /** @param {DOMHighResTimeStamp} timeStamp */
 const mainLoop = timeStamp => {
     requestID = requestAnimationFrame(mainLoop);
+
     // throttle FPS
     if (timeStamp < lastTimeStamp + 1000 / maxFPS) {
         returns++;
         return;
     }
+
     delta += timeStamp - lastTimeStamp;
     lastTimeStamp = timeStamp;
 
@@ -68,7 +70,7 @@ const calculateFPS = timeStamp => {
     totalFrames++;
 };
 
-const start = () => {
+const run = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
         requestID = requestAnimationFrame(timeStamp => {
@@ -83,7 +85,7 @@ const start = () => {
     }
 };
 
-const stop = () => {
+const halt = () => {
     running = false;
     started = false;
     cancelAnimationFrame(requestID);
@@ -109,8 +111,8 @@ export const unsetRender = id => {
 export const setUpdate = obj => updates.push(obj);
 
 export default {
-    start: () => start(),
-    stop: () => stop(),
+    run: () => run(),
+    halt: () => halt(),
     running: () => running,
     frameCount: () => totalFrames,
     updateCount: () => totalUpdates,

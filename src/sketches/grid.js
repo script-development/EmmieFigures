@@ -11,12 +11,12 @@ const Grid = (w = 300, h = 150, x = 10, y = 10) => ({
 
 /**
  * @param {CanvasRenderingContext2D} context
- * @param {import("types/sketches").Paint} paint
+ * @param {import('types/paint').Paint} paint
  */
 export default (context, paint) => {
     const grid = Grid(context.canvas.width, context.canvas.height, 32, 18);
-    const lineX = Line({x2: grid.width, color: 'gray'});
-    const lineY = Line({y2: grid.height, color: 'gray'});
+    const lineX = Line({x2: grid.width, color: 'lightgray'});
+    const lineY = Line({y2: grid.height, color: 'lightgray'});
     const show = () => {
         for (let y = 0; y <= grid.yUnits; y++) {
             for (let x = 0; x <= grid.xUnits; x++) {

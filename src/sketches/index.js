@@ -16,15 +16,12 @@ export default (id, options) => {
     if (options) setOptions(options, context.canvas);
     const paint = Paint(context);
     const grid = Grid(context, paint);
-    /** @type {import('types/sketches').Paint} */
     if (options?.clear) setClear(paint);
-    // @ts-ignore
-    // Object.keys(p).forEach(key => (paint[key] = p[key]));
     return {
         context,
         grid,
-        start: () => engine.start(),
-        stop: () => engine.stop(),
+        run: () => engine.run(),
+        halt: () => engine.halt(),
     };
 };
 

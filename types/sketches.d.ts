@@ -1,16 +1,8 @@
-import { GraphLineElement, GraphTextElement } from "./graph";
-
-export interface Paint {
-    clear: () => void,
-    text: (element: GraphTextElement) => void,
-    line: (element: GraphLineElement) => void,
-};
-
 export interface Sketch {
     context: CanvasRenderingContext2D,
     grid: Grid,
-    start: () => void,
-    stop: () => void,
+    run: () => void,
+    halt: () => void,
 };
 
 export interface SketchOptions {

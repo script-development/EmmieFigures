@@ -6,7 +6,7 @@ import path from 'path';
 import deploy from './deploy.js';
 import {getData} from './services/store.js';
 import {getLastDate} from './services/visualcrossing.js';
-import {getFile} from 'services/filesystem.js';
+import {getFile} from './services/filesystem.js';
 
 // VisualCrossingWeather data fetch
 await deploy();

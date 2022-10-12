@@ -1,32 +1,58 @@
-import {Vec4} from 'sketches/vectors';
-import {setRender} from '../engine';
+// import {Vec4} from 'sketches/vectors';
+// import {setRender} from '../engine';
 
-/** @typedef {import('types/graph').GraphTextElement} TextElement */
-/** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
-/** @typedef {import('types/graph').GraphLineElement} LineElement */
-/** @typedef {import('types/graph').GraphElements} Elements */
-/** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
-/** @typedef {import('types/sketches').Paint} Paint */
+import {Line, Text} from 'sketches/paint';
 
-/** @type {import('types/sketches').Sketch["grid"]} */
-let grid;
+// /** @typedef {import('types/graph').GraphTextElement} TextElement */
+// /** @typedef {import('types/graph').GraphUnitsElement} UnitsElement */
+// /** @typedef {import('types/graph').Line} Line */
+// /** @typedef {import('types/graph').GraphElements} Elements */
+// /** @typedef {"x"|"y"|"yTitle"|"xTitle"|"mainTitle"} GraphShowElementsNonUnits */
+
+// /** @type {import('types/sketches').Sketch["grid"]} */
+// let grid;
+
+/**
+ * Scatter Plot -> TypeX (Weather type (unit of Measurement)) / TypeY (Presence (%))
+ * @param {import("types/sketches").Sketch} sketch
+ */
+export default sketch => {
+    // grid = sketch.grid.properties;
+    const components = createComponents(sketch.grid.unitWidth, sketch.grid.unitHeight, sketch.grid.width);
+    // setPositions();
+    // setUnitOffsets();
+    // setRender({
+    //     id: 'graph',
+    //     show,
+    // });
+
+    // setRender({
+    //     id: 'grid',
+    //     show: () => sketch.grid.show(),
+    // });
+    return {
+        show,
+    };
+};
+
+/**
+ * Create all graph components
+ * @param {number} uW unit width
+ * @param {number} uH unit height
+ */
+const createComponents = (uW, uH) => {
+    const components = {
+        xAxis: Line({x1: uW * 4, y1: uH * 14, x2: uW * 28, y2: uH * 14, weight: 4}),
+        yAxis: Line({x1: uW * 4, y1: uH * 14, x2: uW * 4, y2: uH * 4, weight: 4}),
+        xTitle: Text({x: uW * 16, y: uH * 16}),
+        yTitle: Text({x: uW * 2, y: uH * 9}),
+        mainTitle: Text({x: uW * 16, y: uH * 2, size: 32, weight: 'bold', msg: 'Scatterplot'}),
+    };
+};
 
 const defaults = {
-    text: {
-        text: '',
-        size: 24,
-        weight: 'normal',
-        color: 'black',
-        font: 'sans-serif',
-        /** @type {CanvasTextAlign} */
-        align: 'center',
-        /** @type {CanvasTextBaseline} */
-        baseline: 'middle',
-        /** @type {'text'} */
-        paint: 'text',
-    },
     units: {
-        /** @type {TextElement[]} */
+        // /** @type {TextElement[]} */
         units: [],
         max: 0,
         min: 0,
@@ -37,44 +63,16 @@ const defaults = {
         offset: {x1: 0, y1: 0, x2: 0, y2: 0},
     },
 };
-
-/** @type {Elements} */
-export const elements = {
-    x: {
-        pos: {x1: 0, y1: 0, x2: 0, y2: 0},
-        color: 'black',
-        weight: 4,
-        paint: 'line',
-    },
-    y: {
-        pos: {x1: 0, y1: 0, x2: 0, y2: 0},
-        color: 'black',
-        weight: 4,
-        paint: 'line',
-    },
-    xTitle: {
-        ...defaults.text,
-        pos: {x: 0, y: 0},
-    },
-    yTitle: {
-        ...defaults.text,
-        pos: {x: 0, y: 0},
-        angle: -Math.PI / 2,
-    },
-    mainTitle: {
-        ...defaults.text,
-        text: 'Scatterplot',
-        pos: {x: 0, y: 0},
-        size: 32,
-        weight: 'bold',
-    },
-    xUnits: {
-        ...defaults.units,
-    },
-    yUnits: {
-        ...defaults.units,
-    },
-};
+//     yTitle: {
+//         angle: -Math.PI / 2,
+//     },
+//     xUnits: {
+//         ...defaults.units,
+//     },
+//     yUnits: {
+//         ...defaults.units,
+//     },
+// };
 
 /**
  * @param {number} x
@@ -87,43 +85,6 @@ const Unit = (x, y, text) => ({
     text,
     size: 16,
 });
-
-const setPositions = () => {
-    elements.x.pos = {
-        x1: grid.unitWidth * 4,
-        y1: grid.unitHeight * 14,
-        x2: grid.unitWidth * 28,
-        y2: grid.unitHeight * 14,
-    };
-    elements.y.pos = {
-        x1: grid.unitWidth * 4,
-        y1: grid.unitHeight * 14,
-        x2: grid.unitWidth * 4,
-        y2: grid.unitHeight * 4,
-    };
-    elements.xTitle.pos = {x: grid.unitWidth * 16, y: grid.unitHeight * 16};
-    elements.yTitle.pos = {x: grid.unitWidth * 2, y: grid.unitHeight * 9};
-    elements.mainTitle.pos = {x: grid.width * 0.5, y: grid.unitHeight * 2};
-};
-
-/**
- * Scatter Plot -> TypeX (Weather type (unit of Measurement)) / TypeY (Presence (%))
- * @param {import("types/sketches").Sketch} sketch
- * @returns
- */
-export const createGraph = sketch => {
-    // grid = sketch.grid.properties;
-    // setPositions();
-    // setUnitOffsets();
-    // setRender({
-    //     id: 'graph',
-    //     show,
-    // });
-    setRender({
-        id: 'grid',
-        show: () => sketch.grid.show(),
-    });
-};
 
 /** @param {Paint} paint */
 const show = paint => {

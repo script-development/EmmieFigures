@@ -13,7 +13,7 @@
 
 import {onMounted} from 'vue';
 import Sketch from '..';
-import {createGraph} from './Graph';
+// import Graph from './Graph';
 // import {createGraph} from './Graph';
 // import {setStatsX, setStatsY, createStats, changeRegression} from './Stats';
 
@@ -63,9 +63,11 @@ onMounted(() => {
     sketch.context.canvas.classList.add('block');
 
     sketch.grid.show();
+    // const graph = Graph(sketch);
+    // graph.show();
     // createGraph(sketch);
     // createStats(sketch);
 
-    // sketch.start();
+    // sketch.run();
 });
 </script>
