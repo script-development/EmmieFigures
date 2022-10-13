@@ -1,6 +1,10 @@
+/** @typedef {import('types/sketches').Grid} Grid */
+/** @typedef {import('types/paint').Paint} Paint */
+
 import {Line} from './paint';
 
-const Grid = (w = 300, h = 150, x = 10, y = 10) => ({
+/** @type {(w?: number, h?: number, xUnits?: number, yUnits?: number) => Grid} */
+const createGrid = (w = 300, h = 150, x = 10, y = 10) => ({
     width: w,
     height: h,
     xUnits: x,
@@ -9,12 +13,9 @@ const Grid = (w = 300, h = 150, x = 10, y = 10) => ({
     unitHeight: h / y,
 });
 
-/**
- * @param {CanvasRenderingContext2D} context
- * @param {import('types/paint').Paint} paint
- */
+/** @type {(context: CanvasRenderingContext2D, paint: Paint) => Grid&{show: () => void}} */
 export default (context, paint) => {
-    const grid = Grid(context.canvas.width, context.canvas.height, 32, 18);
+    const grid = createGrid(context.canvas.width, context.canvas.height, 32, 18);
     const lineX = Line({x2: grid.width, color: 'lightgray'});
     const lineY = Line({y2: grid.height, color: 'lightgray'});
     const show = () => {

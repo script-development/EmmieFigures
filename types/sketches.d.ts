@@ -25,5 +25,4 @@ export interface Grid {
     yUnits: number,
     unitWidth: number,
     unitHeight: number,
-    show: () => void,
 };

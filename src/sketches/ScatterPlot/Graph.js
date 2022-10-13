@@ -18,7 +18,7 @@ import {Line, Text} from 'sketches/paint';
  */
 export default sketch => {
     // grid = sketch.grid.properties;
-    const components = createComponents(sketch.grid.unitWidth, sketch.grid.unitHeight, sketch.grid.width);
+    const components = createComponents(sketch.grid);
     // setPositions();
     // setUnitOffsets();
     // setRender({
@@ -37,17 +37,17 @@ export default sketch => {
 
 /**
  * Create all graph components
- * @param {number} uW unit width
- * @param {number} uH unit height
+ * @param {import('types/sketches').Grid} grid
  */
-const createComponents = (uW, uH) => {
+const createComponents = ({width, height}) => {
     const components = {
-        xAxis: Line({x1: uW * 4, y1: uH * 14, x2: uW * 28, y2: uH * 14, weight: 4}),
-        yAxis: Line({x1: uW * 4, y1: uH * 14, x2: uW * 4, y2: uH * 4, weight: 4}),
-        xTitle: Text({x: uW * 16, y: uH * 16}),
-        yTitle: Text({x: uW * 2, y: uH * 9}),
-        mainTitle: Text({x: uW * 16, y: uH * 2, size: 32, weight: 'bold', msg: 'Scatterplot'}),
+        xAxis: Line({x1: 0.125 * width, y1: 0.75 * height, x2: 0.875 * width, y2: 0.75 * height, weight: 4}),
+        yAxis: Line({x1: 0.125 * width, y1: 0.78 * height, x2: 0.125 * width, y2: 0.22 * height, weight: 4}),
+        xTitle: Text({x: width / 2, y: 0.875 * height}),
+        yTitle: Text({x: 0.0625 * width, y: height / 2}),
+        mainTitle: Text({x: width / 2, y: 0.1 * height, size: 32, weight: 'bold', msg: 'Scatterplot'}),
     };
+    return components;
 };
 
 const defaults = {
