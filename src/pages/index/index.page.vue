@@ -1,7 +1,7 @@
 <template>
     <ScatterPlot />
-    <!-- <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
-    <VSelect
+    <!-- <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" /> -->
+    <!-- <VSelect
         v-model="trendLineKey"
         class="absolute bottom-0 mb-24 xl:w-96"
         :options="settings.trendLines"
@@ -51,14 +51,14 @@
 import ScatterPlot from 'sketches/ScatterPlot/Index.vue';
 // import VSelect from 'components/Select.vue';
 import {onMounted, ref, computed} from 'vue';
-// import {getFromApi} from 'services/api';
-// import {getEnv} from 'services/env';
-// import {addOrSubtractDays, yesterday} from 'services/dates';
 import {getFromApi} from 'services/api';
 import {getEnv} from 'services/env';
+import {yesterday} from 'services/dates';
+// import {addOrSubtractDays, yesterday} from 'services/dates';
 // import {statsActive} from 'sketches/ScatterPlot/Stats';
 
-const props = defineProps({
+// const props = defineProps({
+defineProps({
     settings: {
         /** @type {import('@vue/runtime-core').PropType<import('types/data').Settings>} */
         type: Object,
@@ -66,8 +66,8 @@ const props = defineProps({
     },
 });
 
-const dat = ref('');
-const dat2 = ref('');
+// const dat = ref('');
+// const dat2 = ref('');
 
 /** selected trendLine for plot */
 // const trendLineKey = ref('none');
@@ -76,30 +76,42 @@ const dat2 = ref('');
 const weather = ref([]);
 
 /** @type {import('@vue/runtime-core').Ref<ReportData[]>} */
-const reports = ref([]);
+// const reports = ref([]);
 
 /** selected weather type for x-axis */
-const weatherTypeKey = ref('cloudcover');
+// const weatherTypeKey = ref('cloudcover');
 
 /** @type {['morning', 'afternoon', 'evening']} */
-const dayparts = ['morning', 'afternoon', 'evening'];
+// const dayparts = ['morning', 'afternoon', 'evening'];
 
+/** @type {import('@vue/runtime-core').Ref<string>} */
 const selectedStartDate = ref('');
 const selectedEndDate = ref('');
 // const minEndDate = computed(() => addOrSubtractDays(selectedStartDate.value, 1));
 // const maxStartDate = computed(() => addOrSubtractDays(selectedEndDate.value, -1));
 
-// const setDateInputs = () => {
-//     selectedStartDate.value = '2021-01-01';
-//     selectedEndDate.value = yesterday();
-// };
+/**
+ * @param {string} start
+ * @param {string} end
+ */
+const setDateInputs = (start, end) => {
+    selectedStartDate.value = start;
+    selectedEndDate.value = end;
+    // selectedStartDate.value = '2021-01-01';
+    // selectedEndDate.value = yesterday();
+};
+const shortStartDate = computed(() => selectedStartDate.value.split('-').join('_'));
+const shortEndDate = computed(() => selectedEndDate.value.split('-').join('_'));
 
 onMounted(async () => {
+    setDateInputs('2021-01-01', '2021-12-31');
+    weather.value = await getFromApi(
+        `${getEnv('VITE_APP_URL')}/api/datetime/${shortStartDate.value}-${shortEndDate.value}`,
+        // `${getEnv('VITE_APP_URL')}/api/weather/${selectedStartDate.value}-${selectedStartDate.value}`,
+    );
     // dat.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC`);
     // dat2.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC2`);
-    // weather.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/weather-data`);
     // reports.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/report-data`);
-    // setDateInputs();
 });
 
 // const weatherSetting = computed(

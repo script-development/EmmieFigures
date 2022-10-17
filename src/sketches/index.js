@@ -1,4 +1,5 @@
 /** @typedef {import('types/sketches').SketchOptions} SketchOptions */
+/** @typedef {import('types/sketches').Sketch} Sketch */
 
 import Paint from './paint';
 import engine from './engine';
@@ -9,20 +10,20 @@ import {setRender} from './engine';
  * Make a new Sketch API for a canvas element
  * @param {string} id the id of the canvas element
  * @param {SketchOptions} [options]
- * @returns {import('types/sketches').Sketch}
+ * @returns
  */
 export default (id, options) => {
-    const context = getContext(id);
-    if (options) setOptions(options, context.canvas);
-    const paint = Paint(context);
-    const grid = Grid(context, paint);
-    if (options?.clear) setClear(paint);
-    return {
-        context,
-        grid,
-        run: () => engine.run(),
-        halt: () => engine.halt(),
-    };
+    const properties = {};
+    properties['context'] = getContext(id);
+    properties['paint'] = Paint(properties.context);
+    if (options) {
+        setOptions(options, properties.context.canvas);
+        if (options.clear) setClear(properties.paint);
+        if (options.grid) properties['grid'] = Grid(properties.context, properties.paint);
+    }
+    properties['run'] = () => engine.run();
+    properties['halt'] = () => engine.halt();
+    return properties;
 };
 
 /**
@@ -92,7 +93,7 @@ const setPos = (pos, canvas) => {
 
 /**
  * This must always be the first render in the engine (sketch has to be made before anything else)
- * @param {import('types/sketches').Paint} paint
+ * @param {import('types/paint').Paint} paint
  */
 const setClear = paint => {
     setRender({

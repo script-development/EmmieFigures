@@ -5,7 +5,7 @@
  */
 import {setRender, unsetRender} from 'sketches/engine';
 import {ref} from 'vue';
-import {elements} from './Graph';
+// import {elements} from './Graph';
 import {linearRegression} from './regression';
 import {regressionLoess} from 'd3-regression';
 
@@ -57,15 +57,15 @@ const getLinearRegressionData = () => {
     return data;
 };
 
-/** @param {import('types/sketches').Paint} paint */
+/** @param {import('types/paint').Paint} paint */
 const showRegression = paint => paint.line(regressionElement);
 
-/** @type {import('types/graph').GraphLineElement} */
+/** @type {import('types/paint').Line} */
 const regressionElement = {
     pos: {x1: 0, y1: 0, x2: 0, y2: 0},
     color: 'red',
     weight: 2,
-    paint: 'line',
+    type: 'line',
 };
 
 const showLinearRegression = () => {

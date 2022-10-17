@@ -1,6 +1,9 @@
+import { Paint } from "./paint";
+
 export interface Sketch {
     context: CanvasRenderingContext2D,
-    grid: Grid,
+    grid?: Grid,
+    paint: Paint,
     run: () => void,
     halt: () => void,
 };
@@ -12,8 +15,9 @@ export interface SketchOptions {
     w?: number,
     h?: number,
     pos?: "center"|"absolute",
-    rows? : number,
-    cols? : number,
+    rows?: number,
+    cols?: number,
+    grid?: boolean,
     border?: boolean,
     clear?: boolean,
 };
@@ -25,4 +29,5 @@ export interface Grid {
     yUnits: number,
     unitWidth: number,
     unitHeight: number,
+    show: () => void,
 };

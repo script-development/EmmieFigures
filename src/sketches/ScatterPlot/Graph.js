@@ -18,7 +18,7 @@ import {Line, Text} from 'sketches/paint';
  */
 export default sketch => {
     // grid = sketch.grid.properties;
-    const components = createComponents(sketch.grid);
+    const components = createComponents(sketch.context.canvas.width, sketch.context.canvas.height);
     // setPositions();
     // setUnitOffsets();
     // setRender({
@@ -31,24 +31,22 @@ export default sketch => {
     //     show: () => sketch.grid.show(),
     // });
     return {
-        show,
+        show: () => show(sketch.paint, components),
     };
 };
 
 /**
  * Create all graph components
- * @param {import('types/sketches').Grid} grid
+ * @param {number} width
+ * @param {number} height
  */
-const createComponents = ({width, height}) => {
-    const components = {
-        xAxis: Line({x1: 0.125 * width, y1: 0.75 * height, x2: 0.875 * width, y2: 0.75 * height, weight: 4}),
-        yAxis: Line({x1: 0.125 * width, y1: 0.78 * height, x2: 0.125 * width, y2: 0.22 * height, weight: 4}),
-        xTitle: Text({x: width / 2, y: 0.875 * height}),
-        yTitle: Text({x: 0.0625 * width, y: height / 2}),
-        mainTitle: Text({x: width / 2, y: 0.1 * height, size: 32, weight: 'bold', msg: 'Scatterplot'}),
-    };
-    return components;
-};
+const createComponents = (width, height) => ({
+    xAxis: Line({x1: 0.2 * width, y1: 0.8 * height, x2: 0.8 * width, y2: 0.8 * height, weight: 4}),
+    yAxis: Line({x1: 0.2 * width, y1: 0.8 * height, x2: 0.2 * width, y2: 0.2 * height, weight: 4}),
+    xTitle: Text({x: width / 2, y: 0.9 * height}),
+    yTitle: Text({x: 0.1 * width, y: height / 2}),
+    mainTitle: Text({x: width / 2, y: 0.1 * height, size: 32, weight: 'bold', msg: 'Scatterplot'}),
+});
 
 const defaults = {
     units: {
@@ -86,25 +84,29 @@ const Unit = (x, y, text) => ({
     size: 16,
 });
 
-/** @param {Paint} paint */
-const show = paint => {
-    // for every element: paint value is type of draw with paint object
-    Object.keys(elements).forEach(key => {
-        if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
-        // @ts-ignore
-        else showElements(key, paint);
+/**
+ * @param {import('types/paint').Paint} paint
+ * @param {import('types/graph').Components} components
+ */
+const show = (paint, components) => {
+    // for every component: type is method to run from the paint object
+    Object.keys(components).forEach(key => {
+        const type = components[key].type;
+        if (type === 'line') paint.line(components[key]);
+        else if (type === 'text') paint.text(components[key]);
+        // if (key === 'xUnits' || key === 'yUnits') elements[key].units.forEach(el => paint[el.paint](el));
     });
 };
 
 /**
- *
- * @param {GraphShowElementsNonUnits} key
- * @param {Paint} paint
+ * @param {string} key
+ * @param {import('types/paint').Paint} paint
+ * @param {import('types/graph').Components} elements
  */
-const showElements = (key, paint) => {
-    const element = elements[key];
-    if (element.paint === 'line') paint[element.paint](element);
-    else if (element.paint === 'text') paint[element.paint](element);
+const showElements = (key, paint, elements) => {
+    // const element = elements[key];
+    paint[elements[key].type](elements[key]);
+    // else if (elements[key].type === 'text') paint[elements[key].type](element);
 };
 
 /**

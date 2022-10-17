@@ -13,7 +13,7 @@
 
 import {onMounted} from 'vue';
 import Sketch from '..';
-// import Graph from './Graph';
+import Graph from './Graph';
 // import {createGraph} from './Graph';
 // import {setStatsX, setStatsY, createStats, changeRegression} from './Stats';
 
@@ -58,13 +58,12 @@ import Sketch from '..';
 // );
 
 onMounted(() => {
-    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720, clear: true});
+    const sketch = Sketch('scatter-plot', {pos: 'center', w: 1280, h: 720, clear: true, border: true});
     sketch.context.canvas.classList.remove('hidden');
     sketch.context.canvas.classList.add('block');
 
-    sketch.grid.show();
-    // const graph = Graph(sketch);
-    // graph.show();
+    const graph = Graph(sketch);
+    graph.show();
     // createGraph(sketch);
     // createStats(sketch);
 

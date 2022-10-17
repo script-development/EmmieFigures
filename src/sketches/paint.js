@@ -32,6 +32,7 @@ const defaults = {
         y2: 0,
         color: 'black',
         weight: 1,
+        /** @type {"line"} */
         type: 'line',
     },
     text: {
@@ -46,6 +47,7 @@ const defaults = {
         align: 'center',
         /** @type {CanvasTextBaseline} */
         baseline: 'middle',
+        /** @type {"text"} */
         type: 'text',
     },
 };

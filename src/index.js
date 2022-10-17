@@ -5,8 +5,8 @@ import express from 'express';
 import path from 'path';
 import deploy from './deploy.js';
 import {getData} from './services/store.js';
-import {getLastDate} from './services/visualcrossing.js';
-import {getFile} from './services/filesystem.js';
+// import {getLastDate} from './services/visualcrossing.js';
+// import {getFile} from './services/filesystem.js';
 
 // VisualCrossingWeather data fetch
 await deploy();
@@ -37,21 +37,51 @@ const root = path.resolve(path.dirname(''));
         app.use(viteDevMiddleware);
     }
 
-    app.get('/api/qC', async (req, res) => {
-        const history = await getFile('./data/VC_Data.json');
-        const lastDate = getLastDate(history);
-        res.send(lastDate);
-    });
-    app.get('/api/qC2', (req, res) => {
-        const r = getData('weatherData');
-        res.send(r);
-    });
-    // app.get('/api/weather-data', async (req, res) => {
-    //     res.send(getData('weatherData'));
+    // app.get('/api/qC', async (req, res) => {
+    //     const history = await getFile('./data/VC_Data.json');
+    //     const lastDate = getLastDate(history);
+    //     res.send(lastDate);
     // });
-    // app.get('/api/report-data', async (req, res) => {
-    //     res.send(getData('reportData'));
+    // app.get('/api/qC2', (req, res) => {
+    //     const r = getData('weatherData');
+    //     res.send(r);
     // });
+    app.get('/api/datetime/:start-:end', (req, res) => {
+        // res.send(getData('weatherData'));
+        const start = req.params.start.split('_').join('-');
+        const end = req.params.end.split('_').join('-');
+        console.log(start, end);
+        console.time('getDataR');
+        /** @type {import('types/data.js').ReportData[]} */
+        const reports = getData('reportData');
+        console.log(reports.length);
+        console.timeEnd('getDataR');
+        console.time('getDataW');
+        /** @type {import('types/data.js').WeatherData[]} */
+        const weather = getData('weatherData');
+        console.log(weather.length);
+        console.timeEnd('getDataW');
+        console.time('filter-reports');
+        const filteredReports = reports.filter(r => r.date >= start && r.date <= end);
+        console.log(filteredReports.length);
+        console.timeEnd('filter-reports');
+        console.time('filter-weather');
+        const filteredWeather = weather.filter(w => {
+            if (reports.find(r => w.datetime === r.date)) return true;
+            return false;
+        });
+        const sorted = filteredWeather.sort((a, b) => {
+            return a.datetime - b.datetime;
+        });
+        console.log(sorted[0].datetime);
+        // console.log(filteredWeather[0]);
+        console.timeEnd('filter-weather');
+        // console.log(filteredWeather.length);
+        res.send(sorted);
+    });
+    app.get('/api/report-data', (_, res) => {
+        res.send(getData('reportData'));
+    });
 
     app.get('*', async (req, res, next) => {
         const urlOriginal = req.originalUrl;

@@ -3,6 +3,7 @@ import {getFromApi} from './api.js';
 import {yesterday} from './dates.js';
 import {getEnv} from './env.js';
 import {getFile} from './filesystem.js';
+import {setData} from './store.js';
 
 const BASE_URL = getEnv('VC_BASE_URL');
 const API_KEY = getEnv('VC_API_KEY'); //
@@ -22,9 +23,10 @@ export default {
             const weatherData = await getWeatherData(lastDate, yesterday());
             if (!weatherData)
                 throw new Error(`error retrieving Visual Crossing Weather Data: ${lastDate} to ${yesterday()}`);
-
-            writeWeatherData([weatherData], history);
+            await writeWeatherData([weatherData], history);
         }
+        // TODO:: Remove from store and make available only through api route(s)
+        setData('weatherData', history);
     },
     setHistory: async () => {
         /** @type {import('types/data.js').VisualCrossingData[]} */
@@ -44,7 +46,7 @@ export default {
                 throw new Error(`error retrieving Visual Crossing Weather Data: ${date[0]} to ${date[1]}`);
             data.push(weatherData);
         }
-        writeWeatherData(data);
+        await writeWeatherData(data);
     },
 };
 

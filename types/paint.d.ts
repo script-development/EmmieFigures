@@ -8,7 +8,7 @@ export interface Line {
     pos: {x1: number, y1: number, x2: number, y2: number},
     color: string,
     weight: number,
-    type: string,
+    type: "line",
 }
 
 export interface LineOptions {

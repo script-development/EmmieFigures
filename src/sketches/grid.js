@@ -3,7 +3,7 @@
 
 import {Line} from './paint';
 
-/** @type {(w?: number, h?: number, xUnits?: number, yUnits?: number) => Grid} */
+/** @type {(w?: number, h?: number, x?: number, y?: number) => Omit<Grid, 'show'>}} */
 const createGrid = (w = 300, h = 150, x = 10, y = 10) => ({
     width: w,
     height: h,
@@ -13,7 +13,7 @@ const createGrid = (w = 300, h = 150, x = 10, y = 10) => ({
     unitHeight: h / y,
 });
 
-/** @type {(context: CanvasRenderingContext2D, paint: Paint) => Grid&{show: () => void}} */
+/** @type {(context: CanvasRenderingContext2D, paint: Paint) => Grid} */
 export default (context, paint) => {
     const grid = createGrid(context.canvas.width, context.canvas.height, 32, 18);
     const lineX = Line({x2: grid.width, color: 'lightgray'});
