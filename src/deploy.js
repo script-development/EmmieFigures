@@ -30,7 +30,7 @@ const appendWeatherData = async () => {
 
 // TODO:: Remove from store and make available only through api route(s)
 const reports = async () => {
-    const startDate = '2021-01-01';
+    const startDate = '2020-01-01';
     const endDate = yesterday();
     try {
         await fs.access('./data/reports.json'); // catch will fetch data if file is not present
@@ -38,7 +38,7 @@ const reports = async () => {
         return reports;
     } catch {
         /** @type {{message: string, reportsForMonth: ReportData[]}} */
-        const reports = await getFromApi(getEnv('RAPP_REPORTS_URL') + `/${startDate}/${endDate}`);
+        const reports = await getFromApi(getEnv('RAPP_LOCAL_REPORTS_URL') + `/${startDate}/${endDate}`);
         await fs.writeFile('./data/reports.json', JSON.stringify(reports.reportsForMonth));
         return reports.reportsForMonth;
     }

@@ -5,6 +5,7 @@ import express from 'express';
 import path from 'path';
 import deploy from './deploy.js';
 import {getData} from './services/store.js';
+import {getFirstDate, getFirstDateR, getLastDate, getLastDateR} from './services/visualcrossing.js';
 // import {getLastDate} from './services/visualcrossing.js';
 // import {getFile} from './services/filesystem.js';
 
@@ -47,41 +48,43 @@ const root = path.resolve(path.dirname(''));
     //     res.send(r);
     // });
     app.get('/api/datetime/:start-:end', (req, res) => {
+        res.send([]);
         // res.send(getData('weatherData'));
         const start = req.params.start.split('_').join('-');
         const end = req.params.end.split('_').join('-');
-        console.log(start, end);
-        console.time('getDataR');
+        console.log('start: ' + start, 'end: ' + end);
+        //     console.time('getDataR');
         /** @type {import('types/data.js').ReportData[]} */
         const reports = getData('reportData');
-        console.log(reports.length);
-        console.timeEnd('getDataR');
-        console.time('getDataW');
+        console.log('length: ' + reports.length, 'first: ' + getFirstDateR(reports), 'last: ' + getLastDateR(reports));
+        //     console.timeEnd('getDataR');
+        //     console.time('getDataW');
         /** @type {import('types/data.js').WeatherData[]} */
         const weather = getData('weatherData');
-        console.log(weather.length);
-        console.timeEnd('getDataW');
-        console.time('filter-reports');
-        const filteredReports = reports.filter(r => r.date >= start && r.date <= end);
-        console.log(filteredReports.length);
-        console.timeEnd('filter-reports');
-        console.time('filter-weather');
-        const filteredWeather = weather.filter(w => {
-            if (reports.find(r => w.datetime === r.date)) return true;
-            return false;
-        });
-        const sorted = filteredWeather.sort((a, b) => {
-            return a.datetime - b.datetime;
-        });
-        console.log(sorted[0].datetime);
-        // console.log(filteredWeather[0]);
-        console.timeEnd('filter-weather');
-        // console.log(filteredWeather.length);
-        res.send(sorted);
+        console.log('length: ' + weather.length, 'first: ' + getFirstDate(weather), 'last: ' + getLastDate(weather));
+        //     console.log(weather.length);
+        //     console.timeEnd('getDataW');
+        //     console.time('filter-reports');
+        // const filteredReports = reports.filter(r => r.date >= start && r.date <= end);
+        //     console.log(filteredReports.length);
+        //     console.timeEnd('filter-reports');
+        //     console.time('filter-weather');
+        //     const filteredWeather = weather.filter(w => {
+        //         if (reports.find(r => w.datetime === r.date)) return true;
+        //         return false;
+        //     });
+        //     const sorted = filteredWeather.sort((a, b) => {
+        //         return a.datetime - b.datetime;
+        //     });
+        //     console.log(sorted[0].datetime);
+        //     // console.log(filteredWeather[0]);
+        //     console.timeEnd('filter-weather');
+        //     // console.log(filteredWeather.length);
+        //     res.send(sorted);
     });
-    app.get('/api/report-data', (_, res) => {
-        res.send(getData('reportData'));
-    });
+    // app.get('/api/report-data', (_, res) => {
+    //     res.send(getData('reportData'));
+    // });
 
     app.get('*', async (req, res, next) => {
         const urlOriginal = req.originalUrl;

@@ -100,13 +100,13 @@ const setDateInputs = (start, end) => {
     // selectedStartDate.value = '2021-01-01';
     // selectedEndDate.value = yesterday();
 };
-const shortStartDate = computed(() => selectedStartDate.value.split('-').join('_'));
-const shortEndDate = computed(() => selectedEndDate.value.split('-').join('_'));
+const startDate = computed(() => selectedStartDate.value.split('-').join('_'));
+const endDate = computed(() => selectedEndDate.value.split('-').join('_'));
 
 onMounted(async () => {
     setDateInputs('2021-01-01', '2021-12-31');
     weather.value = await getFromApi(
-        `${getEnv('VITE_APP_URL')}/api/datetime/${shortStartDate.value}-${shortEndDate.value}`,
+        `${getEnv('VITE_APP_URL')}/api/datetime/${startDate.value}-${endDate.value}`,
         // `${getEnv('VITE_APP_URL')}/api/weather/${selectedStartDate.value}-${selectedStartDate.value}`,
     );
     // dat.value = await getFromApi(`${getEnv('VITE_APP_URL')}/api/qC`);

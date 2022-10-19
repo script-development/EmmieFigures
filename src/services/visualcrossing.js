@@ -19,10 +19,12 @@ export default {
     appendHistory: async () => {
         const history = await getFile('./data/VC_Data.json');
         const lastDate = getLastDate(history);
-        if (lastDate < yesterday()) {
-            const weatherData = await getWeatherData(lastDate, yesterday());
+        const yester = yesterday();
+        if (lastDate < yester) {
+            console.log(`fetching append data from ${lastDate} to ${yester}`);
+            const weatherData = await getWeatherData(lastDate, yester);
             if (!weatherData)
-                throw new Error(`error retrieving Visual Crossing Weather Data: ${lastDate} to ${yesterday()}`);
+                throw new Error(`error retrieving Visual Crossing Weather Data: ${lastDate} to ${yester}`);
             await writeWeatherData([weatherData], history);
         }
         // TODO:: Remove from store and make available only through api route(s)
@@ -58,17 +60,40 @@ export const getLastDate = history =>
     history.reduce((prev, curr) => (curr.datetime > prev ? (prev = curr.datetime) : prev), options.startDate);
 
 /**
+ * get first date from history data on server
+ * @param {import('types/data.js').WeatherData[]} history
+ */
+export const getFirstDate = history =>
+    history.reduce((prev, curr) => (curr.datetime < prev ? (prev = curr.datetime) : prev), yesterday());
+
+/**
+ * get latest date from history data on server
+ * @param {import('types/data.js').ReportData[]} history
+ */
+export const getLastDateR = history =>
+    history.reduce((prev, curr) => (curr.date > prev ? (prev = curr.date) : prev), options.startDate);
+
+/**
+ * get first date from history data on server
+ * @param {import('types/data.js').ReportData[]} history
+ */
+export const getFirstDateR = history =>
+    history.reduce((prev, curr) => (curr.date < prev ? (prev = curr.date) : prev), yesterday());
+
+/**
  * @param {import('types/data.js').VisualCrossingData[]} newData
  * @param {import('types/data.js').WeatherData[]} existingData
  */
 const writeWeatherData = async (newData, existingData = []) => {
     let queryCost = 0;
 
+    console.log(`existing data length: ${existingData.length}`);
     newData.forEach(weatherData => {
         existingData = existingData.concat(weatherData.days);
         queryCost += weatherData.queryCost;
     });
-
+    console.log(`new data length: ${existingData.length}, queryCost: ${queryCost}`);
+    console.log(`lastDate: ${getLastDate(existingData)}`);
     await fs.writeFile('./data/VC_Data.json', JSON.stringify(existingData));
 
     const {days, ...meta} = newData[0]; // eslint-disable-line no-unused-vars
