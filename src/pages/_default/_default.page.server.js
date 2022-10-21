@@ -2,6 +2,7 @@ import {renderToString} from '@vue/server-renderer';
 import {escapeInject, dangerouslySkipEscape} from 'vite-plugin-ssr';
 import {createApp} from './app';
 import logoUrl from 'assets/favicon.svg';
+import {Application_Description, Application_Title} from 'services/constants';
 
 export {render};
 // See https://vite-plugin-ssr.com/data-fetching
@@ -14,10 +15,8 @@ async function render(pageContext) {
 
     // See https://vite-plugin-ssr.com/html-head
     const {documentProps} = pageContext;
-    const title = (documentProps && documentProps.title) || 'Rapp Presence';
-    const desc =
-        (documentProps && documentProps.description) ||
-        'Scatter plot correlation different weather types and rapp client presence';
+    const title = (documentProps && documentProps.title) || Application_Title;
+    const desc = (documentProps && documentProps.description) || Application_Description;
 
     const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
