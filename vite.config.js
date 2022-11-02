@@ -15,7 +15,7 @@ export default defineConfig({
             sketches: path.join(srcPath, 'sketches'),
             assets: path.join(srcPath, 'assets'),
             services: path.join(srcPath, 'services'),
-            serverStore: path.join(srcPath, 'serverStore'),
+            src: srcPath,
         },
     },
 });

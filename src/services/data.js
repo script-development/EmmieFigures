@@ -5,7 +5,7 @@
  */
 
 import fs from 'fs/promises';
-import {setData} from '../serverStore/index.js';
+import {setData} from './store.js';
 import {getFromApi} from './api.js';
 import {yesterday} from './dates.js';
 import {getEnv} from './env.js';

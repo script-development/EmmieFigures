@@ -25,7 +25,7 @@
             "sketches/*": ["./src/sketches/*"],
             "assets/*": ["./src/assets/*"],
             "services/*": ["./src/services/*"],
-            "serverStore/*": ["src/serverStore/*"],
+            "src/*": ["./src/*"],
         }
     },
     "typeAcquisition": {

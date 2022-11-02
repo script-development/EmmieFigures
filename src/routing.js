@@ -1,7 +1,7 @@
 /** @typedef {import('express').Express} Express */
 
 import {renderPage} from 'vite-plugin-ssr';
-import {getData} from './serverStore/index.js';
+import {getData} from './services/store.js';
 
 /** @param {Express} app */
 export default app => {

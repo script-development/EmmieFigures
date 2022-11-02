@@ -1,6 +1,7 @@
 <template>
+    <div>Index</div>
     <ScatterPlot :data-x="dataX" :data-y="dataY" :options="{trendLineKey, weatherTypeKey}" />
-    <VSelect
+    <!-- <VSelect
         v-model="trendLineKey"
         class="absolute bottom-0 mb-24 xl:w-96"
         :options="settings.trendLines"
@@ -41,7 +42,7 @@
             :disabled="!statsActive"
             @change="event => (selectedEndDate = /**@type {HTMLInputElement} */ (event.target).value)"
         />
-    </div>
+    </div> -->
 </template>
 
 <script setup>
@@ -94,56 +95,56 @@ onMounted(async () => {
     setDateInputs();
 });
 
-const weatherSetting = computed(
-    () =>
-        props.settings.weatherTypes.find(setting => setting.key === weatherTypeKey.value) ||
-        props.settings.weatherTypes[3], // || => default
-);
+// const weatherSetting = computed(
+//     () =>
+//         props.settings.weatherTypes.find(setting => setting.key === weatherTypeKey.value) ||
+//         props.settings.weatherTypes[3], // || => default
+// );
 
 /** data for x-axis based on current selected weather type */
-const dataX = computed(() => {
-    return {
-        title: weatherSetting.value.name,
-        unitOfMeasure: weatherSetting.value.unitOfMeasure,
-        steps: weatherSetting.value.steps,
-        /** get weather values and dates from weather data */
-        data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]})),
-    };
-});
+// const dataX = computed(() => {
+//     return {
+//         title: weatherSetting.value.name,
+//         unitOfMeasure: weatherSetting.value.unitOfMeasure,
+//         steps: weatherSetting.value.steps,
+//         /** get weather values and dates from weather data */
+//         data: weather.value.map(weather => ({date: weather.datetime, value: weather[weatherSetting.value.key]})),
+//     };
+// });
 
-const presence = computed(() =>
-    reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
-        // Check minimum and maximum date (default = min and max date)
-        if (report.date < selectedStartDate.value || report.date > selectedEndDate.value) return acc;
-        if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
-        setTotalAndPresent(report, acc);
-        return acc;
-    }, {}),
-);
+// const presence = computed(() =>
+//     reports.value.reduce((/** @type {Object.<string, {total: number, present: number}>} */ acc, report) => {
+//         // Check minimum and maximum date (default = min and max date)
+//         if (report.date < selectedStartDate.value || report.date > selectedEndDate.value) return acc;
+//         if (!acc[report.date]) acc[report.date] = {total: 0, present: 0};
+//         setTotalAndPresent(report, acc);
+//         return acc;
+//     }, {}),
+// );
 
 /**
  *
  * @param {ReportData} report
  * @param {Object.<string, {total: number, present: number}>} acc
  */
-const setTotalAndPresent = (report, acc) => {
-    for (const daypart of dayparts) {
-        if (report[`${daypart}_schedule_id`]) {
-            acc[report.date].total++;
-            if (report[`${daypart}_present`]) acc[report.date].present++;
-        }
-    }
-};
+// const setTotalAndPresent = (report, acc) => {
+//     for (const daypart of dayparts) {
+//         if (report[`${daypart}_schedule_id`]) {
+//             acc[report.date].total++;
+//             if (report[`${daypart}_present`]) acc[report.date].present++;
+//         }
+//     }
+// };
 
 /** data for y-axis (static: presence) */
-const dataY = computed(() => ({
-    title: 'Aanwezigheid',
-    unitOfMeasure: '%',
-    steps: 10,
-    /** set presence values and dates for each unique day */
-    data: Object.keys(presence.value).map(date => ({
-        date,
-        value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
-    })),
-}));
+// const dataY = computed(() => ({
+//     title: 'Aanwezigheid',
+//     unitOfMeasure: '%',
+//     steps: 10,
+//     /** set presence values and dates for each unique day */
+//     data: Object.keys(presence.value).map(date => ({
+//         date,
+//         value: Math.round((presence.value[date].present * 100) / presence.value[date].total),
+//     })),
+// }));
 </script>
