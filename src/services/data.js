@@ -10,8 +10,8 @@ import {getFromApi} from './api.js';
 import {yesterday} from './dates.js';
 import {getEnv} from './env.js';
 
-const BASE_URL = getEnv('WEATHER_API_BASE_URL');
-const API_KEY = getEnv('WEATHER_API_KEY');
+const BASE_URL = getEnv('VC_BASE_URL');
+const API_KEY = getEnv('VC_API_KEY');
 
 const options = {
     location: 'groningen', // || longitude & latitude
@@ -24,7 +24,7 @@ const weatherApiError = 'something went wrong while fetching weatherData from Vi
 
 /**
  * Check for weather and report data on the server.
- * If no data is present, fetches from Visual Crossing Weather and Rapp.
+ * If no data is present, fetches from Visual Crossing Weather and Emmie.
  */
 export const deploy = async () => {
     const weatherData = await weather();
@@ -68,7 +68,7 @@ const reports = async () => {
         return reports;
     } catch {
         /** @type {{message: string, reportsForMonth: ReportData[]}} */
-        const reports = await getFromApi(getEnv('RAPP_REPORTS_URL') + `/${startDate}/${endDate}`);
+        const reports = await getFromApi(getEnv('EMMIE_LOCAL_REPORTS_URL') + `/${startDate}/${endDate}`);
         await fs.writeFile('./data/reports.json', JSON.stringify(reports.reportsForMonth));
         return reports.reportsForMonth;
     }
