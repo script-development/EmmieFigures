@@ -1,7 +1,5 @@
-import {paint} from 'sketches/index.js';
-
 /** @type {{update: function}[]} */
-let updates = [];
+export const updates = [];
 
 /** @type {{id: string, show: function}[]} */
 export const render = [];
@@ -12,7 +10,7 @@ let step = 1000 / maxFPS;
 let delta = 0;
 let lastTimeStamp = 0;
 
-// start/stop
+// start/halt
 let requestID = 0;
 let running = false;
 let started = false;
@@ -31,19 +29,20 @@ let framesThisSecond = 0;
 /** @param {DOMHighResTimeStamp} timeStamp */
 const mainLoop = timeStamp => {
     requestID = requestAnimationFrame(mainLoop);
+
     // throttle FPS
     if (timeStamp < lastTimeStamp + 1000 / maxFPS) {
         returns++;
         return;
     }
+
     delta += timeStamp - lastTimeStamp;
     lastTimeStamp = timeStamp;
 
     calculateFPS(timeStamp);
     simulate();
 
-    paint.interpolate = delta / step;
-    for (let i = 0; i < render.length; i++) render[i].show(paint);
+    for (let i = 0; i < render.length; i++) render[i].show(delta / step); // delta/step = interpolate
 };
 
 const simulate = () => {
@@ -71,11 +70,11 @@ const calculateFPS = timeStamp => {
     totalFrames++;
 };
 
-const start = () => {
+const run = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
         requestID = requestAnimationFrame(timeStamp => {
-            for (let i = 0; i < render.length; i++) render[i].show(paint); // initial render
+            for (let i = 0; i < render.length; i++) render[i].show(0); // initial render
             running = true;
             lastTimeStamp = timeStamp;
             lastFPSUpdate = timeStamp;
@@ -86,7 +85,7 @@ const start = () => {
     }
 };
 
-const stop = () => {
+const halt = () => {
     running = false;
     started = false;
     cancelAnimationFrame(requestID);
@@ -108,12 +107,12 @@ export const unsetRender = id => {
     return render.length;
 };
 
-/** @param {{update: function}} obj */
+/** @param {{id: string, update: function}} obj */
 export const setUpdate = obj => updates.push(obj);
 
 export default {
-    start: () => start(),
-    stop: () => stop(),
+    run: () => run(),
+    halt: () => halt(),
     running: () => running,
     frameCount: () => totalFrames,
     updateCount: () => totalUpdates,

@@ -1,4 +1,5 @@
 /** @typedef {import('types/sketches').SketchOptions} SketchOptions */
+/** @typedef {import('types/sketches').Sketch} Sketch */
 
 import Paint from './paint';
 import engine from './engine';
@@ -9,26 +10,20 @@ import {setRender} from './engine';
  * Make a new Sketch API for a canvas element
  * @param {string} id the id of the canvas element
  * @param {SketchOptions} [options]
- * @returns {import('types/sketches').Sketch}
+ * @returns {Sketch}
  */
 export default (id, options) => {
-    const context = getContext(id);
-    if (options) setOptions(options, context.canvas);
-    const grid = Grid(context);
-    const p = Paint(context);
-    // @ts-ignore
-    Object.keys(p).forEach(key => (paint[key] = p[key]));
-    return {
-        context,
-        grid,
-        start: () => engine.start(),
-        stop: () => engine.stop(),
-    };
-};
-
-export const paint = {
-    interpolate: 0,
-    clear: () => {},
+    const properties = {};
+    properties['context'] = getContext(id);
+    properties['paint'] = Paint(properties.context);
+    if (options) {
+        setOptions(options, properties.context.canvas);
+        if (options.clear) setClear(properties.paint);
+        if (options.grid) properties['grid'] = Grid(properties.context, properties.paint);
+    }
+    properties['run'] = () => engine.run();
+    properties['halt'] = () => engine.halt();
+    return properties;
 };
 
 /**
@@ -56,7 +51,6 @@ const setOptions = (options, canvas) => {
     if (options.size) setSize(options.size, canvas);
     if (options.pos) setPos(options.pos, canvas);
     if (options.border) canvas.style.border = '1px solid black';
-    if (options.clear) setClear();
 };
 
 /**
@@ -97,8 +91,11 @@ const setPos = (pos, canvas) => {
     }
 };
 
-// This must always be the first render in the engine (sketch has to be made before anything else)
-const setClear = () => {
+/**
+ * This must always be the first render in the engine (sketch has to be made before anything else)
+ * @param {import('types/paint').Paint} paint
+ */
+const setClear = paint => {
     setRender({
         id: 'clear',
         show: () => paint.clear(),

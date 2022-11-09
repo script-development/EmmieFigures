@@ -15,7 +15,7 @@ const app = express();
 app.use(compression());
 
 // 1st time data fetch from visualcrossing weather APIs
-await deploy();
+deploy();
 
 const productionServer = () => app.use(sirv(`${root}/dist/client`));
 

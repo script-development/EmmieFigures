@@ -1,5 +1,7 @@
+import {reactive} from 'vue';
+
 /** @type {any} */
-const store = {};
+export const store = reactive({});
 
 /**
  *

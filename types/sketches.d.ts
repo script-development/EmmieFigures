@@ -1,17 +1,11 @@
-import { GraphLineElement, GraphTextElement } from "./graph";
-
-export interface Paint {
-    clear: () => void,
-    interpolate: number,
-    text: (element: GraphTextElement) => void,
-    line: (element: GraphLineElement) => void,
-};
+import { Paint } from "./paint";
 
 export interface Sketch {
     context: CanvasRenderingContext2D,
-    grid: Grid,
-    start: () => void,
-    stop: () => void,
+    grid?: Grid,
+    paint: Paint,
+    run: () => void,
+    halt: () => void,
 };
 
 export interface SketchOptions {
@@ -21,20 +15,19 @@ export interface SketchOptions {
     w?: number,
     h?: number,
     pos?: "center"|"absolute",
-    rows? : number,
-    cols? : number,
+    rows?: number,
+    cols?: number,
+    grid?: boolean,
     border?: boolean,
     clear?: boolean,
 };
 
 export interface Grid {
-    properties: {
-        width: number,
-        height: number,
-        xUnits: number,
-        yUnits: number,
-        unitWidth: number,
-        unitHeight: number,
-    },
+    width: number,
+    height: number,
+    xUnits: number,
+    yUnits: number,
+    unitWidth: number,
+    unitHeight: number,
     show: () => void,
 };

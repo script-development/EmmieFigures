@@ -14,10 +14,11 @@
         </div>
 
         <!-- right side -->
-        <div :class="$slots.auth ? '' : 'invisible'">
+        <div :class="$slots.auth ? 'bg-gray-200' : 'invisible'">
             <slot name="auth" />
         </div>
     </div>
+    <div class="sidenav">Test</div>
 </template>
 
 <script setup>
@@ -28,3 +29,19 @@ defineProps({
     },
 });
 </script>
+
+<style>
+.sidenav {
+    height: 85vh;
+    width: 160px;
+    /* position: fixed; */
+    float: left;
+    z-index: 1;
+    margin-top: 32px;
+    /* top: 128px; */
+    left: 0;
+    background-color: rgb(250, 250, 250);
+    box-shadow: 5px 5px 20px #555;
+    /* padding-left: 160px; */
+}
+</style>

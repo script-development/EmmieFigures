@@ -26,11 +26,33 @@ const weatherApiError = 'something went wrong while fetching weatherData from Vi
  * Check for weather and report data on the server.
  * If no data is present, fetches from Visual Crossing Weather and Emmie.
  */
-export const deploy = async () => {
-    const weatherData = await weather();
-    setData('weatherData', weatherData);
-    const reportData = await reports();
-    setData('reportData', reportData);
+export const deploy = () => {
+    getWeatherData('2021-01-01', '2021-01-10')
+        .then(response => {
+            if (!response) {
+                throw new Error('error fetching weather data');
+            }
+            return response;
+        })
+        .then(data => {
+            const refactored = data.days.map(d => {
+                return dateTime2Date(d);
+            });
+            setData('weatherData', refactored);
+            console.log(refactored);
+        });
+
+    // weatherData.forEach(data => dateTime2Date(data))
+    // setData('weatherData', weatherData);
+    // const reportData = await reports();
+    // setData('reportData', reportData);
+};
+
+/** @param {WeatherData} data */
+const dateTime2Date = data => {
+    const {datetime: date, ...rest} = data;
+    const newObj = {date, ...rest};
+    return newObj;
 };
 
 const weather = async () => {
@@ -88,7 +110,7 @@ const getWeatherData = (startDate, endDate) => getFromApi(getQueryString(startDa
  */
 
 const getQueryString = (startDate, endDate) => {
-    let qString = BASE_URL + `/${options.location}/${startDate}/${endDate}`;
+    let qString = BASE_URL + `/timeline/${options.location}/${startDate}/${endDate}`;
     qString += `?unitGroup=metric${options.outputSection}&key=${API_KEY}${options.elements}&contentType=json`;
     return qString;
 };

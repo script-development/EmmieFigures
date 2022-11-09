@@ -1,32 +1,45 @@
-/** @param {CanvasRenderingContext2D} context */
-export default context => {
-    const properties = {
-        width: context.canvas.width,
-        height: context.canvas.height,
-        xUnits: 32,
-        yUnits: 18,
-        unitWidth: context.canvas.width / 32,
-        unitHeight: context.canvas.height / 18,
-    };
+/** @typedef {import('types/sketches').Grid} Grid */
+/** @typedef {import('types/paint').Paint} Paint */
+
+import {Line} from './paint';
+
+/** @type {(w?: number, h?: number, x?: number, y?: number) => Omit<Grid, 'show'>}} */
+const createGrid = (w = 300, h = 150, x = 10, y = 10) => ({
+    width: w,
+    height: h,
+    xUnits: x,
+    yUnits: y,
+    unitWidth: w / x,
+    unitHeight: h / y,
+});
+
+/** @type {(context: CanvasRenderingContext2D, paint: Paint) => Grid} */
+export default (context, paint) => {
+    const grid = createGrid(context.canvas.width, context.canvas.height, 32, 18);
+    const lineX = Line({x2: grid.width, color: 'lightgray'});
+    const lineY = Line({y2: grid.height, color: 'lightgray'});
     const show = () => {
-        context.lineWidth = 1;
-        context.strokeStyle = 'gray';
-        context.beginPath();
-        for (let y = 0; y <= properties.yUnits; y++) {
-            for (let x = 0; x <= properties.xUnits; x++) {
+        for (let y = 0; y <= grid.yUnits; y++) {
+            for (let x = 0; x <= grid.xUnits; x++) {
+                const adjustY = y === grid.yUnits ? -0.5 : 0.5;
+                const adjustX = x === grid.xUnits ? -0.5 : 0.5;
+
                 // horizontal lines
-                context.moveTo(0, y * properties.unitHeight + 0.5);
-                context.lineTo(properties.width, y * properties.unitHeight + 0.5);
+                lineX.pos.y1 = y * grid.unitHeight + adjustY;
+                lineX.pos.y2 = y * grid.unitHeight + adjustY;
+                paint.line(lineX);
+
                 // vertical lines
-                context.moveTo(x * properties.unitWidth + 0.5, 0);
-                context.lineTo(x * properties.unitWidth + 0.5, properties.height);
+                lineY.pos.x1 = x * grid.unitWidth + adjustX;
+                lineY.pos.x2 = x * grid.unitWidth + adjustX;
+
+                paint.line(lineY);
             }
         }
-        context.stroke();
     };
 
     return {
-        properties,
+        ...grid,
         show,
     };
 };
