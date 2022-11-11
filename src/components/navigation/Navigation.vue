@@ -18,6 +18,9 @@ import TopBar from './TopBar.vue';
 // import {Application_Title} from 'services/constants';
 const setMarginTop = value => {
     // console.log(store);
-    store.pageShell.marginTop = '400px';
+    const m = store.styles.pageShell.marginTop.split('px');
+    m[0]++;
+    // console.log(m[0]);
+    store.styles.pageShell.marginTop = m[0] + 'px';
 };
 </script>

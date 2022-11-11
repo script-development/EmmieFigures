@@ -1,5 +1,5 @@
 <template>
-    <div v-if="true">Index</div>
+    <div v-if="false">Index</div>
 </template>
 
 <script setup>

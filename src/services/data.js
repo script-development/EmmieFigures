@@ -5,7 +5,7 @@
  */
 
 import fs from 'fs/promises';
-import {setData} from './store.js';
+import {setData, store} from './store.js';
 import {getFromApi} from './api.js';
 import {yesterday} from './dates.js';
 import {getEnv} from './env.js';
@@ -27,25 +27,38 @@ const weatherApiError = 'something went wrong while fetching weatherData from Vi
  * If no data is present, fetches from Visual Crossing Weather and Emmie.
  */
 export const deploy = () => {
-    getWeatherData('2021-01-01', '2021-01-10')
-        .then(response => {
-            if (!response) {
-                throw new Error('error fetching weather data');
-            }
-            return response;
-        })
-        .then(data => {
-            const refactored = data.days.map(d => {
-                return dateTime2Date(d);
-            });
-            setData('weatherData', refactored);
-            console.log(refactored);
-        });
+    setInitialStore();
+    // getWeatherData('2021-01-01', '2021-01-10')
+    //     .then(response => {
+    //         if (!response) {
+    //             throw new Error('error fetching weather data');
+    //         }
+    //         return response;
+    //     })
+    //     .then(data => {
+    //         const refactored = data.days.map(d => {
+    //             return dateTime2Date(d);
+    //         });
+    //         setData('weatherData', refactored);
+    //         console.log(refactored);
+    //     });
 
     // weatherData.forEach(data => dateTime2Date(data))
     // setData('weatherData', weatherData);
     // const reportData = await reports();
     // setData('reportData', reportData);
+};
+
+const setInitialStore = () => {
+    store.load = {
+        loaded: false,
+        msg: '.',
+    };
+    store.styles = {
+        pageShell: {
+            marginTop: '0',
+        },
+    };
 };
 
 /** @param {WeatherData} data */
