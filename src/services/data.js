@@ -27,7 +27,7 @@ const weatherApiError = 'something went wrong while fetching weatherData from Vi
  * If no data is present, fetches from Visual Crossing Weather and Emmie.
  */
 export const deploy = () => {
-    setInitialStore();
+    // setInitialStore();
     // getWeatherData('2021-01-01', '2021-01-10')
     //     .then(response => {
     //         if (!response) {
@@ -42,24 +42,23 @@ export const deploy = () => {
     //         setData('weatherData', refactored);
     //         console.log(refactored);
     //     });
-
     // weatherData.forEach(data => dateTime2Date(data))
     // setData('weatherData', weatherData);
     // const reportData = await reports();
     // setData('reportData', reportData);
 };
 
-const setInitialStore = () => {
-    store.load = {
-        loaded: false,
-        msg: '.',
-    };
-    store.styles = {
-        pageShell: {
-            marginTop: '0',
-        },
-    };
-};
+// const setInitialStore = () => {
+//     store.load = {
+//         loaded: false,
+//         msg: '.',
+//     };
+//     store.styles = {
+//         pageShell: {
+//             marginTop: '0',
+//         },
+//     };
+// };
 
 /** @param {WeatherData} data */
 const dateTime2Date = data => {

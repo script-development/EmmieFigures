@@ -5,12 +5,13 @@ import Paint from './paint';
 import engine from './engine';
 import Grid from './grid';
 import {setRender} from './engine';
+import {store} from 'services/store';
 
 /**
  * Make a new Sketch API for a canvas element
  * @param {string} id the id of the canvas element
  * @param {SketchOptions} [options]
- * @returns {Sketch}
+ * @returns {void}
  */
 export default (id, options) => {
     const properties = {};
@@ -19,11 +20,23 @@ export default (id, options) => {
     if (options) {
         setOptions(options, properties.context.canvas);
         if (options.clear) setClear(properties.paint);
+        if (options.run) engine.run();
         if (options.grid) properties['grid'] = Grid(properties.context, properties.paint);
     }
     properties['run'] = () => engine.run();
     properties['halt'] = () => engine.halt();
-    return properties;
+    sketchToStore(properties);
+};
+
+const sketchToStore = /** @param {import('types/sketches').Sketch} sketch */ sketch => {
+    store.sketch = {
+        width: sketch.context.canvas.width,
+        height: sketch.context.canvas.height,
+        context: sketch.context,
+        paint: sketch.paint,
+        run: sketch.run,
+        halt: sketch.halt,
+    };
 };
 
 /**
@@ -96,8 +109,11 @@ const setPos = (pos, canvas) => {
  * @param {import('types/paint').Paint} paint
  */
 const setClear = paint => {
-    setRender({
-        id: 'clear',
-        show: () => paint.clear(),
-    });
+    setRender(
+        {
+            id: 'clear',
+            show: () => paint.clear(),
+        },
+        0,
+    );
 };

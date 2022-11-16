@@ -4,176 +4,149 @@
 
 <script setup>
 import {store} from 'services/store';
-import {onMounted, ref} from 'vue';
-import {setRender, setUpdate} from 'sketches/engine';
+import {onMounted} from 'vue';
+import {setRender, setUpdate, unsetRender, unsetUpdate} from 'sketches/engine';
 import {Line} from 'sketches/paint';
 
-const slider1 = {
-    type: 'basic',
-    label: 'Shadowcolor Alpha',
-    step: 0.01,
+const topBar = {
+    blur: 0,
+    offsetY: 0,
+    /** @type {CanvasGradient|null} */
+    gradient: null,
+    speedX: 5,
+    speedY: 1,
+    height: 65,
+    line: Line({x2: innerWidth}),
+    line1: Line(),
+    line2: Line({x1: innerWidth, x2: innerWidth}),
 };
 
-let stage = 0;
-const slider1v = ref('0.2');
-const slider2v = ref('8');
+/** @type {{paint: import('types/paint').Paint, context: CanvasRenderingContext2D}} */
+const {paint, context} = store.sketch;
 
-const emit = defineEmits(['marginTop']);
+const {speedX, speedY, height, line, line1, line2} = topBar;
 
-// /** @param {Event} evt */
-// const updateValue = evt => {
-//     if (evt.target instanceof HTMLSelectElement) emit('update:modelValue', evt.target.value);
-// };
+const show1 = () => {
+    paint.line(topBar.line1);
+    paint.line(topBar.line2);
+};
+const show2 = () => {
+    context.fillStyle = topBar.gradient ?? '#fff';
+    context.fillRect(0, 0, (line.pos.y1 / height) * innerWidth, topBar.line.pos.y1);
+    paint.line(topBar.line);
+};
+const show3 = () => {
+    // context.fillStyle = topBar.gradient ?? '#fff';
+    // context.fillRect(0, 0, innerWidth, topBar.line.pos.y1);
+    context.shadowColor = 'rgba(128, 128, 128, 1)';
+    context.shadowBlur = 8;
+    // context.shadowOffsetX = 0;
+    context.shadowOffsetY = 30;
+    topBar.line.weight = 5;
+    paint.line(topBar.line);
+    // topBar.gradient = context.createLinearGradient(0, 0, innerWidth, 0);
+    // topBar.gradient.addColorStop(0, '#eee');
+    // topBar.gradient.addColorStop(1, '#fff');
+    // context.fillStyle = topBar.gradient;
+    // context.fillRect(0, 0, innerWidth, topBar.line.pos.y1);
+    // paint.line(topBar.line);
+    // show2();
+};
+const show4 = () => {
+    show3();
+};
+const update1 = () => {
+    line1.pos.x2 += speedX;
+    line2.pos.x2 -= speedX;
+    if (line2.pos.x2 <= line1.pos.x2) {
+        unsetUpdate('top-bar-1');
+        unsetRender('top-bar-1');
+        setUpdate(updates.phase2);
+        setRender(render.phase2);
+    }
+};
+const update2 = () => {
+    topBar.gradient = context.createLinearGradient(0, 0, (line.pos.y1 / height) * innerWidth, 0);
+    topBar.gradient.addColorStop(0, '#eee');
+    topBar.gradient.addColorStop(1, '#fff');
+    line.pos.y1 += speedY;
+    line.pos.y2 += speedY;
+    if (line.pos.y1 >= height) {
+        topBar.gradient = context.createLinearGradient(0, 0, innerWidth, 0);
+        topBar.gradient.addColorStop(0, '#eee');
+        topBar.gradient.addColorStop(1, '#fff');
+        line.pos.y1 = height;
+        line.pos.y2 = height;
+        unsetUpdate('top-bar-2');
+        unsetRender('top-bar-2');
+        setUpdate(updates.phase3);
+        setRender(render.phase3);
+    }
+};
+const update3 = () => {
+    // line1.pos.x2 += speedX;
+    // line2.pos.x2 -= speedX;
+    // if (line2.pos.x2 <= line1.pos.x2) {
+    //     unsetUpdate('top-bar-3');
+    //     unsetRender('top-bar-3');
+    //     // setUpdate(updates.phase4);
+    //     setRender(render.phase4);
+    // }
+};
+const update4 = () => {
+    //
+};
 
-const initialize = () => {
-    const ctx = store.sketch.context;
-    const line1 = Line({weight: 1});
-    const line2 = Line({x1: innerWidth, x2: innerWidth, weight: 1});
-    setUpdate({
-        id: 'topbar',
-        update: () => {
-            switch (stage) {
-                case 0:
-                    line1.pos.x2 += 5;
-                    line2.pos.x2 -= 5;
-                    if (line2.pos.x2 <= line1.pos.x2) {
-                        line1.pos.x2 = innerWidth / 2;
-                        line2.pos.x2 = innerWidth / 2;
-                        stage = 1;
-                    }
-                    break;
-                case 1:
-                    line1.pos.y1 += 1;
-                    line1.pos.y2 += 1;
-                    line2.pos.y1 += 1;
-                    line2.pos.y2 += 1;
-                    emit('marginTop', 1);
-                    if (line1.pos.y1 >= 65) {
-                        line1.pos.y1 = 65;
-                        line1.pos.y2 = 65;
-                        line2.pos.y1 = 65;
-                        line2.pos.y2 = 65;
-                        stage = 2;
-                    }
-                    break;
-                case 2:
-                    //
-                    break;
-                default:
-                    break;
-            }
-        },
-    });
-    setRender({
-        id: 'topbar',
-        show: () => {
-            if (stage === 2) {
-                // Shadow
-                store.sketch.paint.line(line1);
-                store.sketch.paint.line(line2);
-                ctx.shadowColor = `rgba(0, 0, 0, ${slider1v.value})`;
-                ctx.shadowBlur = slider2v.value;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
+const updates = {
+    phase1: {
+        id: 'top-bar-1',
+        update: update1,
+    },
+    phase2: {
+        id: 'top-bar-2',
+        update: update2,
+    },
+    phase3: {
+        id: 'top-bar-3',
+        update: update3,
+    },
+    phase4: {
+        id: 'top-bar-4',
+        update: update4,
+    },
+};
+const render = {
+    phase1: {
+        id: 'top-bar-1',
+        show: show1,
+    },
+    phase2: {
+        id: 'top-bar-2',
+        show: show2,
+    },
+    phase3: {
+        id: 'top-bar-3',
+        show: show3,
+    },
+    phase4: {
+        id: 'top-bar-4',
+        show: show4,
+    },
+};
 
-                ctx.strokeStyle = 'black';
-                ctx.fillStyle = 'white';
-                // ctx.fillRect(0, 0, innerWidth, 64);
-                // Filled rectangle
-                // ctx.fillStyle = 'rgba(0, 255, 0, .2)';
-                // ctx.fillRect(10, 10, 150, 100);
+const slowBuild = () => {
+    console.log('slowBuild');
 
-                // Stroked rectangle
-                // ctx.lineWidth = 10;
-                // ctx.strokeStyle = 'rgba(0, 0, 255, .6)';
-                // ctx.strokeRect(10, 10, 150, 100);
-            } else {
-                store.sketch.paint.line(line1);
-                store.sketch.paint.line(line2);
-            }
-
-            //         // const gradient = context.createLinearGradient(0, 0, 0, gheight);
-            //         // // Add three color stops
-            //         // gradient.addColorStop(0, '#fff');
-            //         // gradient.addColorStop(1, '#eee');
-            //         // // Set the fill style and draw a rectangle
-            //         // context.fillStyle = gradient;
-            //         // context.fillRect(0, 0, width, gheight);
-        },
-    });
-    // localStorage.setItem('1st', 'true');
+    setUpdate(updates.phase1);
+    setRender(render.phase1);
 };
 
 const fastBuild = () => {
-    //
+    console.log('fastBuild');
+    // localStorage.removeItem('1st-load-done');
 };
 
 onMounted(() => {
-    localStorage.getItem('1st') ? fastBuild() : initialize();
-    // buildTopBar(sketch);
-    // const {width, height} = context.canvas;
-    // let gheight = 0;
-    // let gspeed = 0.5;
-    // let lineS = 5;
-    // let stage = 1;
-    // setUpdate({
-    //     id: 'topbar',
-    //     update: () => {
-    //         switch (stage) {
-    //             case 1:
-    //                 line1.pos.x2 += lineS;
-    //                 line2.pos.x2 -= lineS;
-    //                 if (line2.pos.x2 <= line1.pos.x2) stage = 2;
-    //                 break;
-    //             case 2:
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //         // if (gheight > innerHeight || gheight < 0) gspeed *= -1;
-    //         // gheight += gspeed;
-    //     },
-    // });
-    //
-    store.sketch.run();
+    localStorage.getItem('1st-load-done') ? fastBuild() : slowBuild();
 });
 </script>
-
-<style>
-#slider1 {
-    position: absolute;
-    top: 200px;
-    left: 200px;
-    z-index: 2;
-}
-#slider2 {
-    position: absolute;
-    top: 220px;
-    left: 200px;
-    z-index: 2;
-}
-#label1 {
-    position: absolute;
-    top: 195px;
-    left: 50px;
-    z-index: 2;
-}
-#label2 {
-    position: absolute;
-    top: 215px;
-    left: 50px;
-    z-index: 2;
-}
-#span1 {
-    position: absolute;
-    top: 195px;
-    left: 350px;
-    z-index: 2;
-}
-#span2 {
-    position: absolute;
-    top: 215px;
-    left: 350px;
-    z-index: 2;
-}
-</style>

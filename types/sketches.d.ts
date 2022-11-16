@@ -20,6 +20,7 @@ export interface SketchOptions {
     grid?: boolean,
     border?: boolean,
     clear?: boolean,
+    run?: boolean,
 };
 
 export interface Grid {
