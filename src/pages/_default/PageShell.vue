@@ -1,5 +1,5 @@
 <template>
-    <FirstLoadSpinner v-if="!loaded" @on-load="onLoad" />
+    <!-- <FirstLoadSpinner v-if="!loaded" @on-load="onLoad" /> -->
     <canvas v-show="loaded" id="canvas1" />
     <Navigation v-if="loaded" />
     <slot />
@@ -16,5 +16,6 @@ const onLoad = () => (loaded.value = true);
 
 onMounted(() => {
     Sketch('canvas1', {size: 'full', clear: true, run: true});
+    loaded.value = true;
 });
 </script>

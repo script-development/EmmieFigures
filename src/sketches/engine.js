@@ -2,7 +2,7 @@
 export const updates = [];
 
 /** @type {{id: string, show: (interpolate?: number) => void}[]} */
-export const render = [];
+export const renders = [];
 
 // mainloop
 let maxFPS = 120;
@@ -42,14 +42,14 @@ const mainLoop = timeStamp => {
     calculateFPS(timeStamp);
     simulate();
 
-    for (let i = 0; i < render.length; i++) render[i].show(delta / step); // delta/step = interpolate
+    for (let i = 0; i < renders.length; i++) renders[i].show(delta / step); // delta/step = interpolate
 };
 
 const simulate = () => {
     updateCount = 0;
     while (delta >= step) {
         totalUpdates++;
-        for (let i = 0; i < updates.length; i++) updates[i].update(step); // initial render
+        for (let i = 0; i < updates.length; i++) updates[i].update(step); // initial update
         delta -= step;
         // spiral of death prevention
         if (++updateCount >= 240) {
@@ -74,7 +74,7 @@ const run = () => {
     if (!started) {
         started = true; // prevent requesting multiple frames
         requestID = requestAnimationFrame(timeStamp => {
-            for (let i = 0; i < render.length; i++) render[i].show(0); // initial render
+            for (let i = 0; i < renders.length; i++) renders[i].show(0); // initial render
             running = true;
             lastTimeStamp = timeStamp;
             lastFPSUpdate = timeStamp;
@@ -92,37 +92,53 @@ const halt = () => {
 };
 
 /**
- * @param {{id: string, show: (interpolate?: number) => void}} obj
- * @param {number} [index]
- * @returns {number} the new length of the render array
+ * Set a new show function with id to the renders array
+ * @param {{id: string, show: (interpolate?: number) => void}|Array<any>} render
+ * @param {number} [index] optional - specify the index to place the show function at in the renders array
+ * @returns {number} the new length of the renders array
  */
-export const setRender = (obj, index) => {
-    index != undefined ? render.splice(index, 0, obj) : render.push(obj);
-    return render.length;
+export const setRender = (render, index) => {
+    if (Array.isArray(render)) {
+        index != undefined
+            ? renders.splice(index, 0, {id: render[0], show: render[1]})
+            : renders.push({id: render[0], show: render[1]});
+    } else {
+        index != undefined ? renders.splice(index, 0, render) : renders.push(render);
+    }
+    return renders.length;
 };
 
 /**
- * @param {string} id
- * @returns {number} the new length of the render array
+ * Delete a render function from the renders array using the function id
+ * @param {string} id the id of the render function to remove
+ * @returns {number} the new length of the renders array
  */
 export const unsetRender = id => {
-    const index = render.findIndex(obj => obj.id === id);
-    if (index != -1) render.splice(index, 1);
-    return render.length;
+    const index = renders.findIndex(obj => obj.id === id);
+    if (index != -1) renders.splice(index, 1);
+    return renders.length;
 };
 
 /**
- * @param {{id: string, update: (step?: number) => void}} obj
- * @param {number} [index]
+ * Set a new update function with id to the updates array
+ * @param {{id: string, update: (step?: number) => void}|Array<any>} update
+ * @param {number} [index] optional - specify the index to place the update function at in the renders array
  * @returns {number} the new length of the updates array
  */
-export const setUpdate = (obj, index) => {
-    index != undefined ? updates.splice(index, 0, obj) : updates.push(obj);
-    return render.length;
+export const setUpdate = (update, index) => {
+    if (Array.isArray(update)) {
+        index != undefined
+            ? updates.splice(index, 0, {id: update[0], update: update[1]})
+            : updates.push({id: update[0], update: update[1]});
+    } else {
+        index != undefined ? updates.splice(index, 0, update) : updates.push(update);
+    }
+    return updates.length;
 };
 
 /**
- * @param {string} id
+ * Delete an update function from the updates array using the function id
+ * @param {string} id the id of the update function to remove
  * @returns {number} the new length of the updates array
  */
 export const unsetUpdate = id => {
