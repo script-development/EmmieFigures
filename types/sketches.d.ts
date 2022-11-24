@@ -6,6 +6,7 @@ export interface Sketch {
     paint: Paint,
     run: () => void,
     halt: () => void,
+    mouse: () => {x: number, y: number},
 };
 
 export interface SketchOptions {

@@ -7,8 +7,6 @@ import {store} from 'services/store';
 import {onMounted} from 'vue';
 import {setRender, setUpdate, unsetRender, unsetUpdate} from 'sketches/engine';
 import {Line} from 'sketches/paint';
-import opentype from 'opentype.js';
-// import { load } from 'opentype.js'
 
 const topBar = {
     shadowBlur: 0,
@@ -141,25 +139,6 @@ const fastBuild = () => {
 };
 
 onMounted(() => {
-    // localStorage.getItem('topbar-loaded') ? fastBuild() : slowBuild();
-    opentype.load('src/assets/fonts/Roboto-Black.ttf', function (err, font) {
-        if (err) {
-            alert('Font could not be loaded: ' + err);
-        } else {
-            // Now let's display it on a canvas with id "canvas"
-            const ctx = document.getElementById('canvas1').getContext('2d');
-            // Construct a Path object containing the letter shapes of the given text.
-            // The other parameters are x, y and fontSize.
-            // Note that y is the position of the baseline.
-            const path = font.getPath('Hello, World!', 0, 150, 72);
-            console.log(path);
-            // If you just want to draw the text you can also use font.draw(context, text, x, y, fontSize).
-            const showw = () => {
-                path.draw(ctx);
-                // console.log('drwaing');
-            };
-            setRender(['asdf', showw]);
-        }
-    });
+    localStorage.getItem('topbar-loaded') ? fastBuild() : slowBuild();
 });
 </script>

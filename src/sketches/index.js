@@ -6,6 +6,7 @@ import engine from './engine';
 import Grid from './grid';
 import {setRender} from './engine';
 import {store} from 'services/store';
+import {Mouse} from './input';
 
 /**
  * Make a new Sketch API for a canvas element
@@ -25,6 +26,7 @@ export default (id, options) => {
     }
     properties['run'] = () => engine.run();
     properties['halt'] = () => engine.halt();
+    properties['mouse'] = () => Mouse(properties.context);
     sketchToStore(properties);
 };
 
@@ -36,6 +38,7 @@ const sketchToStore = /** @param {import('types/sketches').Sketch} sketch */ ske
         paint: sketch.paint,
         run: sketch.run,
         halt: sketch.halt,
+        mouse: sketch.mouse,
     };
 };
 

@@ -7,12 +7,12 @@
 
 <script setup>
 import Navigation from 'components/navigation/Index.vue';
-import FirstLoadSpinner from 'components/spinners/FirstLoad.vue';
+// import FirstLoadSpinner from 'components/spinners/FirstLoad.vue';
 import Sketch from 'sketches/index';
 import {onMounted, ref} from 'vue';
 
 const loaded = ref(false);
-const onLoad = () => (loaded.value = true);
+// const onLoad = () => (loaded.value = true);
 
 onMounted(() => {
     Sketch('canvas1', {size: 'full', clear: true, run: true});
