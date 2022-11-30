@@ -1,5 +1,5 @@
 <template>
-    <NavBar title="Clientcloud Presence">
+    <NavBar :title="Application_Title">
         <template #logo>
             <Logo />
         </template>
@@ -11,6 +11,7 @@
 <script setup>
 import NavBar from 'components/NavBar.vue';
 import Logo from 'components/Logo.vue';
+import {Application_Title} from 'services/constants';
 </script>
 
 <style>

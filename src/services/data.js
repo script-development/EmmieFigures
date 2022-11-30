@@ -24,7 +24,7 @@ const weatherApiError = 'something went wrong while fetching weatherData from Vi
 
 /**
  * Check for weather and report data on the server.
- * If no data is present, fetches from Visual Crossing Weather and Rapp.
+ * If no data is present, fetches from Visual Crossing Weather and Emmie.
  */
 export const deploy = async () => {
     const weatherData = await weather();
@@ -68,7 +68,7 @@ const reports = async () => {
         return reports;
     } catch {
         /** @type {{message: string, reportsForMonth: ReportData[]}} */
-        const reports = await getFromApi(getEnv('RAPP_REPORTS_URL') + `/${startDate}/${endDate}`);
+        const reports = await getFromApi(getEnv('EEMIE_REPORTS_URL') + `/${startDate}/${endDate}`);
         await fs.writeFile('./data/reports.json', JSON.stringify(reports.reportsForMonth));
         return reports.reportsForMonth;
     }
